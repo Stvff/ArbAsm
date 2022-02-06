@@ -48,7 +48,7 @@ int numtoint(num_t* num){
 	return cum;
 }
 
-int inttonum(num_t* num, int inte){
+void inttonum(num_t* num, int inte){
 	for(unsigned int i = 0; i < num->len; i++){
 		num->nump[i] = psi(10, i, inte);
 	}
