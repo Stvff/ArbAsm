@@ -9,12 +9,12 @@ int bigEndian = 0;
 bool autoLengthen = false;
 char* userInput;
 num_t regs[7];
-enum registers {gr1, gr2, gr3, inplen, enia, autl};
-enum instructs {endprog=1, set, inc, add, mult, print};
+enum registers {gr1, gr2, gr3, inplen, endia, divlim};
+enum instructs {endprog=1, h, set, inc, add, mult, print};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructarray[][10] = { "\\\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "\0end" };
-char registerarray[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "enia\0", "autl\0", "\0end" };
+char instructarray[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "\0end" };
+char registerarray[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "endia\0", "divlim\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -71,9 +71,13 @@ bool dothing(){
 			printf("Not a valid instruction.\n");
 			goto end;
 			break;
-		case 1://end cli
+		case endprog:
 			printf("Good day!\n");
 			returnbool = false;
+			goto end;
+			break;
+		case h:
+			printf("To preform an operation, type an instruction (e.g. 'set', 'print', 'inc', 'add') and add the appropriate amount of arguments seperated by commas, finishing the line with a semicolon (;).\nThe general purpose registers are gr1, gr2, and gr3.\nTo change endianness from little endian (the default) to big endian, set the register 'endia' to 1. To change maximum line length, set the register 'inplen' to the desired length.\nEnter '\\' to close the program.\n");
 			goto end;
 			break;
 	}
@@ -130,12 +134,12 @@ bool dothing(){
 
 void updateessentials(){
 	inputlen = numtoint(&regs[inplen]);
-	bigEndian = numtoint(&regs[enia]);
+	bigEndian = numtoint(&regs[endia]);
 }
 
 void setessentialsready(){
 	inttonum(&regs[inplen], inputlen);
-	inttonum(&regs[enia], bigEndian);
+	inttonum(&regs[endia], bigEndian);
 }
 
 void flushuserInput(){
@@ -144,11 +148,12 @@ void flushuserInput(){
 }
 
 int main(){
+	printf("Good to see you!\nEnter 'h' for quick tips and '\\' to close the program.\n");
 	initnum(&regs[gr1], 32, 0);
 	initnum(&regs[gr2], 32, 0);
 	initnum(&regs[gr3], 32, 0);
 	initnum(&regs[inplen], 16, 0);
-	initnum(&regs[enia], 1, 0);
+	initnum(&regs[endia], 1, 0);
 	setessentialsready();
 	
 	bool running = true;
