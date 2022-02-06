@@ -5,16 +5,21 @@
 #include "arbnum.h"
 
 unsigned int inputlen = 100;
-int bigEndian = 0;
-bool autoLengthen = false;
 char* userInput;
+
+int bigEndian = 0;
+
+int stackSize = 20;
+num_t* stack;
+int stackptr;
+
 num_t regs[7];
-enum registers {gr1, gr2, gr3, inplen, endia, divlim};
-enum instructs {endprog=1, h, set, inc, add, mult, print};
+enum registers {gr1, gr2, gr3, inplen, endia, stacsz, divlim};
+enum instructs {endprog=1, h, set, inc, add, mult, print, push, pop};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructarray[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "\0end" };
-char registerarray[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "endia\0", "divlim\0", "\0end" };
+char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "push\0", "pop\0", "\0end" };
+char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "endia\0", "stacsz\0", "divlim\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -46,14 +51,33 @@ void functionswitch(int instruction, num_t* args[]){
 			incnum(args[0]);
 			break;
 		case add:
-			addnum(&dummy, args[0], args[1]);
-			copynum(args[0], &dummy);
+			addnum(args[0], args[0], args[1]);
 			break;
 		case mult:
 			multnum(&dummy, args[0], args[1]);
 			copynum(args[0], &dummy);
 			break;
 		case print:
+			break;
+		case push:
+			stackptr--;
+			if(stackptr < 0){
+				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack my modifying the 'stacsz' register, but this will clear the current stack.\n", stackSize);
+				stackptr = 0;
+				break;
+			}
+			initnum(&stack[stackptr], 1, 0);
+			copynum(&stack[stackptr], args[0]);
+			break;
+		case pop:
+			if(stackptr >= stackSize){
+				printf("The top of the stack has been reached (there are no elements to be popped).\n");
+				stackptr = stackSize;
+				break;
+			}
+			copynum(args[0], &stack[stackptr]);
+			free(stack[stackptr].nump);
+			stackptr++;
 			break;
 	}
 	printnum(args[0], bigEndian);
@@ -64,7 +88,7 @@ bool dothing(){
 	//printf("start dothing\n");
 	bool returnbool = true;
 	int startat;
-	int instruction = strlook(userInput, instructarray, 0, &startat);
+	int instruction = strlook(userInput, instructstring, 0, &startat);
 
 	switch (instruction){
 		case 0:
@@ -77,7 +101,7 @@ bool dothing(){
 			goto end;
 			break;
 		case h:
-			printf("To preform an operation, type an instruction (e.g. 'set', 'print', 'inc', 'add') and add the appropriate amount of arguments seperated by commas, finishing the line with a semicolon (;).\nThe general purpose registers are gr1, gr2, and gr3.\nTo change endianness from little endian (the default) to big endian, set the register 'endia' to 1. To change maximum line length, set the register 'inplen' to the desired length.\nEnter '\\' to close the program.\n");
+			printf("To preform an operation, type an instruction (e.g. 'set', 'print', 'inc', 'add') and add the appropriate amount of arguments seperated by commas, finishing the line with a semicolon (;).\nThe general purpose registers are gr1, gr2, and gr3.\nTo change endianness from little endian (the default) to big endian, set the register 'endia' to 1. To change maximum line length, set the register 'inplen' to the desired value.\nEnter '\\' to close the program.\n");
 			goto end;
 			break;
 	}
@@ -104,7 +128,7 @@ bool dothing(){
 		if(entry == ',') or12++;
 		if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
 			//printf("a to z\n");
-			int id = strlook(userInput, registerarray, i, &loInputentry);
+			int id = strlook(userInput, registerstring, i, &loInputentry);
 			if(id == 0){
 				printf("Register at argument %d is not a register.\n", or12 + 1);
 				goto endsafe;
@@ -140,6 +164,13 @@ void updateessentials(){
 void setessentialsready(){
 	inttonum(&regs[inplen], inputlen);
 	inttonum(&regs[endia], bigEndian);
+	inttonum(&regs[stacsz], stackSize);
+}
+
+void freestack(){
+	for(int i = stackptr; i < stackSize; i++)
+		free(stack[i].nump);
+	free(stack);
 }
 
 void flushuserInput(){
@@ -152,12 +183,22 @@ int main(){
 	initnum(&regs[gr1], 32, 0);
 	initnum(&regs[gr2], 32, 0);
 	initnum(&regs[gr3], 32, 0);
-	initnum(&regs[inplen], 16, 0);
+	initnum(&regs[inplen], 7, 0);
 	initnum(&regs[endia], 1, 0);
+	initnum(&regs[stacsz], 7, 0);
 	setessentialsready();
+	stackptr = stackSize;
+	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	
 	bool running = true;
 	while(running){
+		if(stackSize != numtoint(&regs[stacsz])){
+			freestack();
+			stackSize = numtoint(&regs[stacsz]);
+			stackptr = stackSize;
+			stack = (num_t*) malloc(stackSize * sizeof(num_t));
+		}
+
 		userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
 		flushuserInput();
 		printf("\\\\\\ ");
@@ -169,6 +210,9 @@ int main(){
 
 		free(userInput);
 	}
+
+	freestack();
 	free(regs[gr1].nump); free(regs[gr2].nump); free(regs[gr3].nump);
+	free(regs[inplen].nump); free(regs[endia].nump); free(regs[stacsz].nump);
 	return 0;
 }
