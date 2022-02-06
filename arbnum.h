@@ -30,11 +30,11 @@ uint32_t* initnum(num_t* number, unsigned int length, int sign){
 void printnum(num_t* number, int isbigend){
 	for(int i = isbigend*((int)number->len-1); i != (1-isbigend)*(int)number->len - isbigend; i+= (1 - 2*isbigend))
 		printf("%u ", number->nump[i]);
-	switch (number->dim - (number->dim % 2)){
+	/*switch (number->dim - (number->dim % 2)){
 		case 2: printf("i"); break;
 		case 4: printf("j"); break;
 		case 6: printf("k"); break;
-	} if (number->dim % 2 == 1) printf("-"); else printf("+");
+	} if (number->dim % 2 == 1) printf("-"); else printf("+");*/
 	printf("\n");
 }
 
