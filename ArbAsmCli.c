@@ -45,7 +45,7 @@ void functionswitch(int instruction, num_t* args[]){
 	initnum(&dummy, 1, 0);
 	switch (instruction){
 		case set:
-			copynum(args[0], args[1]);
+			copynum(args[0], args[1], 0);
 			break;
 		case inc:
 			incnum(args[0]);
@@ -55,7 +55,7 @@ void functionswitch(int instruction, num_t* args[]){
 			break;
 		case mult:
 			multnum(&dummy, args[0], args[1]);
-			copynum(args[0], &dummy);
+			copynum(args[0], &dummy, 0);
 			break;
 		case print:
 			break;
@@ -67,7 +67,7 @@ void functionswitch(int instruction, num_t* args[]){
 				break;
 			}
 			initnum(&stack[stackptr], 1, 0);
-			copynum(&stack[stackptr], args[0]);
+			copynum(&stack[stackptr], args[0], 0);
 			break;
 		case pop:
 			if(stackptr >= stackSize){
@@ -75,7 +75,7 @@ void functionswitch(int instruction, num_t* args[]){
 				stackptr = stackSize;
 				break;
 			}
-			copynum(args[0], &stack[stackptr]);
+			copynum(args[0], &stack[stackptr], 0);
 			free(stack[stackptr].nump);
 			stackptr++;
 			break;

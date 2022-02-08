@@ -1,3 +1,5 @@
+#ifndef ARBNUM_H
+#define ARBNUM_H
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,6 +27,19 @@ uint32_t* initnum(num_t* number, unsigned int length, int sign){
 	}
 	number->overflow = 0;
 	return number->nump;
+}
+
+void copynum(num_t* des, num_t* src, int keeplen){
+	unsigned int len = src->len*(1-keeplen) + des->len*keeplen;
+	unsigned int otherlen = src->len*keeplen + des->len*(1-keeplen);
+	free(des->nump);
+	initnum(des, len, src->dim);
+	des->overflow = src->overflow;
+	for(unsigned int i = 0; i < len; i++){
+		if(keeplen == 0) des->nump[i] = src->nump[i];
+		else if (i < otherlen) des->nump[i] = src->nump[i];
+		else des->nump[i] = 0;
+	}
 }
 
 void printnum(num_t* number, int isbigend){
@@ -86,7 +101,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	int dirio = 1 - 2*isbigend;
 	i = offset + (j-1)*(isbigend);
 	j = 0;
-	
+
 	while(str[i] >= '0' && str[i] <= '9'){
 		number->nump[j] = (int) str[i] - 0x30;
 		j++; i+= dirio;
@@ -94,21 +109,12 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	return j + signage;
 }
 
-void copynum(num_t* des, num_t* src){
-	free(des->nump);
-	initnum(des, src->len, src->dim);
-	des->overflow = src->overflow;
-	for(unsigned int i = 0; i < src->len; i++){
-		des->nump[i] = src->nump[i];
-	}
-}
-
 void incnum(num_t* num){
 	num_t dummy; initnum(&dummy, num->len + 1, 0);
-	num->len++;
-	copynum(&dummy, num);
-	dummy.nump[dummy.len-1] = 0;
-	num->len--;
+	//num->len++;
+	copynum(&dummy, num, 1);
+	//dummy.nump[dummy.len-1] = 0;
+	//num->len--;
 	
 	dummy.nump[0]++;
 	unsigned int i = 0;
@@ -117,10 +123,9 @@ void incnum(num_t* num){
 		dummy.nump[i] = psi(10, 0, dummy.nump[i]);
 		i++;
 	}
-	if(i == num->len) copynum(num, &dummy);
+	if(i == num->len) copynum(num, &dummy, 0);
 	else {
-		dummy.len--;
-		copynum(num, &dummy);
+		copynum(num, &dummy, 1);
 	}
 	free(dummy.nump);
 }
@@ -129,10 +134,10 @@ void addnum(num_t* res, num_t* arg1, num_t* arg2){
 	num_t* tempformax = arg2;
 	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
 	num_t dummy; initnum(&dummy, arg1->len + 1, 0);
-	arg1->len++;
-	copynum(&dummy, arg1);
-	dummy.nump[dummy.len-1] = 0;
-	arg1->len--;
+	//arg1->len++;
+	copynum(&dummy, arg1, 1);
+	//dummy.nump[dummy.len-1] = 0;
+	//arg1->len--;
 
 	for(unsigned int i = 0; i < arg1->len; i++){
 		if(i < arg2->len) dummy.nump[i] += arg2->nump[i];
@@ -140,10 +145,9 @@ void addnum(num_t* res, num_t* arg1, num_t* arg2){
 		dummy.nump[i] = psi(10, 0, dummy.nump[i]);
 	}
 
-	if(dummy.nump[dummy.len-1] != 0) copynum(res, &dummy);
+	if(dummy.nump[dummy.len-1] != 0) copynum(res, &dummy, 0);
 	else {
-		dummy.len--;
-		copynum(res, &dummy);
+		copynum(res, &dummy, 1);
 	}
 	free(dummy.nump);
 }
@@ -151,3 +155,5 @@ void addnum(num_t* res, num_t* arg1, num_t* arg2){
 void multnum(num_t* res, num_t* arg1, num_t* arg2){
 	printf("multnum is not yet implemented.\n");
 }
+
+#endif
