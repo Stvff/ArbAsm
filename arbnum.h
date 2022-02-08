@@ -111,10 +111,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 
 void incnum(num_t* num){
 	num_t dummy; initnum(&dummy, num->len + 1, 0);
-	//num->len++;
 	copynum(&dummy, num, 1);
-	//dummy.nump[dummy.len-1] = 0;
-	//num->len--;
 	
 	dummy.nump[0]++;
 	unsigned int i = 0;
@@ -134,10 +131,7 @@ void addnum(num_t* res, num_t* arg1, num_t* arg2){
 	num_t* tempformax = arg2;
 	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
 	num_t dummy; initnum(&dummy, arg1->len + 1, 0);
-	//arg1->len++;
 	copynum(&dummy, arg1, 1);
-	//dummy.nump[dummy.len-1] = 0;
-	//arg1->len--;
 
 	for(unsigned int i = 0; i < arg1->len; i++){
 		if(i < arg2->len) dummy.nump[i] += arg2->nump[i];
@@ -153,7 +147,31 @@ void addnum(num_t* res, num_t* arg1, num_t* arg2){
 }
 
 void multnum(num_t* res, num_t* arg1, num_t* arg2){
-	printf("multnum is not yet implemented.\n");
+	num_t* tempformax = arg2;
+	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
+	num_t dummy; initnum(&dummy, arg1->len + arg2->len, 0);
+	for(unsigned int i = 0; i < dummy.len; i++)
+		dummy.nump[i] = 0;
+
+	unsigned int j = 0;
+	unsigned int maxj = arg1->len;
+	for(unsigned int z = 0; z < arg2->len; z++){
+		for(unsigned int i = 0; i < arg1->len; i++){
+			dummy.nump[i + z] += arg1->nump[i]*arg2->nump[z];
+			j = i + z;
+			while(psi(10, 1, dummy.nump[j]) != 0 && j < dummy.len){
+				dummy.nump[j+1] += psi(10, 1, dummy.nump[j]);
+				dummy.nump[j] = psi(10, 0, dummy.nump[j]);
+				j++;
+			}
+			if(j + 1 > maxj) maxj = j + 1;
+		}
+	}
+
+	dummy.len = maxj;
+	copynum(res, &dummy, 0);
+
+	free(dummy.nump);
 }
 
 #endif

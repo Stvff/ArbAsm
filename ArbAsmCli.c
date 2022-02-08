@@ -62,7 +62,7 @@ void functionswitch(int instruction, num_t* args[]){
 		case push:
 			stackptr--;
 			if(stackptr < 0){
-				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack my modifying the 'stacsz' register, but this will clear the current stack.\n", stackSize);
+				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack by modifying the 'stacsz' register, but this will clear the current stack.\n", stackSize);
 				stackptr = 0;
 				break;
 			}
@@ -101,7 +101,7 @@ bool dothing(){
 			goto end;
 			break;
 		case h:
-			printf("To preform an operation, type an instruction (e.g. 'set', 'print', 'inc', 'add') and add the appropriate amount of arguments seperated by commas, finishing the line with a semicolon (;).\nThe general purpose registers are gr1, gr2, and gr3.\nTo change endianness from little endian (the default) to big endian, set the register 'endia' to 1. To change maximum line length, set the register 'inplen' to the desired value.\nEnter '\\' to close the program.\n");
+			printf("To preform an operation, type an instruction (e.g. 'set', 'print', 'add', 'push') and add the appropriate amount of arguments seperated by commas, finishing the line with a semicolon (;).\nThe general purpose registers are gr1, gr2, and gr3.\nTo change notation from little endian (the default) to big endian, set the register 'endia' to 1. To change maximum line length, set the register 'inplen' to the desired value.\nEnter '\\' to close the program.\n");
 			goto end;
 			break;
 	}
