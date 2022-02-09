@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 #include "arbnum.h"
 
 unsigned int inputlen = 100;
@@ -14,12 +15,12 @@ num_t* stack;
 int stackptr;
 
 num_t regs[7];
-enum registers {gr1, gr2, gr3, inplen, endia, stacsz, divlim};
-enum instructs {endprog=1, h, set, inc, add, mult, print, push, pop};
+enum registers {gr1, gr2, gr3, inplen, endia, stacsz, tme};
+enum instructs {endprog=1, h, set, inc, add, mult, print, push, pop, len};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "push\0", "pop\0", "\0end" };
-char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "endia\0", "stacsz\0", "divlim\0", "\0end" };
+char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "push\0", "pop\0", "len\0", "\0end" };
+char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -41,23 +42,28 @@ int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offse
 }
 
 void functionswitch(int instruction, num_t* args[]){
+	clock_t begin_time = clock();
 	num_t dummy;
-	initnum(&dummy, 1, 0);
+	initnum(&dummy, 15, 0);
 	switch (instruction){
 		case set:
 			copynum(args[0], args[1], 0);
+			copynum(&dummy, args[0], 0);
 			break;
 		case inc:
 			incnum(args[0]);
+			copynum(&dummy, args[0], 0);
 			break;
 		case add:
 			addnum(args[0], args[0], args[1]);
+			copynum(&dummy, args[0], 0);
 			break;
 		case mult:
-			multnum(&dummy, args[0], args[1]);
-			copynum(args[0], &dummy, 0);
+			multnum(args[0], args[0], args[1]);
+			copynum(&dummy, args[0], 0);
 			break;
 		case print:
+			copynum(&dummy, args[0], 0);
 			break;
 		case push:
 			stackptr--;
@@ -68,6 +74,7 @@ void functionswitch(int instruction, num_t* args[]){
 			}
 			initnum(&stack[stackptr], 1, 0);
 			copynum(&stack[stackptr], args[0], 0);
+			copynum(&dummy, args[0], 0);
 			break;
 		case pop:
 			if(stackptr >= stackSize){
@@ -78,9 +85,16 @@ void functionswitch(int instruction, num_t* args[]){
 			copynum(args[0], &stack[stackptr], 0);
 			free(stack[stackptr].nump);
 			stackptr++;
+			copynum(&dummy, args[0], 0);
+			break;
+		case len:
+			inttonum(&dummy, args[0]->len);
+			copynum(args[1], &dummy, 0);
 			break;
 	}
-	printnum(args[0], bigEndian);
+
+	inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
+	printnum(&dummy, bigEndian);
 	free(dummy.nump);
 }
 
@@ -183,9 +197,10 @@ int main(){
 	initnum(&regs[gr1], 32, 0);
 	initnum(&regs[gr2], 32, 0);
 	initnum(&regs[gr3], 32, 0);
-	initnum(&regs[inplen], 7, 0);
+	initnum(&regs[inplen], 15, 0);
 	initnum(&regs[endia], 1, 0);
-	initnum(&regs[stacsz], 7, 0);
+	initnum(&regs[stacsz], 15, 0);
+	initnum(&regs[tme], 15, 0);
 	setessentialsready();
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
@@ -214,5 +229,6 @@ int main(){
 	freestack();
 	free(regs[gr1].nump); free(regs[gr2].nump); free(regs[gr3].nump);
 	free(regs[inplen].nump); free(regs[endia].nump); free(regs[stacsz].nump);
+	free(regs[tme].nump);
 	return 0;
 }

@@ -64,6 +64,8 @@ int numtoint(num_t* num){
 }
 
 void inttonum(num_t* num, int inte){
+	free(num->nump);
+	initnum(num, 1+(uint32_t)(log((double)inte)/log(10.0)), 0);
 	for(unsigned int i = 0; i < num->len; i++){
 		num->nump[i] = psi(10, i, inte);
 	}
