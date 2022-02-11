@@ -1,7 +1,7 @@
 # ArbAsmCli
 Console calculator for arbitrary precision arithmetic with an assembly language-styled syntax.\
-Internally, it has not much to do with actual assembly language. The prime example of that being the dynamic nature of the registers and their lengths (that also being its main feature).\
-I just found the notation and syntax of assembly languages to be an interesting candidate for using in calculators. A long term, distant goal is making a standalone handheld calculator with the functions and conventions outlined by this implementation.
+I find the notation and syntax of assembly languages to be an interesting candidate for using in calculators. A long term, distant goal is making a standalone handheld calculator with the functions and conventions outlined by this implementation.\
+Internally, it does not have much to do with actual assembly language. The prime example of this the dynamic nature of the registers and their lengths (that also being its main feature).\
 
 ## Compilation
 I'm not an expert on this, but
@@ -15,8 +15,8 @@ Every statement looks like this:
 ```
 <instruction mnemonic> <arguments seperated by commata>;
 ```
-Arguments are either a register or number.\
-Note the semicolon at the end.\
+(note the semicolon at the end)\
+Arguments are either registers or numbers.\
 When an instruction is executed, its primary result is printed to the screen. What its primary result is, is detailed in the 'Instruction mnemonics' section.\
 The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endia` register).
 
@@ -43,8 +43,8 @@ The final type of register is the `flag` register. It holds the result of the co
 The first thing in a statement is always the instruction mnemonic.
 |Mnemonic|Intended Syntax|Name and description|Primary result|
 |--------|---------------|-----------|--------------|
-|`set`|`<register>, <register/number>`|Sets the first argument equal tot the second argument, completely overriding the first argument|The number that the first argument has been set to|
-|`inc`|`<register/number>`|Incrememnt. Increments the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
+|`set`|`<register>, <register/number>`|Set. Sets the first argument equal tot the second argument, completely overriding the first argument|The number that the first argument has been set to|
+|`inc`|`<register/number>`|Increment. Increments the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
 |`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
 |`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
 |`cmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two numbers as if they were unsigned, stores the result in the `flag` register.|The `flag` register|
