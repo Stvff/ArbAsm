@@ -14,7 +14,7 @@ int stackSize = 20;
 num_t* stack;
 int stackptr;
 
-num_t regs[7];
+num_t regs[8];
 enum registers {gr1, gr2, gr3, flag, inplen, endia, stacsz, tme};
 enum instructs {endprog=1, h, set, inc, add, mul, cmp, scmp, print, push, pop, len};
 
