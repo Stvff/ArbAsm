@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include "arbnum.h"
-
 unsigned int inputlen = 100;
 char* userInput;
 
@@ -164,7 +163,7 @@ bool dothing(){
 		//printf("end of loop, i: %u\n", i);
 	}
 	if(therewasnosemi){
-		printf("There is no semicolon on the end of the line.\nIf you did have a semicolon and still got this error, that means the statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the inplen register.\n", inputlen);
+		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the inplen register.\n", inputlen);
 		goto endsafe;
 	}
 	//printf("after loop\n");
@@ -197,7 +196,7 @@ void freestack(){
 
 void flushuserInput(){
 	for(unsigned int i = 0; i < inputlen; i++)
-		userInput[i] = '\0';
+		userInput[i] = ';';
 }
 
 int main(){
