@@ -65,7 +65,8 @@ int numtoint(num_t* num){
 
 void inttonum(num_t* num, int inte){
 	free(num->nump);
-	initnum(num, 1+(uint32_t)(log((double)inte)/log(10.0)), 0);
+	if(inte == 0) initnum(num, 1, 0);
+	else initnum(num, 1+(uint32_t)(log((double)inte)/log(10.0)), 0);
 	for(unsigned int i = 0; i < num->len; i++){
 		num->nump[i] = psi(10, i, inte);
 	}
@@ -127,6 +128,35 @@ void incnum(num_t* num){
 		copynum(num, &dummy, 1);
 	}
 	free(dummy.nump);
+}
+
+/*void decnum(num_t* num){
+	num_t dummy; initnum(&dummy, num->len + 1, 0);
+	copynum(&dummy, num, 1);
+	
+}*/
+
+unsigned int cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2
+	unsigned int result = 0;
+	uint32_t num1 = 0;
+	uint32_t num2 = 0;
+	unsigned int maxlen = arg1->len;
+	if(arg2->len > maxlen) maxlen = arg2->len;
+	for(int i = (int)maxlen - 1; i >= 0; i--){
+		if(i < (int)arg1->len) num1 = arg1->nump[i];
+		if(i < (int)arg2->len) num2 = arg2->nump[i];
+		if(num1 > num2){ result = 1; break;}
+		if(num1 < num2){ result = 2; break;}
+	}
+	if(considersign){
+		if(arg1->dim % 2 < arg2->dim % 2)
+			result = 1;
+		else if(arg1->dim % 2 > arg2->dim % 2)
+			result = 2;
+		else if(arg1->dim % 2 == 1 && result != 0)
+			result = 3 - result;
+	}
+	return result;
 }
 
 void addnum(num_t* res, num_t* arg1, num_t* arg2){

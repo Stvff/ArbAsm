@@ -15,12 +15,12 @@ num_t* stack;
 int stackptr;
 
 num_t regs[7];
-enum registers {gr1, gr2, gr3, inplen, endia, stacsz, tme};
-enum instructs {endprog=1, h, set, inc, add, mult, print, push, pop, len};
+enum registers {gr1, gr2, gr3, flag, inplen, endia, stacsz, tme};
+enum instructs {endprog=1, h, set, inc, add, mul, cmp, scmp, print, push, pop, len};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mult\0", "print\0", "push\0", "pop\0", "len\0", "\0end" };
-char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
+char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mul\0", "cmp\0", "scmp\0", "print\0", "push\0", "pop\0", "len\0", "\0end" };
+char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -58,9 +58,17 @@ void functionswitch(int instruction, num_t* args[]){
 			addnum(args[0], args[0], args[1]);
 			copynum(&dummy, args[0], 0);
 			break;
-		case mult:
+		case mul:
 			multnum(args[0], args[0], args[1]);
 			copynum(&dummy, args[0], 0);
+			break;
+		case cmp:
+			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
+			copynum(&dummy, &regs[flag], 0);
+			break;
+		case scmp:
+			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
+			copynum(&dummy, &regs[flag], 0);
 			break;
 		case print:
 			copynum(&dummy, args[0], 0);
@@ -120,10 +128,10 @@ bool dothing(){
 			break;
 	}
 	//printf("after instructionfiguring\n");
-	num_t* tmpptr[2];
-	num_t tmp[2];
-	initnum(&tmp[0], 1, 0); initnum(&tmp[1], 1, 0);
-	tmpptr[0] = &tmp[0]; tmpptr[1] = &tmp[1];
+	num_t* tmpptr[3];
+	num_t tmp[3];
+	initnum(&tmp[0], 1, 0); initnum(&tmp[1], 1, 0); initnum(&tmp[2], 1, 0);
+	tmpptr[0] = &tmp[0]; tmpptr[1] = &tmp[1]; tmpptr[2] = &tmp[2];
 	
 	int or12 = 0;
 	int loInputentry = 0;
@@ -165,7 +173,7 @@ bool dothing(){
 	//printnum(tmpptr[0]);
 
 	endsafe:
-	free(tmp[0].nump); free(tmp[1].nump);
+	free(tmp[0].nump); free(tmp[1].nump); free(tmp[2].nump);
 	end:
 	return returnbool;
 }
@@ -197,6 +205,7 @@ int main(){
 	initnum(&regs[gr1], 32, 0);
 	initnum(&regs[gr2], 32, 0);
 	initnum(&regs[gr3], 32, 0);
+	initnum(&regs[flag], 1, 0);
 	initnum(&regs[inplen], 15, 0);
 	initnum(&regs[endia], 1, 0);
 	initnum(&regs[stacsz], 15, 0);
@@ -227,7 +236,7 @@ int main(){
 	}
 
 	freestack();
-	free(regs[gr1].nump); free(regs[gr2].nump); free(regs[gr3].nump);
+	free(regs[gr1].nump); free(regs[gr2].nump); free(regs[gr3].nump); free(regs[flag].nump);
 	free(regs[inplen].nump); free(regs[endia].nump); free(regs[stacsz].nump);
 	free(regs[tme].nump);
 	return 0;
