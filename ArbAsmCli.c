@@ -15,10 +15,10 @@ int stackptr;
 
 num_t regs[8];
 enum registers {gr1, gr2, gr3, flag, inplen, endia, stacsz, tme};
-enum instructs {endprog=1, h, set, inc, add, mul, cmp, scmp, print, push, pop, len};
+enum instructs {endprog=1, h, set, inc, dec, add, sub, mul, cmp, ucmp, print, push, pop, len};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "add\0", "mul\0", "cmp\0", "scmp\0", "print\0", "push\0", "pop\0", "len\0", "\0end" };
+char instructstring[][10] = { "\\\0", "h\0", "set\0", "inc\0", "dec\0", "add\0", "sub\0", "mul\0", "cmp\0", "ucmp\0", "print\0", "push\0", "pop\0", "len\0", "\0end" };
 char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
@@ -50,11 +50,19 @@ void functionswitch(int instruction, num_t* args[]){
 			copynum(&dummy, args[0], 0);
 			break;
 		case inc:
-			incnum(args[0]);
+			incnum(args[0], false);
+			copynum(&dummy, args[0], 0);
+			break;
+		case dec:
+			incnum(args[0], true);
 			copynum(&dummy, args[0], 0);
 			break;
 		case add:
-			addnum(args[0], args[0], args[1]);
+			sumnum(args[0], args[0], args[1], false);
+			copynum(&dummy, args[0], 0);
+			break;
+		case sub:
+			sumnum(args[0], args[0], args[1], true);
 			copynum(&dummy, args[0], 0);
 			break;
 		case mul:
@@ -62,11 +70,11 @@ void functionswitch(int instruction, num_t* args[]){
 			copynum(&dummy, args[0], 0);
 			break;
 		case cmp:
-			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
+			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
 			copynum(&dummy, &regs[flag], 0);
 			break;
-		case scmp:
-			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
+		case ucmp:
+			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
 			copynum(&dummy, &regs[flag], 0);
 			break;
 		case print:

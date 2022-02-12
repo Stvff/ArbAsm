@@ -45,11 +45,11 @@ void copynum(num_t* des, num_t* src, int keeplen){
 void printnum(num_t* number, int isbigend){
 	for(int i = isbigend*((int)number->len-1); i != (1-isbigend)*(int)number->len - isbigend; i+= (1 - 2*isbigend))
 		printf("%u ", number->nump[i]);
-	/*switch (number->dim - (number->dim % 2)){
+	switch (number->dim - (number->dim % 2)){
 		case 2: printf("i"); break;
 		case 4: printf("j"); break;
 		case 6: printf("k"); break;
-	} if (number->dim % 2 == 1) printf("-"); else printf("+");*/
+	} if (number->dim % 2 == 1) printf("-"); else printf("+");
 	printf("\n");
 }
 
@@ -112,29 +112,30 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	return j + signage;
 }
 
-void incnum(num_t* num){
+void incnum(num_t* num, bool decrement){
 	num_t dummy; initnum(&dummy, num->len + 1, 0);
 	copynum(&dummy, num, 1);
-	
-	dummy.nump[0]++;
-	unsigned int i = 0;
-	while (psi(10, 1, dummy.nump[i]) != 0 && i < num->len){
-		dummy.nump[i+1] += psi(10, 1, dummy.nump[i]);
+
+	bool iszero = true;
+	for(unsigned int i = 0; i < dummy.len; i++)
+		if(dummy.nump[i] != 0) iszero = false;
+	if(iszero && decrement && dummy.dim%2 == 0) dummy.dim += 1;
+	if(iszero && !decrement && dummy.dim%2 == 1) dummy.dim -= 1;
+
+	uint32_t carry = 3 - 2*(dummy.dim%2);
+	if(decrement) carry = 1 + 2*(dummy.dim%2);
+	for(unsigned int i = 0; i < dummy.len; i++){
+		dummy.nump[i] += 18 + carry;
+		carry = psi(10, 1, dummy.nump[i]);
 		dummy.nump[i] = psi(10, 0, dummy.nump[i]);
-		i++;
 	}
-	if(i == num->len) copynum(num, &dummy, 0);
+
+	if(dummy.nump[dummy.len-1] != 0) copynum(num, &dummy, 0);
 	else {
 		copynum(num, &dummy, 1);
 	}
-	free(dummy.nump);
+	free(dummy.nump);	
 }
-
-/*void decnum(num_t* num){
-	num_t dummy; initnum(&dummy, num->len + 1, 0);
-	copynum(&dummy, num, 1);
-	
-}*/
 
 unsigned int cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2
 	unsigned int result = 0;
@@ -159,15 +160,29 @@ unsigned int cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for
 	return result;
 }
 
-void addnum(num_t* res, num_t* arg1, num_t* arg2){
+void sumnum(num_t* res, num_t* arg1, num_t* arg2, bool subtract){
+	if(subtract){
+		arg2->dim += 1 - 2*(arg2->dim % 2);
+	}
+
+	int suboradd = 1 - 2*(( (arg1->dim % 2) + (arg2->dim % 2) ) % 2);
 	num_t* tempformax = arg2;
-	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
-	num_t dummy; initnum(&dummy, arg1->len + 1, 0);
+	if(cmpnum(arg1, arg2, false) == 2){
+		arg2 = arg1;
+		arg1 = tempformax;
+	}// arg1 is now the highest number	
+
+	unsigned int maxlen = arg1->len;
+	if(maxlen < arg2->len) maxlen = arg1->len;
+	num_t dummy; initnum(&dummy, maxlen + 1, 0);
 	copynum(&dummy, arg1, 1);
 
-	for(unsigned int i = 0; i < arg1->len; i++){
-		if(i < arg2->len) dummy.nump[i] += arg2->nump[i];
-		dummy.nump[i+1] += psi(10, 1, dummy.nump[i]);
+	uint32_t carry = 2;
+	for(unsigned int i = 0; i < dummy.len; i++){
+		//20 + arg1->nump[i] - arg2->nump[i] + (carry - 2)
+		dummy.nump[i] += 18 + carry;
+		if(i < arg2->len) dummy.nump[i] += (suboradd)*arg2->nump[i];
+		carry = psi(10, 1, dummy.nump[i]);
 		dummy.nump[i] = psi(10, 0, dummy.nump[i]);
 	}
 
@@ -176,14 +191,32 @@ void addnum(num_t* res, num_t* arg1, num_t* arg2){
 		copynum(res, &dummy, 1);
 	}
 	free(dummy.nump);
+
+	if(subtract){
+	arg2->dim += 1 - 2*(arg2->dim % 2);
+	}
+}
+
+int multquaternion(int one, int two){
+	int table[4][4] = {
+	{0, 2, 4, 6},
+	{2, 1, 6, 5},
+	{4, 7, 1, 2},
+	{6, 4, 3, 1}};
+	int result = table[(one - one%2)/2][(two - two%2)/2];
+	int sign = result%2;
+	result = result - sign;
+	result += (sign + (one%2 + two%2)%2)%2;
+	return result;
 }
 
 void multnum(num_t* res, num_t* arg1, num_t* arg2){
-	num_t* tempformax = arg2;
-	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
-	num_t dummy; initnum(&dummy, arg1->len + arg2->len, 0);
+	num_t dummy; initnum(&dummy, arg1->len + arg2->len, multquaternion(arg1->dim, arg2->dim));
 	for(unsigned int i = 0; i < dummy.len; i++)
 		dummy.nump[i] = 0;
+
+	num_t* tempformax = arg2;
+	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
 
 	unsigned int j = 0;
 	unsigned int maxj = arg1->len;
@@ -205,5 +238,10 @@ void multnum(num_t* res, num_t* arg1, num_t* arg2){
 
 	free(dummy.nump);
 }
+
+/*void divnum(num_t* res, num_t* arg1, num_t* arg2){
+	
+	
+}*/
 
 #endif
