@@ -1,7 +1,7 @@
 # ArbAsmCli
 Console calculator for arbitrary precision arithmetic with an assembly language-styled syntax.\
 I find the notation and syntax of assembly languages to be an interesting candidate for using in calculators. A long term, distant goal is making a standalone handheld calculator with the functions and conventions outlined by this implementation.\
-Internally, it does not have much to do with actual assembly language. The prime example of this the dynamic nature of the registers and their lengths (that also being its main feature).\
+Internally, it does not have much to do with actual assembly language. The prime example of this the dynamic nature of the registers and their lengths (that also being its main feature).
 
 ## Compilation
 I'm not an expert on this, but
@@ -13,9 +13,8 @@ should do the trick (it's what I do).
 ## Overview
 Every statement looks like this:
 ```
-<instruction mnemonic> <arguments seperated by commata>;
+<instruction mnemonic> <arguments seperated by commata>
 ```
-(note the semicolon at the end)\
 Arguments are either registers or numbers.\
 When an instruction is executed, its primary result is printed to the screen. What its primary result is, is detailed in the 'Instruction mnemonics' section.\
 The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endia` register).
