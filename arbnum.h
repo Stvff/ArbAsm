@@ -49,7 +49,7 @@ void printnum(num_t* number, int isbigend){
 		case 2: printf("i"); break;
 		case 4: printf("j"); break;
 		case 6: printf("k"); break;
-	} if (number->dim % 2 == 1) printf("-"); else printf("+");
+	} if (number->dim % 2 == 1) printf("-");// else printf("+");
 	printf("\n");
 }
 
