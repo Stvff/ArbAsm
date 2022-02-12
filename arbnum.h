@@ -161,21 +161,22 @@ unsigned int cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for
 }
 
 void sumnum(num_t* res, num_t* arg1, num_t* arg2, bool subtract){
-	if(subtract){
-		arg2->dim += 1 - 2*(arg2->dim % 2);
-	}
+	int suboradd = 0;
+	if(subtract) suboradd = 1;
+	suboradd = 1 - 2*(( (arg1->dim % 2) + ((suboradd + arg2->dim) % 2) ) % 2);
 
-	int suboradd = 1 - 2*(( (arg1->dim % 2) + (arg2->dim % 2) ) % 2);
 	num_t* tempformax = arg2;
 	if(cmpnum(arg1, arg2, false) == 2){
 		arg2 = arg1;
 		arg1 = tempformax;
-	}// arg1 is now the highest number	
+	}// arg1 is now the highest number
 
 	unsigned int maxlen = arg1->len;
 	if(maxlen < arg2->len) maxlen = arg1->len;
 	num_t dummy; initnum(&dummy, maxlen + 1, 0);
 	copynum(&dummy, arg1, 1);
+
+	if(subtract && tempformax == arg1) dummy.dim += 1 - 2*(dummy.dim % 2);
 
 	uint32_t carry = 2;
 	for(unsigned int i = 0; i < dummy.len; i++){
@@ -188,13 +189,10 @@ void sumnum(num_t* res, num_t* arg1, num_t* arg2, bool subtract){
 
 	if(dummy.nump[dummy.len-1] != 0) copynum(res, &dummy, 0);
 	else {
+		res->len = maxlen;
 		copynum(res, &dummy, 1);
 	}
 	free(dummy.nump);
-
-	if(subtract){
-	arg2->dim += 1 - 2*(arg2->dim % 2);
-	}
 }
 
 int multquaternion(int one, int two){
