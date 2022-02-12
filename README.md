@@ -36,19 +36,29 @@ The Environment registers influence the operation of the program:
 |`stacsz`|variable|yes|Holds the size of the stack, note that the stack will be cleared if this register is re-set.|
 |`time`|variable|no|Contains the amount of seconds the previous statement took to execute.|
 
-The final type of register is the `flag` register. It holds the result of the comparison instructions `cmp` and `scmp`.
+The final type of register is the `flag` register. It contains the result of the comparison instructions `cmp` and `scmp`.
 
 ### Instruction mnemonics
 The first thing in a statement is always the instruction mnemonic.
+
+#### Register control and Information
 |Mnemonic|Intended Syntax|Name and description|Primary result|
-|--------|---------------|-----------|--------------|
+|--------|---------------|--------------------|--------------|
 |`set`|`<register>, <register/number>`|Set. Sets the first argument equal tot the second argument, completely overriding the first argument|The number that the first argument has been set to|
-|`inc`|`<register/number>`|Increment. Increments the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
-|`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
-|`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
-|`cmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two numbers as if they were unsigned, stores the result in the `flag` register.|The `flag` register|
-|`scmp`|`<register/number>, <register/number>`|Signed compare. Compares the two numbers as if they were unsigned, stores the result in the `flag` register.|The `flag` register|
 |`print`|`<register/number>`|Print. Prints the number of the first argument to the console. It is effectively a no-op in the cli.|The first argument|
 |`push`|`<register/number>`|Push. Pushes the first argument to the stack.|The first argument|
 |`pop`|`<register>`|Pop. Pops the number on top of the stack and sets the first argument to that number.|The number that was popped|
-|`len`|`<register/number>, <register>`|Length. Gets the length of the number of the first argument and sets the second argument into that number|The length of the number of the first argument|
+|`len`|`<register/number>, <register>`|Length. Gets the length of the first argument and stores the it the second argument|The length of the number of the first argument|
+
+#### Arithmetic
+|Mnemonic|Intended Syntax|Name and description|Primary result|
+|--------|---------------|--------------------|--------------|
+|`inc`|`<register/number>`|Increment. Increments the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
+|`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
+|`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
+
+#### Logic
+|Mnemonic|Intended Syntax|Name and description|Primary result|
+|--------|---------------|--------------------|--------------|
+|`cmp`|`<register/number>, <register/number>`|Signed compare. Compares the two arguments. Returns 0 if they are equal, 1 if the first argument is the largest, 2 if the second argument is the largest. Stores the result in the `flag` register.|The `flag` register|
+|`ucmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two arguments as if they were unsigned. Returns 0 if they are equal, 1 if the first argument is the largest, 2 if the second argument is the largest. Stores the result in the `flag` register.|The `flag` register|
