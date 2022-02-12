@@ -54,7 +54,9 @@ The first thing in a statement is always the instruction mnemonic.
 |Mnemonic|Intended Syntax|Name and description|Primary result|
 |--------|---------------|--------------------|--------------|
 |`inc`|`<register/number>`|Increment. Increments the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
+|`dec`|`<register/number>`|Decrement. Decrements the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
 |`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
+|`sub`|`<register/number>, <register/number>`|Subtraction. Subtracts the second argument from the first argument, storing the result in the first argument (if it is a register).|The result of the operation|
 |`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
 
 #### Logic
