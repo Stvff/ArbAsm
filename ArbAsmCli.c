@@ -15,11 +15,11 @@ int stackptr;
 
 num_t regs[8];//Change it in main() too if you change it here!
 enum registers {gr1, gr2, gr3, flag, inplen, endia, stacsz, tme};
-enum instructs {endprog=1, h, set, inc, dec, add, sub, mul, cmp, ucmp, rot, print, push, pop, len};
+enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, cmp, ucmp, rot, shf, print, push, pop, len};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "h\0", "set\0",
-							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "cmp\0", "ucmp\0", "rot\0",
+char instructstring[][10] = { "\\\0", "h\0", "set\0", "rev\0", "sel\0",
+							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "cmp\0", "ucmp\0", "rot\0", "shf\0",
 							"print\0", "push\0", "pop\0", "len\0", "\0end" };
 char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0",
 							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
@@ -52,6 +52,15 @@ void functionswitch(int instruction, num_t* args[]){
 			copynum(args[0], args[1], 0);
 			printnum(args[0], bigEndian);
 			break;
+		case rev:
+			reversenum(args[0]);
+			printnum(args[0], bigEndian);
+			break;
+		case sel:
+			selectsectionnum(&dummy, args[0], numtoint(args[1], false), numtoint(args[2], false));
+			copynum(args[0], &dummy, 0);
+			printnum(args[0], bigEndian);
+			break;
 		case inc:
 			incnum(args[0], false);
 			printnum(args[0], bigEndian);
@@ -81,7 +90,11 @@ void functionswitch(int instruction, num_t* args[]){
 			printnum(&regs[flag], bigEndian);
 			break;
 		case rot:
-			rotnum(args[0], numtoint(args[1]));
+			rotnum(args[0], numtoint(args[1], true));
+			printnum(args[0], bigEndian);
+			break;
+		case shf:
+			shiftnum(args[0], numtoint(args[1], true));
 			printnum(args[0], bigEndian);
 			break;
 		case print:
@@ -110,8 +123,8 @@ void functionswitch(int instruction, num_t* args[]){
 			printnum(args[0], bigEndian);
 			break;
 		case len:
-			inttonum(args[0], args[0]->len);
-			printnum(args[0], bigEndian);
+			inttonum(args[1], args[0]->len);
+			printnum(args[1], bigEndian);
 			break;
 	}
 
@@ -192,8 +205,8 @@ bool dothing(){
 }
 
 void updateessentials(){
-	inputlen = numtoint(&regs[inplen]);
-	bigEndian = numtoint(&regs[endia]);
+	inputlen = numtoint(&regs[inplen], false);
+	bigEndian = numtoint(&regs[endia], false);
 }
 
 void setessentialsready(){
@@ -222,9 +235,9 @@ int main(){
 	
 	bool running = true;
 	while(running){
-		if(stackSize != numtoint(&regs[stacsz])){
+		if(stackSize != numtoint(&regs[stacsz], false)){
 			freestack();
-			stackSize = numtoint(&regs[stacsz]);
+			stackSize = numtoint(&regs[stacsz], false);
 			stackptr = stackSize;
 			stack = (num_t*) malloc(stackSize * sizeof(num_t));
 		}

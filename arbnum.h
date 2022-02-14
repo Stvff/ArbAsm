@@ -65,14 +65,14 @@ void printnum(num_t* number, int isbigend){
 	printf("\n");
 }
 
-int numtoint(num_t* num){
+int numtoint(num_t* num, bool considersign){
 	int cum = 0;
 	int pow = 1;
 	for(unsigned int i = 0; i < num->len; i++){
 		cum += num->nump[i]*pow;
 		pow *= 10;
 	}
-	cum *= 1 - 2*num->sign;
+	if(considersign) cum *= 1 - 2*num->sign;
 	return cum;
 }
 
@@ -156,7 +156,6 @@ void incnum(num_t* num, bool decrement){
 void rotnum(num_t* num, int amount){
 	num_t dummy; initnum(&dummy, 1, 0, 0);
 	copynum(&dummy, num, 0);
-
 	int custommod(int a, int b){
 		return a - (b*(int)floor((double)a/(double)b));
 	}
@@ -165,6 +164,47 @@ void rotnum(num_t* num, int amount){
 	}
 	copynum(num, &dummy, 0);
 	free(dummy.nump);
+}
+
+void shiftnum(num_t* num, int amount){
+	if(-1*amount >= (int)num->len){
+		free(num->nump);
+		initnum(num, 1, num->sign, num->dim);
+		num->nump[0] = 0;
+		return;
+	}
+	num_t dummy;
+	initnum(&dummy, num->len + amount, num->sign, num->dim);
+	int j = (int)(num->len) - 1;
+	for(int i = (int)dummy.len - 1; i >= 0; i--){
+		if(j >= 0) dummy.nump[i] = num->nump[j];
+		else dummy.nump[i] = 0;
+		j--;
+	}
+	copynum(num, &dummy, 0);
+	free(dummy.nump);
+}
+
+void reversenum(num_t* num){
+	num_t dummy; initnum(&dummy, num->len, num->sign, num->dim);
+	for(unsigned int i = 0; i < dummy.len; i++)
+		dummy.nump[i] = num->nump[num->len - 1 - i];
+	copynum(num, &dummy, 0);
+	free(dummy.nump);
+}
+
+void selectsectionnum(num_t* section, num_t* source, int start, int end){
+	free(section->nump);
+	if(start == end){
+		initnum(section, 1, source->sign, source->dim);
+		source->nump[0] = 0;
+		return;		
+	}
+	int tempformax = start;
+	if(start > end){ start = end; end = tempformax;}
+	initnum(section, end - start + 1, source->sign, source->dim);
+	for(int i = start; i <= end; i++)
+		section->nump[i - start] = source->nump[i % source->len];
 }
 
 unsigned int cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2
