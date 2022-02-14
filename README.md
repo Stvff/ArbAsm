@@ -16,8 +16,7 @@ Every statement looks like this:
 <instruction mnemonic> <arguments seperated by commata>
 ```
 Arguments are either registers or numbers.\
-When an instruction is executed, its primary result is printed to the screen. What its primary result is, is detailed in the 'Instruction mnemonics' section.\
-The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endia` register).
+When an instruction is executed, the number it returns is printed to the screen. The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endia` register).
 
 ### Numbers
 Numbers can be of any length, and must be a continuous string of decimal digits. To input the sign of a number, a `+` or `-` can be placed at the end. The default is positive.\
@@ -26,41 +25,42 @@ Some examples:\
 Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.
 
 ### Registers
-Registers are effectively built-in variables. There are three types of registers: General purpose, Environment and `flag`.\
-There are 3 general purpose registers: `gr1`, `gr2`, `gr3`. These are supposed to be used for storing and modifying numbers.
-The Environment registers influence the operation of the program:
+Registers are effectively built-in variables.
 |Register|Length|Can be changed (with effect)|Description|
-|--------|------|--------------|--------|
+|--------|------|----------------------------|-----------|
+|`gr1`, `gr2`, `gr3`|variable|yes|The general purpose registers, indented for storing and modifying numbers.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endia`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
 |`stacsz`|variable|yes|Holds the size of the stack, note that the stack will be cleared if this register is re-set.|
 |`time`|variable|no|Contains the amount of seconds the previous statement took to execute.|
-
-The final type of register is the `flag` register. It contains the result of the comparison instructions `cmp` and `scmp`.
+|`flag`|1|yes-(ish)|It contains the result of the comparison instructions `cmp` and `scmp`.|
 
 ### Instruction mnemonics
-The first thing in a statement is always the instruction mnemonic.
-
+The first thing in a statement is always the instruction mnemonic. The result of an operation is stored in the first argument (if it is a register), unless stated otherwise.
 #### Register control and Information
-|Mnemonic|Intended Syntax|Name and description|Primary result|
+|Mnemonic|Intended Syntax|Name and description|Returns|
 |--------|---------------|--------------------|--------------|
-|`set`|`<register>, <register/number>`|Set. Sets the first argument equal tot the second argument, completely overriding the first argument|The number that the first argument has been set to|
+|`set`|`<register>, <register/number>`|Set. Sets the first argument as the second argument|The second argument.|
 |`print`|`<register/number>`|Print. Prints the number of the first argument to the console. It is effectively a no-op in the cli.|The first argument|
 |`push`|`<register/number>`|Push. Pushes the first argument to the stack.|The first argument|
 |`pop`|`<register>`|Pop. Pops the number on top of the stack and sets the first argument to that number.|The number that was popped|
-|`len`|`<register/number>, <register>`|Length. Gets the length of the first argument and stores the it the second argument|The length of the number of the first argument|
+|`len`|`<register/number>, <register>`|Length. Gets the length of the first argument and stores the it the second argument|The length of the first argument|
+|`rot`|<register/number>, <register/number>|Rotate. Rotates the first argument by the second argument.|The rotated argument|
+|`shf`|<register/number>, <register/number>|Shift. Arithmetically shifts the first argument by the second argument.|The shifted argument|
+|`rev`|<register/number>|Reverse. Reverses the first argument.|The reversed argument|
+|`sel`|<register/number>, <register/number>, <register/number>|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
 
 #### Arithmetic
-|Mnemonic|Intended Syntax|Name and description|Primary result|
+|Mnemonic|Intended Syntax|Name and description|Returns|
 |--------|---------------|--------------------|--------------|
-|`inc`|`<register/number>`|Increment. Increments the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
-|`dec`|`<register/number>`|Decrement. Decrements the argument by 1, re-setting the first argument by the result (if it is a register).|The result of the operation|
-|`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
-|`sub`|`<register/number>, <register/number>`|Subtraction. Subtracts the second argument from the first argument, storing the result in the first argument (if it is a register).|The result of the operation|
-|`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together, storing the result in the first argument (if it is a register).|The result of the operation|
+|`inc`|`<register/number>`|Increment. Increments the first argument by 1.|The incremented argument|
+|`dec`|`<register/number>`|Decrement. Decrements the first argument by 1.|The decremented argument|
+|`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together.|The sum of the arguments|
+|`sub`|`<register/number>, <register/number>`|Subtraction. Subtracts the second argument from the first argument.|The first argument minus the second argument|
+|`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together.|The product of the two arguments|
 
 #### Logic
-|Mnemonic|Intended Syntax|Name and description|Primary result|
+|Mnemonic|Intended Syntax|Name and description|Returns|
 |--------|---------------|--------------------|--------------|
-|`cmp`|`<register/number>, <register/number>`|Signed compare. Compares the two arguments. Returns 0 if they are equal, 1 if the first argument is the largest, 2 if the second argument is the largest. Stores the result in the `flag` register.|The `flag` register|
-|`ucmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two arguments as if they were unsigned. Returns 0 if they are equal, 1 if the first argument is the largest, 2 if the second argument is the largest. Stores the result in the `flag` register.|The `flag` register|
+|`cmp`|`<register/number>, <register/number>`|Signed compare. Compares the two arguments. Stores the result in the `flag` register.|0 if the arguments are equal, 1 if the first argument is the largest, 2 if the second argument is the largest.|
+|`ucmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two arguments as if they were unsigned. Stores the result in the `flag` register.|0 if the arguments are equal, 1 if the first argument is the largest, 2 if the second argument is the largest.|
