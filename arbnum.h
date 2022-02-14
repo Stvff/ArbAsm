@@ -156,11 +156,11 @@ void incnum(num_t* num, bool decrement){
 void rotnum(num_t* num, int amount){
 	num_t dummy; initnum(&dummy, 1, 0, 0);
 	copynum(&dummy, num, 0);
-	int custommod(int a, int b){
-		return a - (b*(int)floor((double)a/(double)b));
-	}
+	int index;
 	for(unsigned int i = 0; i < num->len; i++){
-		dummy.nump[custommod(amount + i, dummy.len)] = num->nump[i];
+		index = amount + (int)i;
+		index = index - (int)dummy.len*floor((float)index/(float)dummy.len);
+		dummy.nump[index] = num->nump[i];
 	}
 	copynum(num, &dummy, 0);
 	free(dummy.nump);

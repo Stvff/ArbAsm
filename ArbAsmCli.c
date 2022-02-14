@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include "arbnum.h"
-unsigned int inputlen = 100;
+unsigned int inputlen = 256;
 char* userInput;
 
 int bigEndian = 0;
