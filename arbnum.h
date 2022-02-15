@@ -128,13 +128,17 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	return j + signage;
 }
 
+bool isnumzero(num_t* num){
+	for(unsigned int i = num->len - 1; i != (unsigned int)-1; i--)
+		if(num->nump[i] != 0) return false;
+	return true;
+}
+
 void incnum(num_t* num, bool decrement){
 	num_t dummy; initnum(&dummy, num->len + 1, 0, 0);
 	copynum(&dummy, num, 1);
 
-	bool iszero = true;
-	for(unsigned int i = 0; i < dummy.len; i++)
-		if(dummy.nump[i] != 0) iszero = false;
+	bool iszero = isnumzero(&dummy);
 	if(iszero && decrement && dummy.sign == 0) dummy.sign = 1;
 	if(iszero && !decrement && dummy.sign == 1) dummy.sign = 0;
 
@@ -305,9 +309,81 @@ void multnum(num_t* res, num_t* arg1, num_t* arg2){
 	free(dummy.nump);
 }
 
-/*void divnum(num_t* res, num_t* arg1, num_t* arg2){
+void divnum(num_t* res, num_t* mod, num_t* num, num_t* den){
+	int dim = multquaternion(num->dim, den->dim);
+	int sign = (num->sign + den->sign + dim)%2;
+	if(den->dim > 0) sign = 1 - sign;
+	dim /= 2;
+	if(cmpnum(num, den, false) == 2){
+		copynum(mod, res, 0);
+		copynum(res, num, 0);
+		shiftnum(res, -1*(int)res->len);
+		mod->dim = dim; mod->sign = sign;
+		res->dim = dim; res->sign = sign;
+		return;
+	} else if(isnumzero(den)){
+		printf("Divide by zero, no operation preformed.\n");
+		return;
+	}
+	num_t moddummy; initnum(&moddummy, 1, 0, 0);
+	copynum(&moddummy, num, 0);
+	moddummy.dim = 0; moddummy.sign = 0;
 	
-	
-}*/
+	unsigned int testpower = num->len - den->len;
+	num_t resdummy;
+	initnum(&resdummy, testpower + 1, 0, 0);
+	for(unsigned int i = 0; i < resdummy.len; i++)
+		resdummy.nump[i] = 0;
+
+	num_t dummy;
+	unsigned int j;
+
+	unsigned int previouscmp;
+	unsigned int thiscmp;
+	for(testpower = testpower; testpower != (unsigned int)-1; testpower--){
+		previouscmp = 1;
+		for(uint32_t testdigit = 9; testdigit != 0; testdigit--){ 
+			initnum(&dummy, den->len + 1, 0, 0);
+			for(unsigned int i = 0; i < dummy.len; i++)
+				dummy.nump[i] = 0;
+
+			for(unsigned int i = 0; i < den->len; i++){
+				dummy.nump[i] += den->nump[i]*testdigit;
+				j = i;
+				while(psi(10, 1, dummy.nump[j]) != 0 && j < den->len){
+					dummy.nump[j+1] += psi(10, 1, dummy.nump[j]);
+					dummy.nump[j] = psi(10, 0, dummy.nump[j]);
+					j++;
+				}
+			}
+			
+			shiftnum(&dummy, testpower);
+			thiscmp = cmpnum(&dummy, &moddummy, false);
+			//printf("testpower: %u cmp: %u testdigit: %u\n", testpower, thiscmp, testdigit);
+			if(previouscmp < thiscmp || thiscmp == 0){
+				//printf("that's it!\n");
+				sumnum(&moddummy, &moddummy, &dummy, true);
+				//printnum(&moddummy, false);
+				resdummy.nump[testpower] = testdigit;
+				//printf("tesdigit: %u\n", testdigit);
+				testdigit = 1;
+				if(isnumzero(&moddummy)) testpower = 0;
+			}
+			previouscmp = thiscmp;
+			//printnum(&dummy, false);
+			free(dummy.nump);
+		}
+	}
+	//printnum(&resdummy, false);
+
+	moddummy.dim = dim; moddummy.sign = sign;
+	copynum(mod, &moddummy, 0);
+
+	resdummy.dim = dim; resdummy.sign = sign;
+	copynum(res, &resdummy, 0);
+
+	free(moddummy.nump);
+	free(resdummy.nump);
+}
 
 #endif

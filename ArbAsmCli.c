@@ -15,11 +15,12 @@ int stackptr;
 
 num_t regs[8];//Change it in main() too if you change it here!
 enum registers {gr1, gr2, gr3, flag, inplen, endia, stacsz, tme};
-enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, cmp, ucmp, rot, shf, print, push, pop, len};
+enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len};
 
 const int TheMaximumLengthOfTheThings = 10;
 char instructstring[][10] = { "\\\0", "h\0", "set\0", "rev\0", "sel\0",
-							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "cmp\0", "ucmp\0", "rot\0", "shf\0",
+							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
+							"cmp\0", "ucmp\0", "rot\0", "shf\0",
 							"print\0", "push\0", "pop\0", "len\0", "\0end" };
 char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0",
 							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
@@ -79,6 +80,14 @@ void functionswitch(int instruction, num_t* args[]){
 			break;
 		case mul:
 			multnum(args[0], args[0], args[1]);
+			printnum(args[0], bigEndian);
+			break;
+		case divi:
+			divnum(args[0], args[2], args[0], args[1]);
+			printnum(args[0], bigEndian);
+			break;
+		case modu:
+			divnum(args[2], args[0], args[0], args[1]);
 			printnum(args[0], bigEndian);
 			break;
 		case cmp:
