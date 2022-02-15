@@ -1,29 +1,13 @@
 # Adapted from:
 #  "A Simple Makefile Tutorial" https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 
-IDIR =.
 CC=gcc
-CFLAGS=-I$(IDIR)
 
-ODIR=.
-LDIR =.
+C_FILES = ArbAsmCli.c
+OUTPUT = ArbAsmCli
 
-LIBS=-lm
+$(OUTPUT): $(C_FILES)
+	$(CC) -o $@ $^ -lm
 
-_DEPS = arbnum.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
-
-_OBJ = ArbAsmCli.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
-
-
-$(ODIR)/%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-ArbAsmCli: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-.PHONY: clean
-
-clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
+run: $(OUTPUT)
+	./$^
