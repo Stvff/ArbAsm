@@ -7,23 +7,27 @@
 unsigned int inputlen = 256;
 char* userInput;
 
+bool ScriptingMode = false;
+int scriptLoops = 0;
+
 int bigEndian = 0;
 
 int stackSize = 20;
 num_t* stack;
 int stackptr;
 
-num_t regs[9];//Change it in main() too if you change it here!
-enum registers {gr1, gr2, gr3, ir, flag, inplen, endia, stacsz, tme};
-enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len};
+num_t regs[10];//Change it in main() too if you change it here!
+enum registers {gr1, gr2, gr3, ir, flag, inplen, endia, stacsz, tme, loops};
+enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len, SCR, Ce, Cs, Cg};
 
 const int TheMaximumLengthOfTheThings = 10;
 char instructstring[][10] = { "\\\0", "h\0", "set\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0",
-							"print\0", "push\0", "pop\0", "len\0", "\0end" };
+							"print\0", "push\0", "pop\0", "len\0", 
+							"SCR\0", "Ce\0", "Cs\0", "Cg\0", "\0end"};
 char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "ir\0",
-							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
+							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "loops\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -145,21 +149,38 @@ bool dothing(){
 	//printf("start dothing\n");
 	bool returnbool = true;
 	int startat;
-	int instruction = strlook(userInput, instructstring, 0, &startat);
+	int offsetbegin = 0;
+	startofdothing:
+	int instruction = strlook(userInput, instructstring, offsetbegin, &startat);
 
 	switch (instruction){
 		case 0:
 			printf("Not a valid instruction.\n");
-			goto end;
+			goto endofdothing;
 			break;
 		case endprog:
 			printf("Good day!\n");
 			returnbool = false;
-			goto end;
+			goto endofdothing;
 			break;
 		case h:
 			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`) and add the appropriate amount of arguments seperated by commas.\n\nThe general purpose registers are `gr1`, `gr2`, and `gr3`.\n\nTo change notation from little endian (the default) to big endian, set the register `endia` to 1. To change maximum line length, set the register `inplen` to the desired value.\n\nEnter `\\` to close the program.\n\n(P.S. Did you know that the actual plural of \"comma\" is \"commata\"? Wild.)\n");
-			goto end;
+			goto endofdothing;
+			break;
+		case Ce:
+			offsetbegin = startat + 1;
+			if(regs[flag].nump[0] == 0) goto startofdothing;
+			else goto endofdothing;
+			break;
+		case Cs:
+			offsetbegin = startat + 1;
+			if(regs[flag].nump[0] == 1) goto startofdothing;
+			else goto endofdothing;
+			break;
+		case Cg:
+			offsetbegin = startat + 1;
+			if(regs[flag].nump[0] == 2) goto startofdothing;
+			else goto endofdothing;
 			break;
 	}
 	//printf("after instructionfiguring\n");
@@ -172,7 +193,7 @@ bool dothing(){
 	int loInputentry = 0;
 	char entry;
 	bool therewasnosemi = true;
-	for(unsigned int i = startat; i < inputlen; i+=loInputentry){
+	for(unsigned int i = startat + offsetbegin; i < inputlen; i+=loInputentry){
 		//printf("start loop, i: %u\n", i);
 		loInputentry = 1;
 		entry = userInput[i];
@@ -188,7 +209,7 @@ bool dothing(){
 			int id = strlook(userInput, registerstring, i, &loInputentry);
 			if(id == 0){
 				printf("Register at argument %d is not a register.\n", or12 + 1);
-				goto endsafe;
+				goto enddothingsafe;
 			} else tmpptr[or12] = &regs[id - 1];
 			//loInputentry--;
 		} else if (entry >= '0' && entry <= '9'){
@@ -200,28 +221,30 @@ bool dothing(){
 	}
 	if(therewasnosemi){
 		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", inputlen);
-		goto endsafe;
+		goto enddothingsafe;
 	}
 	//printf("after loop\n");
 
 	functionswitch(instruction, tmpptr);
 	//printnum(tmpptr[0]);
 
-	endsafe:
+	enddothingsafe:
 	freenumarray(3, tmp);
-	end:
+	endofdothing:
 	return returnbool;
 }
 
 void updateessentials(){
 	inputlen = numtoint(&regs[inplen], false);
 	bigEndian = numtoint(&regs[endia], false);
+	scriptLoops = numtoint(&regs[loops], false);
 }
 
 void setessentialsready(){
 	inttonum(&regs[inplen], inputlen);
 	inttonum(&regs[endia], bigEndian);
 	inttonum(&regs[stacsz], stackSize);
+	inttonum(&regs[loops], scriptLoops);
 }
 
 void freestack(){
@@ -237,7 +260,7 @@ void flushuserInput(){
 
 int main(){
 	printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
-	initnumarray(9, regs, 21, 0, 0);
+	initnumarray(10, regs, 21, 0, 0);
 	setessentialsready();
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
@@ -263,7 +286,15 @@ int main(){
 		free(userInput);
 	}
 
+	//if(ScriptingMode){
+	//	fopen
+		
+		
+		
+		
+	//}
+
 	freestack();
-	freenumarray(9, regs);
+	freenumarray(10, regs);
 	return 0;
 }
