@@ -13,8 +13,8 @@ int stackSize = 20;
 num_t* stack;
 int stackptr;
 
-num_t regs[8];//Change it in main() too if you change it here!
-enum registers {gr1, gr2, gr3, flag, inplen, endia, stacsz, tme};
+num_t regs[9];//Change it in main() too if you change it here!
+enum registers {gr1, gr2, gr3, ir, flag, inplen, endia, stacsz, tme};
 enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len};
 
 const int TheMaximumLengthOfTheThings = 10;
@@ -22,7 +22,7 @@ char instructstring[][10] = { "\\\0", "h\0", "set\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0",
 							"print\0", "push\0", "pop\0", "len\0", "\0end" };
-char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0",
+char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "ir\0",
 							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
@@ -112,7 +112,7 @@ void functionswitch(int instruction, num_t* args[]){
 		case push:
 			stackptr--;
 			if(stackptr < 0){
-				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack by modifying the 'stacsz' register, but this will clear the current stack.\n", stackSize);
+				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n", stackSize);
 				stackptr = 0;
 				break;
 			}
@@ -158,7 +158,7 @@ bool dothing(){
 			goto end;
 			break;
 		case h:
-			printf("To preform an operation, type an instruction mnemonic (e.g. 'set', 'print', 'add', 'push') and add the appropriate amount of arguments seperated by commata.\nThe general purpose registers are gr1, gr2, and gr3.\nTo change notation from little endian (the default) to big endian, set the register 'endia' to 1. To change maximum line length, set the register 'inplen' to the desired value.\nEnter '\\' to close the program.\n");
+			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`) and add the appropriate amount of arguments seperated by commas.\n\nThe general purpose registers are `gr1`, `gr2`, and `gr3`.\n\nTo change notation from little endian (the default) to big endian, set the register `endia` to 1. To change maximum line length, set the register `inplen` to the desired value.\n\nEnter `\\` to close the program.\n\n(P.S. Did you know that the actual plural of \"comma\" is \"commata\"? Wild.)\n");
 			goto end;
 			break;
 	}
@@ -199,7 +199,7 @@ bool dothing(){
 		//printf("end of loop, i: %u\n", i);
 	}
 	if(therewasnosemi){
-		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the inplen register.\n", inputlen);
+		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", inputlen);
 		goto endsafe;
 	}
 	//printf("after loop\n");
@@ -236,8 +236,8 @@ void flushuserInput(){
 }
 
 int main(){
-	printf("Good to see you!\nEnter 'h' for quick tips and '\\' to close the program.\n");
-	initnumarray(8, regs, 21, 0, 0);
+	printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
+	initnumarray(9, regs, 21, 0, 0);
 	setessentialsready();
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
@@ -264,6 +264,6 @@ int main(){
 	}
 
 	freestack();
-	freenumarray(3, regs);
+	freenumarray(9, regs);
 	return 0;
 }

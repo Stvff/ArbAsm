@@ -88,8 +88,9 @@ void inttonum(num_t* num, int inte){
 int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	int i = offset;
 	int j = 0;
-	while(str[i] >= '0' && str[i] <= '9'){
-		j++;i++;
+	while((str[i] >= '0' && str[i] <= '9') || str[i] == ' '){
+		if(str[i] != ' ') j++;
+		i++;
 	}
 	free(number->nump);
 	number->len = j;
@@ -118,14 +119,18 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	else if(str[i] == '+'){ number->sign = 0; signage++;}
 
 	int dirio = 1 - 2*isbigend;
-	i = offset + (j-1)*(isbigend);
+	i = offset*(1 - isbigend) + (i - signage)*(isbigend);
 	j = 0;
-
-	while(str[i] >= '0' && str[i] <= '9'){
-		number->nump[j] = (int) str[i] - 0x30;
-		j++; i+= dirio;
+	int z = 0;
+	while((str[i] >= '0' && str[i] <= '9') || str[i] == ' '){
+		if(str[i] != ' '){
+			number->nump[j] = (int) str[i] - 0x30;
+			j++;
+		}
+		i+= dirio;
+		z++;
 	}
-	return j + signage;
+	return z + signage;
 }
 
 bool isnumzero(num_t* num){
