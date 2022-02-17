@@ -154,7 +154,7 @@ bool dothing(){
 	bool returnbool = true;
 	int startat;
 	int offsetbegin = 0;
-	startofdothing:
+	startofdothing:;
 	int instruction = strlook(userInput, instructstring, offsetbegin, &startat);
 
 	switch (instruction){
