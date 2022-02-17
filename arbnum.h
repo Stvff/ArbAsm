@@ -119,7 +119,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	else if(str[i] == '+'){ number->sign = 0; signage++;}
 
 	int dirio = 1 - 2*isbigend;
-	i = offset*(1 - isbigend) + (i - signage)*(isbigend);
+	i = offset*(1 - isbigend) + (i - signage - 1)*(isbigend);
 	j = 0;
 	int z = 0;
 	while((str[i] >= '0' && str[i] <= '9') || str[i] == ' '){

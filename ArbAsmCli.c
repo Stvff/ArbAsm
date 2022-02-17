@@ -120,6 +120,7 @@ void functionswitch(int instruction, num_t* args[]){
 			if(stackptr < 0){
 				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n", stackSize);
 				stackptr = 0;
+				doprint = false;
 				break;
 			}
 			initnum(&stack[stackptr], 1, 0, 0);
@@ -130,6 +131,7 @@ void functionswitch(int instruction, num_t* args[]){
 			if(stackptr >= stackSize){
 				printf("The top of the stack has been reached (there are no elements to be popped).\n");
 				stackptr = stackSize;
+				doprint = false;
 				break;
 			}
 			copynum(args[0], &stack[stackptr], 0);
@@ -311,6 +313,7 @@ int main(){
 			goto normalop;
 		}
 
+		clock_t begin_time = clock();
 		int readheadpos = 0;
 		do {
 			if(stackSize != numtoint(&regs[stacsz], false)){
@@ -347,7 +350,8 @@ int main(){
 			
 			free(userInput);
 		} while(ScriptingMode);
-		
+		inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
+
 		fclose(fp);
 		goto normalop;
 	}

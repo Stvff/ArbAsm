@@ -1,5 +1,6 @@
-cmp loop, 0 ; set the first fraction term thing to 6 
-Ce set gr3, gr1
+cmp loop, 0 		; This script computes a continued fraction for calculating pi. It takes gr1 as the depth of the calculation, and returns digits of pi back into gr1
+
+Ce set gr3, gr1 	; set the first fraction term thing at the start of the script
 Ce mul gr3, 2
 Ce inc gr3
 Ce mul gr3, gr3
@@ -7,28 +8,27 @@ Ce shf gr3, 03
 
 set gr2, gr1
 
-mul gr2, 2 ; odd number squared
+mul gr2, 2  		; odd number squared
 inc gr2
 mul gr2, gr2
 
-shf gr2, 06 ; divide by the previous term
+shf gr2, 06 		; divide by the previous term, shifting it for extra decimals
 div gr2, gr3
 
-push gr1
-set gr1, 6 ; add six
+push gr1 			; add 6
+set gr1, 6
 shf gr1, 03
 add gr2, gr1
 pop gr1
 
-set gr3, gr2
-
-set loop, 1
-cmp gr1, 0
-Ce set loop, 0
-Ce set gr1, 3-
-Ce shf gr1, 03
-Ce add gr1, gr2
-Ce print gr1
-Ce inc gr1
+set gr3, gr2 		; setting the previous term
 
 dec gr1
+
+set loop, 1
+cmp gr1, 0 			; check if the top of the fraction has been reached
+Cs set loop, 0
+Cs set gr1, 3- 		; subtract 3 at the end
+Cs shf gr1, 03
+Cs add gr1, gr2
+Cs print gr1

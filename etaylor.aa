@@ -1,0 +1,25 @@
+cmp loop, 0			; This script computes gr1 amount of terms of the taylor series of e^1
+
+set endia, 1 		; setting things right at the start
+Ce set loop, 1
+Ce push gr1 		; stores the desired amount of terms on the stack
+Ce set ir, 1
+Ce set gr3, 1
+
+mul gr3, ir 		; multiplies gr3 by the incremented value, so that gr3 is n!
+
+set gr2, 1 			; sets gr2 to 1 (because this script does e^1) and adds extra digits
+shf gr2, 1000
+Ce set gr1, gr2 	; this only happens at the start, and sets the first term to 1
+div gr2, gr3		; computes 1/n!
+
+add gr1, gr2 		; adds the fraction to the series
+
+inc ir
+
+pop gr2 			; retrieves the target amount of terms and compares it to the amount of terms calculated
+cmp gr2, ir
+Cs set loop, 0, 	; stops the script if the target is reached and prints the final result
+Cs print gr1
+push gr2
+Cs pop
