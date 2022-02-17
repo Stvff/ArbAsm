@@ -4,11 +4,26 @@ I find the notation and syntax of assembly languages to be an interesting candid
 Internally, it does not have much to do with actual assembly language. The prime example of this the dynamic nature of the registers and their lengths (that also being its main feature).
 
 ## Compilation
-I'm not an expert on this, but
+To compile it, enter
 ```
-gcc ArbAsmCli.c -lm -o ArbAsmCli
+$ make
 ```
-should do the trick (it's what I do).
+in your favorite shell.\
+To compile and run it, enter
+```
+$ make run
+```
+It uses gcc, but apperantly the gcc command is symlinked to clang sometimes. That being said, it has also been tested with clang, so it should be alright either way.
+
+After compilation, the program can be run like so:
+```
+$ ./ArbAsmCli
+```
+It might need execute permission, in which case:
+```
+$ sudo chmod +x ./ArbAsmCli
+```
+should do the trick.
 
 ## Overview
 Every statement looks like this:
@@ -19,9 +34,9 @@ Arguments are either registers or numbers.\
 When an instruction is executed, the number it returns is printed to the screen. The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endia` register).
 
 ### Numbers
-Numbers can be of any length, and must be a continuous string of decimal digits. To input the sign of a number, a `+` or `-` can be placed at the end. The default is positive.\
+Numbers can be of any length, and must be a string of decimal digits that may be interrupted by spaces. To input the sign of a number, a `+` or `-` can be placed at the end. The default is positive.\
 Some examples:\
-`314159265358979`, `310771-` `00003+`\
+`314159265358979`, `310771-` `00003+` `1 000 000`\
 Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.
 
 ### Registers
@@ -29,17 +44,19 @@ Registers are effectively built-in variables.
 |Register|Length|Can be changed (with effect)|Description|
 |--------|------|----------------------------|-----------|
 |`gr1`, `gr2`, `gr3`|variable|yes|The general purpose registers, indented for storing and modifying numbers.|
+|`ir`|variable|yes|The index register, intended for keeping track of continuously incremented (or decremented) numbers in loops.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endia`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
 |`stacsz`|variable|yes|Holds the size of the stack, note that the stack will be cleared if this register is re-set.|
 |`time`|variable|no|Contains the amount of seconds the previous statement took to execute.|
 |`flag`|1|yes-(ish)|It contains the result of the comparison instructions `cmp` and `scmp`.|
+|`loop`|1|yes|Holds either a `1` or `0`. Scripts loop if the register is `1` at the end of the script.|
 
 ### Instruction mnemonics
 The first thing in a statement is always the instruction mnemonic. The result of an operation is stored in the first argument (if it is a register), unless stated otherwise.
 #### Register control and Information
 |Mnemonic|Intended Syntax|Name and description|Returns|
-|--------|---------------|--------------------|--------------|
+|--------|---------------|--------------------|-------|
 |`set`|`<register>, <register/number>`|Set. Sets the first argument as the second argument|The second argument.|
 |`print`|`<register/number>`|Print. Prints the number of the first argument to the console. It is effectively a no-op in the cli.|The first argument|
 |`push`|`<register/number>`|Push. Pushes the first argument to the stack.|The first argument|
@@ -52,15 +69,25 @@ The first thing in a statement is always the instruction mnemonic. The result of
 
 #### Arithmetic
 |Mnemonic|Intended Syntax|Name and description|Returns|
-|--------|---------------|--------------------|--------------|
+|--------|---------------|--------------------|-------|
 |`inc`|`<register/number>`|Increment. Increments the first argument by 1.|The incremented argument|
 |`dec`|`<register/number>`|Decrement. Decrements the first argument by 1.|The decremented argument|
 |`add`|`<register/number>, <register/number>`|Addition. Adds the two arguments together.|The sum of the arguments|
 |`sub`|`<register/number>, <register/number>`|Subtraction. Subtracts the second argument from the first argument.|The first argument minus the second argument|
 |`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together.|The product of the two arguments|
+|`div`|`<register/number>, <register/number>, <register>`|Division. Divides (integer division) the first argument by the second argument, storing the remainder in the third argument|The first argument divided by the second argument|
+|`mod`|`<register/number>, <register/number>, <register>`|Modulo. Preforms a modulo operation where the second argument is the modulus, storing the division of the first argument by the second argument in the third argument|The remainder of the first argument divided by the second argument|
 
-#### Logic
+#### Logic and Conditional statements
 |Mnemonic|Intended Syntax|Name and description|Returns|
-|--------|---------------|--------------------|--------------|
-|`cmp`|`<register/number>, <register/number>`|Signed compare. Compares the two arguments. Stores the result in the `flag` register.|0 if the arguments are equal, 1 if the first argument is the largest, 2 if the second argument is the largest.|
-|`ucmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two arguments as if they were unsigned. Stores the result in the `flag` register.|0 if the arguments are equal, 1 if the first argument is the largest, 2 if the second argument is the largest.|
+|--------|---------------|--------------------|-------|
+|`cmp`|`<register/number>, <register/number>`|Signed compare. Compares the two arguments. Stores the result in the `flag` register.|`0` if the arguments are equal, `1` if the first argument is the largest, `2` if the second argument is the largest.|
+|`ucmp`|`<register/number>, <register/number>`|Unsigned compare. Compares the two arguments as if they were unsigned. Stores the result in the `flag` register.|`0` if the arguments are equal, `1` if the first argument is the largest, `2` if the second argument is the largest.|
+|`Ce`|`<statement>`|Condition equal. Preforms the statement that follows it when the `flag` register is `0`.|Nothing or the result of the statement|
+|`Cg`|`<statement>`|Condition greater. Preforms the statement that follows it when the `flag` register is `1`.|Nothing or the result of the statement|
+|`Cs`|`<statement>`|Condition smaller. Preforms the statement that follows it when the `flag` register is `2`.|Nothing or the result of the statement|
+
+### Scripts
+A script is a simple text file with a .aa (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed from the command line by entering `SCR`, which will then prompt for the filename of or path to the script.\
+The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` if `1`, the script will loop until `loop` is `0` again.\
+A script runs in the instance it is called in, so this is a way to pass user inputs.
