@@ -187,7 +187,6 @@ bool dothing(){
 			else goto endofdothing;
 			break;
 		case SCR:
-			printf("Running script.\n");
 			ScriptingMode = true;
 			returnbool = false;
 			goto endofdothing;
@@ -298,7 +297,13 @@ int main(){
 	} while(running);
 
 	if(ScriptingMode){
-		FILE *fp = fopen("./script.aa", "r");
+		userInput = (char*) malloc(inputlen * sizeof(char));
+		printf("script >>> ");
+		fgets(userInput, inputlen, stdin);
+		sscanf(userInput, "%s", userInput);
+
+		FILE *fp = fopen(userInput, "r");
+		free(userInput);
 		if(fp == NULL){
 			printf("Could not open designated file.\n");
 			ScriptingMode = false;
