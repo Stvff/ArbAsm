@@ -17,17 +17,17 @@ num_t* stack;
 int stackptr;
 
 num_t regs[10];//Change it in main() too if you change it here!
-enum registers {gr1, gr2, gr3, ir, flag, inplen, endia, stacsz, tme, loops};
-enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len, SCR, Ce, Cs, Cg};
+enum registers {gr1, gr2, gr3, ir, flag, inplen, endia, stacsz, tme, loop};
+enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len, SCR, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
 char instructstring[][10] = { "\\\0", "h\0", "set\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0",
 							"print\0", "push\0", "pop\0", "len\0", 
-							"SCR\0", "Ce\0", "Cs\0", "Cg\0", "\0end"};
+							"SCR\0", "Ce\0", "Cg\0", "Cs\0", "\0end"};
 char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "ir\0",
-							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "loops\0", "\0end" };
+							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "loop\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -50,68 +50,70 @@ int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offse
 
 void functionswitch(int instruction, num_t* args[]){
 	clock_t begin_time = clock();
+	num_t* printptr; bool doprint = !ScriptingMode;
 	num_t dummy;
 	initnum(&dummy, 15, 0, 0);
 	switch (instruction){
 		case set:
 			copynum(args[0], args[1], 0);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case rev:
 			reversenum(args[0]);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case sel:
 			selectsectionnum(&dummy, args[0], numtoint(args[1], false), numtoint(args[2], false));
 			copynum(args[0], &dummy, 0);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case inc:
 			incnum(args[0], false);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case dec:
 			incnum(args[0], true);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case add:
 			sumnum(args[0], args[0], args[1], false);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case sub:
 			sumnum(args[0], args[0], args[1], true);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case mul:
 			multnum(args[0], args[0], args[1]);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case divi:
 			divnum(args[0], args[2], args[0], args[1]);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case modu:
 			divnum(args[2], args[0], args[0], args[1]);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case cmp:
 			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
-			printnum(&regs[flag], bigEndian);
+			printptr = &regs[flag];
 			break;
 		case ucmp:
 			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
-			printnum(&regs[flag], bigEndian);
+			printptr = &regs[flag];
 			break;
 		case rot:
 			rotnum(args[0], numtoint(args[1], true));
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case shf:
 			shiftnum(args[0], numtoint(args[1], true));
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case print:
-			printnum(args[0], bigEndian);
+			printptr = args[0];
+			doprint = true;
 			break;
 		case push:
 			stackptr--;
@@ -122,7 +124,7 @@ void functionswitch(int instruction, num_t* args[]){
 			}
 			initnum(&stack[stackptr], 1, 0, 0);
 			copynum(&stack[stackptr], args[0], 0);
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case pop:
 			if(stackptr >= stackSize){
@@ -133,13 +135,15 @@ void functionswitch(int instruction, num_t* args[]){
 			copynum(args[0], &stack[stackptr], 0);
 			free(stack[stackptr].nump);
 			stackptr++;
-			printnum(args[0], bigEndian);
+			printptr = args[0];
 			break;
 		case len:
 			inttonum(args[1], args[0]->len);
-			printnum(args[1], bigEndian);
+			printptr = args[1];
 			break;
 	}
+
+	if(doprint) printnum(printptr, bigEndian);
 
 	inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
 	free(dummy.nump);
@@ -172,15 +176,21 @@ bool dothing(){
 			if(regs[flag].nump[0] == 0) goto startofdothing;
 			else goto endofdothing;
 			break;
-		case Cs:
+		case Cg:
 			offsetbegin = startat + 1;
 			if(regs[flag].nump[0] == 1) goto startofdothing;
 			else goto endofdothing;
 			break;
-		case Cg:
+		case Cs:
 			offsetbegin = startat + 1;
 			if(regs[flag].nump[0] == 2) goto startofdothing;
 			else goto endofdothing;
+			break;
+		case SCR:
+			printf("Running script.\n");
+			ScriptingMode = true;
+			returnbool = false;
+			goto endofdothing;
 			break;
 	}
 	//printf("after instructionfiguring\n");
@@ -237,14 +247,14 @@ bool dothing(){
 void updateessentials(){
 	inputlen = numtoint(&regs[inplen], false);
 	bigEndian = numtoint(&regs[endia], false);
-	scriptLoops = numtoint(&regs[loops], false);
+	scriptLoops = numtoint(&regs[loop], false);
 }
 
 void setessentialsready(){
 	inttonum(&regs[inplen], inputlen);
 	inttonum(&regs[endia], bigEndian);
 	inttonum(&regs[stacsz], stackSize);
-	inttonum(&regs[loops], scriptLoops);
+	inttonum(&regs[loop], scriptLoops);
 }
 
 void freestack(){
@@ -266,7 +276,8 @@ int main(){
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	
 	bool running = true;
-	while(running){
+	normalop:
+	do {
 		if(stackSize != numtoint(&regs[stacsz], false)){
 			freestack();
 			stackSize = numtoint(&regs[stacsz], false);
@@ -284,15 +295,57 @@ int main(){
 		updateessentials();
 
 		free(userInput);
-	}
+	} while(running);
 
-	//if(ScriptingMode){
-	//	fopen
+	if(ScriptingMode){
+		FILE *fp = fopen("./script.aa", "r");
+		if(fp == NULL){
+			printf("Could not open designated file.\n");
+			ScriptingMode = false;
+			running = true;
+			goto normalop;
+		}
+
+		int readheadpos = 0;
+		do {
+			if(stackSize != numtoint(&regs[stacsz], false)){
+				freestack();
+				stackSize = numtoint(&regs[stacsz], false);
+				stackptr = stackSize;
+				stack = (num_t*) malloc(stackSize * sizeof(num_t));
+			}
+
+			userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
+			flushuserInput();
+
+			if(fgetc(fp) != EOF && fgetc(fp) != '\n'){
+				fseek(fp, readheadpos, SEEK_SET);
+
+				fgets(userInput, inputlen, fp);
+				//sscanf(userInput, "%s", userInput);
+				//printf("%s\n", userInput);
+
+				if(userInput[0] != '\n'){
+					ScriptingMode = dothing();
+					updateessentials();
+				}
+				for(int i = 0; userInput[i] != '\0'; i++)
+					readheadpos++;
+
+			} else if(scriptLoops != 0){
+				readheadpos = 0;
+				fseek(fp, readheadpos, SEEK_SET);
+			} else {
+				printf("Script completed.\n");
+				ScriptingMode = false;
+			}
+			
+			free(userInput);
+		} while(ScriptingMode);
 		
-		
-		
-		
-	//}
+		fclose(fp);
+		goto normalop;
+	}
 
 	freestack();
 	freenumarray(10, regs);

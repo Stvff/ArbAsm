@@ -1,4 +1,4 @@
-# Adapted from:
+# Adapted by https://www.github.com/TechnicJelle from:
 #  "A Simple Makefile Tutorial" https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 
 CC=gcc

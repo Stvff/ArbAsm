@@ -1,0 +1,15 @@
+cmp loop, 0		;Compares loop to 0
+Ce set gr1, 1	;This sets gr1 to 1 if loop == 0, in other words, at the start of the program
+Ce print gr1	;Same as above but it prints gr1
+
+inc gr1			;increment gr1 a bunch of times and then prints it
+inc gr1
+inc gr1
+print gr1
+
+set loop, 1		;sets loop to 1 as default, so the program will loop normally
+
+cmp gr1, 5		;compares gr1 to 5
+Cg set loop, 0	;sets loop to 0 if the result of the comparison is gr1 > 5 
+
+print 000000000000000000 ;prints a little divider so that the moment of looping is visible
