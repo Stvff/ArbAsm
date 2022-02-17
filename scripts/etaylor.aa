@@ -19,7 +19,7 @@ inc ir
 
 pop gr2 			; retrieves the target amount of terms and compares it to the amount of terms calculated
 cmp gr2, ir
-Cs set loop, 0, 	; stops the script if the target is reached and prints the final result
+Cs set loop, 0	 	; stops the script if the target is reached and prints the final result
 Cs print gr1
 push gr2
 Cs pop

@@ -16,17 +16,17 @@ int stackSize = 20;
 num_t* stack;
 int stackptr;
 
-num_t regs[10];//Change it in main() too if you change it here!
-enum registers {gr1, gr2, gr3, ir, flag, inplen, endia, stacsz, tme, loop};
-enum instructs {endprog=1, h, set, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len, SCR, Ce, Cg, Cs};
+num_t regs[11];//Change it in main() too if you change it here!
+enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endia, stacsz, tme, loop};
+enum instructs {endprog=1, h, set, dset, dget, rev, sel, inc, dec, add, sub, mul, divi, modu, cmp, ucmp, rot, shf, print, push, pop, len, SCR, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "h\0", "set\0", "rev\0", "sel\0",
+char instructstring[][10] = { "\\\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0",
 							"print\0", "push\0", "pop\0", "len\0", 
 							"SCR\0", "Ce\0", "Cg\0", "Cs\0", "\0end"};
-char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "ir\0",
+char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "gr4\0", "ir\0",
 							"flag\0", "inplen\0", "endia\0", "stacsz\0", "time\0", "loop\0", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
@@ -56,6 +56,17 @@ void functionswitch(int instruction, num_t* args[]){
 	switch (instruction){
 		case set:
 			copynum(args[0], args[1], 0);
+			printptr = args[0];
+			break;
+		case dset:
+			args[0]->nump[numtoint(args[1], false) % args[0]->len] = args[2]->nump[0];
+			printptr = args[0];
+			break;
+		case dget:
+			free(dummy.nump);
+			initnum(&dummy, 1, args[0]->sign, args[1]->dim);
+			dummy.nump[0] = args[0]->nump[numtoint(args[1], false) % args[0]->len];
+			copynum(args[0], &dummy, 0);
 			printptr = args[0];
 			break;
 		case rev:
@@ -271,7 +282,7 @@ void flushuserInput(){
 
 int main(){
 	printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
-	initnumarray(10, regs, 21, 0, 0);
+	initnumarray(11, regs, 21, 0, 0);
 	setessentialsready();
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
@@ -357,6 +368,6 @@ int main(){
 	}
 
 	freestack();
-	freenumarray(10, regs);
+	freenumarray(11, regs);
 	return 0;
 }

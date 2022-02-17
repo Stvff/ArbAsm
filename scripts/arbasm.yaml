@@ -1,0 +1,43 @@
+filetype: arbasm
+
+detect:
+    filename: "\\.(aac|aa)$"
+
+rules:
+    # This file is made for Arbitrary Assembly, it is adapted from the NASM assembly file from micro itself
+
+    ## Instructions
+    - statement: "\\b(?i)(set|dset|dget|rev|sel|inc|dec|add|sub|mul|div|mod|cmp|ucmp|rot|shf|print|push|pop|len|dset|dget)(?-i)\\b"
+
+      ## Registers
+    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ir|flag|endia|stacsz|time|loop)(?-i)\\b"
+
+      ## Constants
+      # Number - it works
+    - constant.number: "\\b[0-9 \ ]+(|\ )+(|i|j|k)+(|/+|/-)+\\b"
+    - constant.number: "\\b0x[0-9 a-f A-F]+\\b"
+
+      ## Other
+    - statement: "\\b(?i)(SCR|SAVE)(?-i)\\b"
+    - statement: "\\b(?i)(Ce|Cg|Cs)(?-i)\\b"
+    - identifier: "[a-z A-Z 0-9 _]+:"
+
+    - constant.string:
+        start: "\""
+        end: "\""
+        skip: "\\\\."
+        rules:
+            - constant.specialChar: "\\\\."
+
+    - constant.string:
+        start: "'"
+        end: "'"
+        skip: "\\\\."
+        rules:
+            - constant.specialChar: "\\\\."
+
+    - comment:
+        start: ";"
+        end: "$"
+        rules:
+            - todo: "(TODO|XXX|FIXME):?"
