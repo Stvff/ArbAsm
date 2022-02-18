@@ -43,11 +43,12 @@ Once again, the notation is little-endian by default, so `00003` is thirty thous
 Registers are effectively built-in variables.
 |Register|Length|Can be changed (with effect)|Description|
 |--------|------|----------------------------|-----------|
-|`gr1`, `gr2`, `gr3`|variable|yes|The general purpose registers, indented for storing and modifying numbers.|
+|`gr1`, `gr2`, `gr3`, `gr4`|variable|yes|The general purpose registers, indented for storing and modifying numbers.|
 |`ir`|variable|yes|The index register, intended for keeping track of continuously incremented (or decremented) numbers in loops.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endia`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
 |`stacsz`|variable|yes|Holds the size of the stack, note that the stack will be cleared if this register is re-set.|
+|`staptr`|variable|no|Holds the stackpointer. As the stack grows, this number goes to zero.|
 |`time`|variable|no|Contains the amount of seconds the previous statement took to execute.|
 |`flag`|1|yes-(ish)|It contains the result of the comparison instructions `cmp` and `scmp`.|
 |`loop`|1|yes|Holds either a `1` or `0`. Scripts loop if the register is `1` at the end of the script.|
@@ -62,10 +63,10 @@ The first thing in a statement is always the instruction mnemonic. The result of
 |`push`|`<register/number>`|Push. Pushes the first argument to the stack.|The first argument|
 |`pop`|`<register>`|Pop. Pops the number on top of the stack and sets the first argument to that number.|The number that was popped|
 |`len`|`<register/number>, <register>`|Length. Gets the length of the first argument and stores the it the second argument|The length of the first argument|
-|`rot`|<register/number>, <register/number>|Rotate. Rotates the first argument by the second argument.|The rotated argument|
-|`shf`|<register/number>, <register/number>|Shift. Arithmetically shifts the first argument by the second argument.|The shifted argument|
-|`rev`|<register/number>|Reverse. Reverses the first argument.|The reversed argument|
-|`sel`|<register/number>, <register/number>, <register/number>|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
+|`rot`|`<register/number>, <register/number>`|Rotate. Rotates the first argument by the second argument.|The rotated argument|
+|`shf`|`<register/number>, <register/number>`|Shift. Arithmetically shifts the first argument by the second argument.|The shifted argument|
+|`rev`|`<register/number>`|Reverse. Reverses the first argument.|The reversed argument|
+|`sel`|`<register/number>, <register/number>, <register/number>`|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
 
 #### Arithmetic
 |Mnemonic|Intended Syntax|Name and description|Returns|
@@ -88,6 +89,6 @@ The first thing in a statement is always the instruction mnemonic. The result of
 |`Cs`|`<statement>`|Condition smaller. Preforms the statement that follows it when the `flag` register is `2`.|Nothing or the result of the statement|
 
 ### Scripts
-A script is a simple text file with a .aa (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed from the command line by entering `SCR`, which will then prompt for the filename of or path to the script.\
+A script is a simple text file with a `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed from the command line by entering `SCR`, which will then prompt for the filename of or path to the script.\
 The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` if `1`, the script will loop until `loop` is `0` again.\
 A script runs in the instance it is called in, so this is a way to pass user inputs.
