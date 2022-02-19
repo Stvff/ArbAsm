@@ -10,6 +10,8 @@ MICRO_TARGET=~/.config/micro/syntax/
 
 $(OUTPUT): $(C_FILES)
 	$(CC) -o $@ $^ -lm
+
+formicro:
 	mkdir -p $(MICRO_TARGET)
 	cp scripts/arbasm.yaml $(MICRO_TARGET)
 
