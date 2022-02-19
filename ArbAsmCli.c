@@ -312,19 +312,20 @@ bool dothing(){
 			break;
 		}
 		//printf("in the middle of a loop, i: %u\n", i);
-		if(entry == ',') or12++;
-		if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
-			//printf("a to z\n");
-			int id = strlook(userInput, registerstring, i, &loInputentry);
-			if(id == 0){
-				printf("Register at argument %d is not a register.\n", or12 + 1);
-				goto enddothingsafe;
-			} else tmpptr[or12] = &regs[id - 1];
-			//loInputentry--;
-		} else if (entry >= '0' && entry <= '9'){
-			//printf("0 to 9\n");
-			loInputentry = inpstrtonum(&tmp[or12], userInput, i, bigEndian);
-			tmpptr[or12] = &tmp[or12];
+		if(or12 < 3){
+			if(entry == ',') or12++;
+			if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
+				//printf("a to z\n");
+				int id = strlook(userInput, registerstring, i, &loInputentry);
+				if(id == 0){
+					printf("Register at argument %d is not a register.\n", or12 + 1);
+					goto enddothingsafe;
+				} else tmpptr[or12] = &regs[id - 1];
+			} else if (entry >= '0' && entry <= '9'){
+				//printf("0 to 9\n");
+				loInputentry = inpstrtonum(&tmp[or12], userInput, i, bigEndian);
+				tmpptr[or12] = &tmp[or12];
+			}
 		}
 		//printf("end of loop, i: %u\n", i);
 	}
@@ -335,7 +336,6 @@ bool dothing(){
 	//printf("after loop\n");
 
 	functionswitch(instruction, tmpptr);
-	//printnum(tmpptr[0]);
 
 	enddothingsafe:
 	freenumarray(3, tmp);
