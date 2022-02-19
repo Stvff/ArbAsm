@@ -24,14 +24,14 @@ enum instructs {endprog=1, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, len, 
 				print, push, pop, peek, flip, ret,
-				SCR, Ce, Cg, Cs};
+				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
 char instructstring[][10] = { "\\\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0", "len\0",
 							"print\0", "push\0", "pop\0", "peek\0", "flip\0", "ret\0",
-							"SCR\0", "Ce\0", "Cg\0", "Cs\0", "\0end"};
+							"SCR\0", "SAVE\0", "LOAD\0", "Ce\0", "Cg\0", "Cs\0", "\0end"};
 char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "gr4\0", "ir\0",
 							"flag\0", "inplen\0", "endian\0", "stacsz\0", "staptr\0", "rstptr\0",
 							"time\0", "loop\0", "\0end" };
@@ -216,6 +216,31 @@ void functionswitch(int instruction, num_t* args[]){
 	free(dummy.nump);
 }
 
+void saveload(bool save){
+	int readfilei;
+	for(readfilei = 5; userInput[readfilei] != '\0'; readfilei++)
+		userInput[readfilei - 5] = userInput[readfilei];
+	userInput[readfilei-6] = '\0';
+
+	FILE* fp;
+	if(save){
+		fp = fopen(userInput, "wb+");
+		if(fp == NULL){
+			printf("Could not open file to save to: '%s'.\n", userInput);
+			return;
+		}
+		printf("Save to file not implemented yet.\n");
+	} else {
+		fp = fopen(userInput, "rb");
+		if(fp == NULL){
+			printf("Could not open file to load from: '%s'.\n", userInput);
+			return;
+		}
+		printf("Load from file not implemented yet.\n");
+	}
+	fclose(fp);
+}
+
 bool dothing(){
 	//printf("start dothing\n");
 	bool returnbool = true;
@@ -256,6 +281,14 @@ bool dothing(){
 		case SCR:
 			ScriptingMode = true;
 			returnbool = false;
+			goto endofdothing;
+			break;
+		case SAVE:
+			saveload(true);
+			goto endofdothing;
+			break;
+		case LOAD:
+			saveload(false);
 			goto endofdothing;
 			break;
 	}
@@ -349,7 +382,8 @@ int main(){
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	retstackptr = stackSize;
 	retstack = (num_t*) malloc(stackSize * sizeof(num_t));
-	
+
+	userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
 	bool running = true;
 	normalop:
 	do {
@@ -362,6 +396,7 @@ int main(){
 			retstack = (num_t*) malloc(stackSize * sizeof(num_t));
 		}
 
+		free(userInput);
 		userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
 		flushuserInput();
 		printf("\\\\\\ ");
@@ -371,19 +406,17 @@ int main(){
 		running = dothing();
 		updateessentials();
 
-		free(userInput);
 	} while(running);
 
 	if(ScriptingMode){
-		userInput = (char*) malloc(inputlen * sizeof(char));
-		printf("script >>> ");
-		fgets(userInput, inputlen, stdin);
-		sscanf(userInput, "%s", userInput);
+		int readfilei;
+		for(readfilei = 4; userInput[readfilei] != '\0'; readfilei++)
+			userInput[readfilei - 4] = userInput[readfilei];
+		userInput[readfilei-5] = '\0';
 
 		FILE *fp = fopen(userInput, "r");
-		free(userInput);
 		if(fp == NULL){
-			printf("Could not open designated file.\n");
+			printf("Could not open designated file '%s'.\n", userInput);
 			ScriptingMode = false;
 			running = true;
 			goto normalop;
@@ -401,6 +434,7 @@ int main(){
 				retstack = (num_t*) malloc(stackSize * sizeof(num_t));
 			}
 
+			free(userInput);
 			userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
 			flushuserInput();
 
@@ -426,7 +460,6 @@ int main(){
 				ScriptingMode = false;
 			}
 			
-			free(userInput);
 		} while(ScriptingMode);
 		inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
 
@@ -434,6 +467,7 @@ int main(){
 		goto normalop;
 	}
 
+	free(userInput);
 	freestack();
 	freenumarray(13, regs);
 	return 0;
