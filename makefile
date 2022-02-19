@@ -6,8 +6,12 @@ CC=gcc
 C_FILES = ArbAsmCli.c
 OUTPUT = ArbAsmCli
 
+MICRO_TARGET=~/.config/micro/syntax/
+
 $(OUTPUT): $(C_FILES)
 	$(CC) -o $@ $^ -lm
+	mkdir -p $(MICRO_TARGET)
+	cp scripts/arbasm.yaml $(MICRO_TARGET)
 
 run: $(OUTPUT)
 	./$^
