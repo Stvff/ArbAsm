@@ -13,7 +13,15 @@ To compile and run it, enter
 ```
 $ make run
 ```
-It uses gcc, but apperantly the gcc command is symlinked to clang sometimes. That being said, it has also been tested with clang, so it should be alright either way.
+It uses gcc, but apperantly the gcc command is symlinked to clang sometimes. That being said, it has also been tested with clang, so it should be alright either way.\
+There is a syntax highlighting file for the text editor [micro](https://github.com/zyedidia/micro) in the scripts directory. If `formicro` is added as an argument for `make`, it will place the syntax file in what should be the right place:
+```
+$ make formicro
+```
+or
+```
+$ make formicro run
+```
 
 After compilation, the program can be run like so:
 ```
@@ -47,21 +55,21 @@ Registers are effectively built-in variables.
 |`ir`|variable|yes|The index register, intended for keeping track of continuously incremented (or decremented) numbers in loops.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endia`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
-|`stacsz`|variable|yes|Holds the size of the stack, note that the stack will be cleared if this register is re-set.|
-|`staptr`|variable|no|Holds the stackpointer. As the stack grows, this number goes to zero.|
+|`stacsz`|variable|yes|Holds the size of the both the main and return stack, note that both stacks will be cleared if this register is re-set.|
+|`staptr`|variable|no|Holds the main stack pointer. As the main stack grows, this number goes to zero.|
+|`rstptr`|variable|no|Holds the return stack pointer. As the return stack grows, this number goes to zero.|
 |`time`|variable|no|Contains the amount of seconds the previous statement took to execute.|
 |`flag`|1|yes-(ish)|It contains the result of the comparison instructions `cmp` and `scmp`.|
 |`loop`|1|yes|Holds either a `1` or `0`. Scripts loop if the register is `1` at the end of the script.|
 
 ### Instruction mnemonics
 The first thing in a statement is always the instruction mnemonic. The result of an operation is stored in the first argument (if it is a register), unless stated otherwise.
+
 #### Register control and Information
 |Mnemonic|Intended Syntax|Name and description|Returns|
 |--------|---------------|--------------------|-------|
 |`set`|`<register>, <register/number>`|Set. Sets the first argument as the second argument|The second argument.|
 |`print`|`<register/number>`|Print. Prints the number of the first argument to the console. It is effectively a no-op in the cli.|The first argument|
-|`push`|`<register/number>`|Push. Pushes the first argument to the stack.|The first argument|
-|`pop`|`<register>`|Pop. Pops the number on top of the stack and sets the first argument to that number.|The number that was popped|
 |`len`|`<register/number>, <register>`|Length. Gets the length of the first argument and stores the it the second argument|The length of the first argument|
 |`rot`|`<register/number>, <register/number>`|Rotate. Rotates the first argument by the second argument.|The rotated argument|
 |`shf`|`<register/number>, <register/number>`|Shift. Arithmetically shifts the first argument by the second argument.|The shifted argument|
@@ -87,6 +95,16 @@ The first thing in a statement is always the instruction mnemonic. The result of
 |`Ce`|`<statement>`|Condition equal. Preforms the statement that follows it when the `flag` register is `0`.|Nothing or the result of the statement|
 |`Cg`|`<statement>`|Condition greater. Preforms the statement that follows it when the `flag` register is `1`.|Nothing or the result of the statement|
 |`Cs`|`<statement>`|Condition smaller. Preforms the statement that follows it when the `flag` register is `2`.|Nothing or the result of the statement|
+
+#### Stack control
+There are two stacks: The main stack and the return stack. The main stack is meant to be used for temporarily relieving registers so that they can be used for different operations. The return stack is meant to be used to store numbers that will be returned at the end of the script or procedure it is being used in.
+|Mnemonic|Intended Syntax|Name and description|Returns|
+|--------|---------------|--------------------|-------|
+|`push`|`<register/number>`|Push. Pushes the first argument onto the main stack.|The first argument|
+|`pop`|`<register>`|Pop. Pops the number on top of the main stack off into the first argument.|The number that was popped|
+|`peek`|`<register>`|Peek. Copies the number on top of the main stack into the first argument|The number on top of the main stack|
+|`flip`||Flip. Pops the number on top of the main stack off and pushes it onto the return stack.|The number that was popped and pushed|
+|`ret`||Return. Pops the number on top of the return stack and pushes (returns) it onto the main stack.|The number that was popped and pushed|
 
 ### Scripts
 A script is a simple text file with a `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed from the command line by entering `SCR`, which will then prompt for the filename of or path to the script.\
