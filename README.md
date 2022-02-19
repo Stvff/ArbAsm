@@ -1,7 +1,19 @@
-# ArbAsmCli
-Console calculator for arbitrary precision arithmetic with an assembly language-styled syntax.\
-I find the notation and syntax of assembly languages to be an interesting candidate for using in calculators. A long term, distant goal is making a standalone handheld calculator with the functions and conventions outlined by this implementation.\
-Internally, it does not have much to do with actual assembly language. The prime example of this the dynamic nature of the registers and their lengths (that also being its main feature).
+# Arbitrary Assembly
+Command line interface and interpreter for an assembly language-styled scripting language with a strong focus on arithmetic for its main data type: arbitrary precision integers.
+
+A long term, distant goal is making a standalone handheld calculator with the functions and conventions outlined by this implementation.
+
+## Table of contents
+* [Compilation](#compilation)
+* [Syntax, instructions, options](#syntax-instructions-options)
+  * [Numbers](#numbers)
+  * [Registers](#registers)
+  * [Instruction mnemonics](#instruction-mnemonics)
+    * [Register control and Information](#register-control-and-information)
+    * [Arithmetic](#arithmetic)
+    * [Logic and Conditional statements](#logic-and-conditional-statements)
+    * [Stack control](#stack-control)
+  * [Scripts and files](#scripts-and-files)
 
 ## Compilation
 To compile it, enter
@@ -14,15 +26,10 @@ To compile and run it, enter
 $ make run
 ```
 It uses gcc, but apperantly the gcc command is symlinked to clang sometimes. That being said, it has also been tested with clang, so it should be alright either way.\
-There is a syntax highlighting file for the text editor [micro](https://github.com/zyedidia/micro) in the scripts directory. If `formicro` is added as an argument for `make`, it will place the syntax file in what should be the right place:
+There is a syntax highlighting file for the text editor [micro](https://github.com/zyedidia/micro) in the scripts directory. If `formicro` is added as a flag for `make`, it will place the syntax file in what should be the right place:
 ```
 $ make formicro
 ```
-or
-```
-$ make formicro run
-```
-
 After compilation, the program can be run like so:
 ```
 $ ./ArbAsmCli
@@ -33,18 +40,19 @@ $ sudo chmod +x ./ArbAsmCli
 ```
 should do the trick.
 
-## Overview
-Every statement looks like this:
+## Syntax, instructions, options
+Every statement is of the form:
 ```
-<instruction mnemonic> <arguments seperated by commata>
+<instruction mnemonic(s)> <arguments seperated by commas>
 ```
 Arguments are either registers or numbers.\
-When an instruction is executed, the number it returns is printed to the screen. The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endia` register).
+In the command line interface, when an instruction is executed, the number it returns is printed to the screen.\
+The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endian` register).
 
 ### Numbers
 Numbers can be of any length, and must be a string of decimal digits that may be interrupted by spaces. To input the sign of a number, a `+` or `-` can be placed at the end. The default is positive.\
 Some examples:\
-`314159265358979`, `310771-` `00003+` `1 000 000`\
+`314159265358979`, `310771-`, `00003+`, `000 000 1`\
 Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.
 
 ### Registers
@@ -54,7 +62,7 @@ Registers are effectively built-in variables.
 |`gr1`, `gr2`, `gr3`, `gr4`|variable|yes|The general purpose registers, indented for storing and modifying numbers.|
 |`ir`|variable|yes|The index register, intended for keeping track of continuously incremented (or decremented) numbers in loops.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
-|`endia`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
+|`endian`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
 |`stacsz`|variable|yes|Holds the size of the both the main and return stack, note that both stacks will be cleared if this register is re-set.|
 |`staptr`|variable|no|Holds the main stack pointer. As the main stack grows, this number goes to zero.|
 |`rstptr`|variable|no|Holds the return stack pointer. As the return stack grows, this number goes to zero.|
@@ -101,12 +109,16 @@ There are two stacks: The main stack and the return stack. The main stack is mea
 |Mnemonic|Intended Syntax|Name and description|Returns|
 |--------|---------------|--------------------|-------|
 |`push`|`<register/number>`|Push. Pushes the first argument onto the main stack.|The first argument|
-|`pop`|`<register>`|Pop. Pops the number on top of the main stack off into the first argument.|The number that was popped|
+|`pop`|`<register>`|Pop. Pops the number on top of the main stack into the first argument.|The number that was popped|
 |`peek`|`<register>`|Peek. Copies the number on top of the main stack into the first argument|The number on top of the main stack|
-|`flip`||Flip. Pops the number on top of the main stack off and pushes it onto the return stack.|The number that was popped and pushed|
+|`flip`||Flip. Pops the number on top of the main stack and pushes it onto the return stack.|The number that was popped and pushed|
 |`ret`||Return. Pops the number on top of the return stack and pushes (returns) it onto the main stack.|The number that was popped and pushed|
 
-### Scripts
-A script is a simple text file with a `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed from the command line by entering `SCR`, which will then prompt for the filename of or path to the script.\
-The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` if `1`, the script will loop until `loop` is `0` again.\
+### Scripts and files
+A script is a simple text file with the `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed with `SCR`:
+```
+SCR <path relative to the current working directory>
+```
+Which works both in the CLI and in scripts (recursion is supported).\
+The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` is `1`, the script will loop until `loop` is `0` again.\
 A script runs in the instance it is called in, so this is a way to pass user inputs.
