@@ -59,7 +59,7 @@ Once again, the notation is little-endian by default, so `00003` is thirty thous
 Registers are effectively built-in variables.
 |Register|Length|Can be changed (with effect)|Description|
 |--------|------|----------------------------|-----------|
-|`gr1`, `gr2`, `gr3`, `gr4`|variable|yes|The general purpose registers, indented for storing and modifying numbers.|
+|`gr1`, `gr2`, `gr3`, `gr4`|variable|yes|The general purpose registers, intended for storing and modifying numbers.|
 |`ir`|variable|yes|The index register, intended for keeping track of continuously incremented (or decremented) numbers in loops.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endian`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
@@ -117,8 +117,8 @@ There are two stacks: The main stack and the return stack. The main stack is mea
 ### Scripts and files
 A script is a simple text file with the `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed with `SCR`:
 ```
-SCR <path relative to the current working directory>
+\\\ SCR <path relative to the current working directory>
 ```
-Which works both in the CLI and in scripts (recursion is supported).\
+Which only works in the CLI (for now).\
 The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` is `1`, the script will loop until `loop` is `0` again.\
 A script runs in the instance it is called in, so this is a way to pass user inputs.

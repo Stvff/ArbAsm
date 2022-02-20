@@ -1,0 +1,32 @@
+set endia, 0 		; Look ma! The language can do  e v e r y t h i n g
+
+cmp loop, 0 		; check if loop is zero, if this is the first iteration
+Ce set gr1, 10 		; make the beginning tape, 64 zeroes with a 1 right before the end
+Ce shf gr1, 36
+Ce set ir, 0
+Ce push ir
+
+print ir
+
+push gr1
+set gr2, gr1
+set gr1, ir
+add gr1, 3
+print gr1
+print 888888888888
+
+cmp ir, 36 			; this switches the incrementer to a different value
+
+pop gr1
+Ce pop ir
+Ce print gr1 		; prints gr1 at the end of the subloop
+
+
+inc ir
+
+set loop, 1
+push flag
+Ce cmp ir, gr4
+Ce set loop, 0
+pop flag
+Ce push ir

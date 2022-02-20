@@ -1,0 +1,31 @@
+set gr4, 0
+push gr1
+
+pop gr3 			; <binary coversion>
+push gr3
+dget gr3, gr2
+
+add gr4, gr3
+
+inc gr2
+pop gr3
+push gr3
+dget gr3, gr2
+mul gr3, 2
+
+add gr4, gr3
+
+inc gr2
+pop gr3
+push gr3
+dget gr3, gr2
+mul gr3, 4
+
+add gr4, gr3 		; </binary conversion>
+
+set gr1, 00111110 	; 000 100 010 110 001 101 011 111
+dget gr1, gr4
+pop gr4
+dec gr2
+dset gr4, gr2, gr1
+print gr4
