@@ -11,7 +11,7 @@ rules:
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
 
       ## Registers
-    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ir|flag|endia|stacsz|staptr|rstptr|time|loop)(?-i)\\b"
+    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ir|flag|endian|stacsz|staptr|rstptr|time|loop)(?-i)\\b"
 
       ## Constants
       # Number - it works
