@@ -20,14 +20,14 @@ int retstackptr;
 
 num_t regs[13];//Change it in main() too if you change it here!
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, staptr, rstptr, tme, loop};
-enum instructs {endprog=1, h, set, dset, dget, rev, sel,
+enum instructs {endprog=1, noop, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, len, 
 				print, push, pop, peek, flip, ret,
 				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
+char instructstring[][10] = { "\\\0", ";\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0", "len\0",
 							"print\0", "push\0", "pop\0", "peek\0", "flip\0", "ret\0",
@@ -216,7 +216,7 @@ void functionswitch(int instruction, num_t* args[]){
 	free(dummy.nump);
 }
 
-void saveload(bool save){
+int saveload(bool save){
 	int readfilei;
 	for(readfilei = 5; userInput[readfilei] != '\0'; readfilei++)
 		userInput[readfilei - 5] = userInput[readfilei];
@@ -227,18 +227,19 @@ void saveload(bool save){
 		fp = fopen(userInput, "wb+");
 		if(fp == NULL){
 			printf("Could not open file to save to: '%s'.\n", userInput);
-			return;
+			return 1;
 		}
 		printf("Save to file not implemented yet.\n");
 	} else {
 		fp = fopen(userInput, "rb");
 		if(fp == NULL){
 			printf("Could not open file to load from: '%s'.\n", userInput);
-			return;
+			return 1;
 		}
 		printf("Load from file not implemented yet.\n");
 	}
 	fclose(fp);
+	return 0;
 }
 
 bool dothing(){
@@ -252,44 +253,47 @@ bool dothing(){
 	switch (instruction){
 		case 0:
 			printf("Not a valid instruction.\n");
-			goto endofdothing;
+			goto donothing;
 			break;
 		case endprog:
 			printf("Good day!\n");
 			returnbool = false;
-			goto endofdothing;
+			goto donothing;
+			break;
+		case noop:
+			goto donothing;
 			break;
 		case h:
 			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`) and add the appropriate amount of arguments seperated by commas.\n\nThe general purpose registers are `gr1`, `gr2`, `gr3` and `gr4`.\n\nTo change notation from little endian (the default) to big endian, set the register `endian` to 1. To change maximum line length, set the register `inplen` to the desired value.\n\nEnter `\\` to close the program.\n\n(P.S. Did you know that the actual plural of \"comma\" is \"commata\"? Wild.)\n");
-			goto endofdothing;
+			goto donothing;
 			break;
 		case Ce:
 			offsetbegin = startat + 1;
 			if(regs[flag].nump[0] == 0) goto startofdothing;
-			else goto endofdothing;
+			else goto donothing;
 			break;
 		case Cg:
 			offsetbegin = startat + 1;
 			if(regs[flag].nump[0] == 1) goto startofdothing;
-			else goto endofdothing;
+			else goto donothing;
 			break;
 		case Cs:
 			offsetbegin = startat + 1;
 			if(regs[flag].nump[0] == 2) goto startofdothing;
-			else goto endofdothing;
+			else goto donothing;
 			break;
 		case SCR:
 			ScriptingMode = true;
 			returnbool = false;
-			goto endofdothing;
+			goto donothing;
 			break;
 		case SAVE:
 			saveload(true);
-			goto endofdothing;
+			goto donothing;
 			break;
 		case LOAD:
 			saveload(false);
-			goto endofdothing;
+			goto donothing;
 			break;
 	}
 	//printf("after instructionfiguring\n");
@@ -319,7 +323,7 @@ bool dothing(){
 				int id = strlook(userInput, registerstring, i, &loInputentry);
 				if(id == 0){
 					printf("Register at argument %d is not a register.\n", or12 + 1);
-					goto enddothingsafe;
+					goto donothingsafe;
 				} else tmpptr[or12] = &regs[id - 1];
 			} else if (entry >= '0' && entry <= '9'){
 				//printf("0 to 9\n");
@@ -331,15 +335,15 @@ bool dothing(){
 	}
 	if(therewasnosemi){
 		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", inputlen);
-		goto enddothingsafe;
+		goto donothingsafe;
 	}
 	//printf("after loop\n");
 
 	functionswitch(instruction, tmpptr);
 
-	enddothingsafe:
+	donothingsafe:
 	freenumarray(3, tmp);
-	endofdothing:
+	donothing:
 	return returnbool;
 }
 

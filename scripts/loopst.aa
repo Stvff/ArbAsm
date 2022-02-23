@@ -1,0 +1,35 @@
+cmp loop, 0 	; This script does a loop based on a number in the return stack
+Ce print 77777 	; loop n amount of times where rst: (n -- n) 
+Ce push 0 		; mst ( -- i )
+Ce set gr1, 0
+Ce set gr2, 0
+Ce set loop, 1
+
+inc gr1
+print gr1
+dec gr2
+print gr2
+print 88888888
+
+push gr2 		; mst ( i -- i gr2 )
+flip 			; mst ( i gr2 -- i ) rst ( n -- n gr2 )
+pop gr2 		; mst ( i -- )
+inc gr2 		; gr2 live now contains i+1
+push gr2 		; mst ( -- i+1 )
+ret 			; mst ( i+1 -- i+1 gr2 ) rst ( n gr2 -- n )
+
+push gr1 		; mst ( i+1 gr2 -- i+1 gr2 gr1 )
+ret 			; mst ( i+1 gr2 gr1 -- i+1 gr2 gr1 n ) rst ( n -- )
+peek gr1 		; gr1 live now contains n
+flip 			; mst ( i+1 gr2 gr1 n -- i+1 gr2 gr1 ) rst ( -- n )
+
+cmp gr1, gr2 	; compares n to i+1, the following happens if n < i+1
+Ce flip 		; mst ( i+1 gr2 gr1 -- i+1 gr2 ) rst ( n -- n gr1 )
+Ce flip 		; mst ( i+1 gr2 -- i+1 ) rst ( n gr1 -- n gr1 gr2 )
+Ce pop 			; mst ( i+1 -- )
+Ce ret 			; mst ( -- gr2 ) rst ( n gr1 gr2 -- n gr1 )
+Ce ret 			; mst ( gr2 -- gr2 gr1 ) rst ( n gr1 -- n )
+Ce set loop, 0
+
+pop gr1 		; mst ( <i+1> gr2 gr1 -- gr2 )
+pop gr2 		; mst ( <i+1> gr2 -- <i+1> )
