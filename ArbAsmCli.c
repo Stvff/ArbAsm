@@ -20,14 +20,14 @@ int retstackptr;
 
 num_t regs[13];//Change it in main() too if you change it here!
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, staptr, rstptr, tme, loop};
-enum instructs {endprog=1, noop, h, set, dset, dget, rev, sel,
+enum instructs {endprog=1, slashn, semicolon, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, len, 
 				print, push, pop, peek, flip, ret,
 				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", ";\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
+char instructstring[][10] = { "\\\0", "\n\0", ";\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
 							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
 							"cmp\0", "ucmp\0", "rot\0", "shf\0", "len\0",
 							"print\0", "push\0", "pop\0", "peek\0", "flip\0", "ret\0",
@@ -260,7 +260,8 @@ bool dothing(){
 			returnbool = false;
 			goto donothing;
 			break;
-		case noop:
+		case slashn:
+		case semicolon:
 			goto donothing;
 			break;
 		case h:
@@ -284,7 +285,11 @@ bool dothing(){
 			break;
 		case SCR:
 			ScriptingMode = true;
-			returnbool = false;
+			int readfilei;
+			for(readfilei = 4; userInput[readfilei] != '\0'; readfilei++)
+				userInput[readfilei - 4] = userInput[readfilei];
+			if(userInput[readfilei - 5] == '\n') userInput[readfilei - 5] = '\0';
+			else userInput[readfilei - 4] = '\0';
 			goto donothing;
 			break;
 		case SAVE:
@@ -296,7 +301,7 @@ bool dothing(){
 			goto donothing;
 			break;
 	}
-	//printf("after instructionfiguring\n");
+
 	num_t* tmpptr[3];
 	num_t tmp[3];
 	initnumarray(3, tmp, 1, 0, 0);
@@ -307,37 +312,36 @@ bool dothing(){
 	char entry;
 	bool therewasnosemi = true;
 	for(unsigned int i = startat + offsetbegin; i < inputlen; i+=loInputentry){
-		//printf("start loop, i: %u\n", i);
 		loInputentry = 1;
 		entry = userInput[i];
-		//printf("%c \n", entry);
+
 		if(entry == ';'){
 			therewasnosemi = false;
 			break;
 		}
-		//printf("in the middle of a loop, i: %u\n", i);
+
 		if(or12 < 3){
 			if(entry == ',') or12++;
 			if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
-				//printf("a to z\n");
+
 				int id = strlook(userInput, registerstring, i, &loInputentry);
 				if(id == 0){
 					printf("Register at argument %d is not a register.\n", or12 + 1);
 					goto donothingsafe;
 				} else tmpptr[or12] = &regs[id - 1];
+
 			} else if (entry >= '0' && entry <= '9'){
-				//printf("0 to 9\n");
+			
 				loInputentry = inpstrtonum(&tmp[or12], userInput, i, bigEndian);
 				tmpptr[or12] = &tmp[or12];
+				
 			}
 		}
-		//printf("end of loop, i: %u\n", i);
 	}
 	if(therewasnosemi){
 		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", inputlen);
 		goto donothingsafe;
 	}
-	//printf("after loop\n");
 
 	functionswitch(instruction, tmpptr);
 
@@ -390,11 +394,14 @@ int main(int argc, char* argv[]){
 	flushuserInput();
 
 	FILE* fp = stdin;
+	int readheadpos = 0;
 
 	bool running = true;
 	bool prevmode = false;
 	bool cont = true;
 	bool wascommand = false;
+	char ataste;
+	clock_t begin_time;
 	
 	for(int i = 1; i < argc; i++){
 		if(argv[i][0] == '-'){
@@ -408,19 +415,19 @@ int main(int argc, char* argv[]){
 					if(i+1 < argc){
 						i++;
 						//saveload(argv[i], false);
-						printf("Using statefile: '%s'.", argv[i]);
+						printf("Using statefile: '%s'.\n", argv[i]);
 					} else printf("Statefile name missing.\n");
 					break;
 			}
 		} else {
 			sscanf(argv[i], "%s", userInput);
+			//printf("userInput: '%s'\n", userInput);
 			wascommand = true;
 		}
 	}
 
 	if(cont) printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
 
-	normalop:
 	do {
 		if(stackSize != numtoint(&regs[stacsz], false)){
 			freestack();
@@ -431,89 +438,50 @@ int main(int argc, char* argv[]){
 			retstack = (num_t*) malloc(stackSize * sizeof(num_t));
 		}
 
+		if(ScriptingMode){
+			ataste = fgetc(fp);
+			fseek(fp, readheadpos, SEEK_SET);
+			if(ataste == EOF && scriptLoops == 1){
+				readheadpos = 0;
+				fseek(fp, readheadpos, SEEK_SET);
+			} else if(ataste == EOF){
+				inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
+				printf("Script completed.\n");
+				ScriptingMode = false;
+				readheadpos = 0;
+				fclose(fp);
+				fp = stdin;
+				wascommand = true;
+			}
+		}
+		
 		if(!wascommand){
 			if(!ScriptingMode) printf("\\\\\\ ");
 			fgets(userInput, inputlen, fp);
-		}
-		wascommand = false;
+//			printf("userInput: '%s', readheadpos: %d\n", userInput, readheadpos);
+
+			for(int i = 0; userInput[i] != '\0' && ScriptingMode; i++)
+				readheadpos++;
+		} wascommand = false;
 
 		running = dothing();
 		updateessentials();
 
-		if(prevmode != ScriptingMode){
-			if(ScriptingMode){
-				//fp = fopen(userInput, "r");
-			} else {
-				fclose(fp);
+		if(prevmode != ScriptingMode && ScriptingMode){
+			fp = fopen(userInput, "r");
+			if(fp == NULL){
+				printf("Could not open script '%s'.\n", userInput);
+				ScriptingMode = false;
 				fp = stdin;
-			}
-			prevmode = ScriptingMode;
-		}
+			} else begin_time = clock();
+			readheadpos = 0;
+		} prevmode = ScriptingMode;
 
 		free(userInput);
 		userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
 		flushuserInput();
-	} while ((running && cont) | ScriptingMode);
-
-	if(ScriptingMode){
-		int readfilei;
-		for(readfilei = 4; userInput[readfilei] != '\0'; readfilei++)
-			userInput[readfilei - 4] = userInput[readfilei];
-		userInput[readfilei-5] = '\0';
-
-		//pointwherethefileopens:
-		FILE *fp = fopen(userInput, "r");
-		if(fp == NULL){
-			printf("Could not open designated file '%s'.\n", userInput);
-			ScriptingMode = false;
-			running = true;
-			goto normalop;
-		}
-
-		clock_t begin_time = clock();
-		int readheadpos = 0;
-		do {
-			if(stackSize != numtoint(&regs[stacsz], false)){
-				freestack();
-				stackSize = numtoint(&regs[stacsz], false);
-				stackptr = stackSize;
-				retstackptr = stackSize;
-				stack = (num_t*) malloc(stackSize * sizeof(num_t));
-				retstack = (num_t*) malloc(stackSize * sizeof(num_t));
-			}
-
-			free(userInput);
-			userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
-			flushuserInput();
-
-			if(fgetc(fp) != EOF && fgetc(fp) != '\n'){
-				fseek(fp, readheadpos, SEEK_SET);
-
-				fgets(userInput, inputlen, fp);
-				//sscanf(userInput, "%s", userInput);
-				//printf("%s\n", userInput);
-
-				if(userInput[0] != '\n'){
-					ScriptingMode = dothing();
-					updateessentials();
-				}
-				for(int i = 0; userInput[i] != '\0'; i++)
-					readheadpos++;
-
-			} else if(scriptLoops != 0){
-				readheadpos = 0;
-				fseek(fp, readheadpos, SEEK_SET);
-			} else {
-				printf("Script completed.\n");
-				ScriptingMode = false;
-			}
-			
-		} while(ScriptingMode);
-		inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
-
-		fclose(fp);
-		goto normalop;
-	}
+//		printf("running %d, cont %d, ScriptingMode %d\n", running, cont, ScriptingMode);
+	} while ((running && cont) || ScriptingMode);
 
 	free(userInput);
 	freestack();
