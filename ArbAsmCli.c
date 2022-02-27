@@ -378,8 +378,7 @@ void flushuserInput(){
 		userInput[i] = ';';
 }
 
-int main(){
-	printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
+int main(int argc, char* argv[]){
 	initnumarray(13, regs, 21, 0, 0);
 	setessentialsready();
 	stackptr = stackSize;
@@ -388,7 +387,39 @@ int main(){
 	retstack = (num_t*) malloc(stackSize * sizeof(num_t));
 
 	userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
+	flushuserInput();
+
+	FILE* fp = stdin;
+
 	bool running = true;
+	bool prevmode = false;
+	bool cont = true;
+	bool wascommand = false;
+	
+	for(int i = 1; i < argc; i++){
+		if(argv[i][0] == '-'){
+			switch(argv[i][1]){
+				case 'E':
+				case 'e':
+					cont = false;
+					break;
+				case 'U':
+				case 'u':
+					if(i+1 < argc){
+						i++;
+						//saveload(argv[i], false);
+						printf("Using statefile: '%s'.", argv[i]);
+					} else printf("Statefile name missing.\n");
+					break;
+			}
+		} else {
+			sscanf(argv[i], "%s", userInput);
+			wascommand = true;
+		}
+	}
+
+	if(cont) printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
+
 	normalop:
 	do {
 		if(stackSize != numtoint(&regs[stacsz], false)){
@@ -400,17 +431,29 @@ int main(){
 			retstack = (num_t*) malloc(stackSize * sizeof(num_t));
 		}
 
-		free(userInput);
-		userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
-		flushuserInput();
-		printf("\\\\\\ ");
-		fgets(userInput, inputlen, stdin);
-		sscanf(userInput, "%s", userInput);
+		if(!wascommand){
+			if(!ScriptingMode) printf("\\\\\\ ");
+			fgets(userInput, inputlen, fp);
+		}
+		wascommand = false;
 
 		running = dothing();
 		updateessentials();
 
-	} while(running);
+		if(prevmode != ScriptingMode){
+			if(ScriptingMode){
+				//fp = fopen(userInput, "r");
+			} else {
+				fclose(fp);
+				fp = stdin;
+			}
+			prevmode = ScriptingMode;
+		}
+
+		free(userInput);
+		userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
+		flushuserInput();
+	} while ((running && cont) | ScriptingMode);
 
 	if(ScriptingMode){
 		int readfilei;
@@ -418,6 +461,7 @@ int main(){
 			userInput[readfilei - 4] = userInput[readfilei];
 		userInput[readfilei-5] = '\0';
 
+		//pointwherethefileopens:
 		FILE *fp = fopen(userInput, "r");
 		if(fp == NULL){
 			printf("Could not open designated file '%s'.\n", userInput);
