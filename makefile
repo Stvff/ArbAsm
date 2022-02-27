@@ -3,8 +3,8 @@
 
 CC=gcc
 
-C_FILES = ArbAsmCli.c
-OUTPUT = ArbAsmCli
+C_FILES = aasm.c
+OUTPUT = aasm
 
 MICRO_TARGET=~/.config/micro/syntax/
 

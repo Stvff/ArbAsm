@@ -1,7 +1,7 @@
 filetype: arbasm
 
 detect:
-    filename: "\\.(aac|aa)$"
+    filename: "\\.(aasm|aa)$"
 
 rules:
     # This file is made for Arbitrary Assembly, it is adapted from the NASM assembly file from micro itself

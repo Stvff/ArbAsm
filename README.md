@@ -32,11 +32,11 @@ $ make formicro
 ```
 After compilation, the program can be run like so:
 ```
-$ ./ArbAsmCli
+$ ./aasm
 ```
 It might need execute permission, in which case:
 ```
-$ sudo chmod +x ./ArbAsmCli
+$ sudo chmod +x ./aasm
 ```
 should do the trick.
 
