@@ -7,27 +7,24 @@
 #include <math.h>
 
 typedef struct Number {
-	int sign;
-	int dim;
-	unsigned int len;
-	uint32_t* nump;
-	int overflow;
+	int32_t sign;
+	int32_t dim;
+	uint32_t len;
+	uint8_t* nump;
 } num_t;
 
 int psi(int g,int h,int n){
 	return (n % (int)pow((float)g, (float)(h+1)))/(int)pow(g,h);
 }
 
-uint32_t* initnum(num_t* number, unsigned int length, int sign, int dim){
+uint8_t* initnum(num_t* number, unsigned int length, int sign, int dim){
 	number->sign = sign;
 	number->dim = dim;
 	number->len = length;
-	number->nump = (uint32_t*) malloc(number->len*sizeof(uint32_t));
+	number->nump = (uint8_t*) malloc(number->len*sizeof(uint32_t));
 	if(number->nump == NULL){
 		printf("Malloc error on initnum: %lu\n", (unsigned long int)number->nump);
-		number->overflow = 1;
 	}
-	number->overflow = 0;
 	return number->nump;
 }
 
@@ -46,7 +43,6 @@ void copynum(num_t* des, num_t* src, int keeplen){
 	unsigned int otherlen = src->len*keeplen + des->len*(1-keeplen);
 	free(des->nump);
 	initnum(des, len, src->sign, src->dim);
-	des->overflow = src->overflow;
 	for(unsigned int i = 0; i < len; i++){
 		if(keeplen == 0) des->nump[i] = src->nump[i];
 		else if (i < otherlen) des->nump[i] = src->nump[i];
@@ -94,7 +90,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	}
 	free(number->nump);
 	number->len = j;
-	number->nump = (uint32_t*) malloc(j*sizeof(uint32_t));
+	number->nump = (uint8_t*) malloc(j*sizeof(uint32_t));
 	if(number->nump == NULL) printf("There is a malloc problem on inpstrtonum: %lu\n", (unsigned long int)number->nump);
 
 	int signage = 0;
@@ -127,6 +123,18 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 		}
 	}
 	return i + signage - offset;
+}
+
+void savenum(FILE* fp, num_t* num){//File needs to be opened already!
+	fwrite(num, 4, 3, fp);
+	fwrite(num->nump, 1, num->len, fp);
+}
+
+void loadnum(FILE* fp, num_t* num){//File needs to be opened already!
+	fread(num, 4, 3, fp);
+	free(num->nump);
+	initnum(num, num->len, num->sign, num->dim);
+	fread(num->nump, 1, num->len, fp);
 }
 
 bool isnumzero(num_t* num){

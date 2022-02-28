@@ -1,10 +1,28 @@
-print 1 		;a comment
+set gr1, 1
+set gr2, 22
+set gr3, 333
+set gr4, 4444
+set ir, 11111
+set flag, 4
 
-print 2 		; another
-; again
-print 3
-;again
+push gr1
+push gr2
+push gr3
+push gr4
+push ir
+push flag
 
-cmp loop, 0
-Ce set loop, 1
-Cg set loop, 0
+SAVE state.aal
+
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1

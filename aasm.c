@@ -18,16 +18,17 @@ int stackptr;
 num_t* retstack;
 int retstackptr;
 
+int regamount = 13;
 num_t regs[13];//Change it in main() too if you change it here!
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
-enum instructs {endprog=1, slashn, semicolon, h, set, dset, dget, rev, sel,
+enum instructs {endprog=1, slashn, wincrap, semicolon, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, len, 
 				print, push, pop, peek, flip, ret,
 				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\", "\n", ";", "h", "set", "dset", "dget", "rev", "sel",
+char instructstring[][10] = { "\\", "\n", "\r", ";", "h", "set", "dset", "dget", "rev", "sel",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
 							"cmp", "ucmp", "rot", "shf", "len",
 							"print", "push", "pop", "peek", "flip", "ret",
@@ -216,27 +217,56 @@ void functionswitch(int instruction, num_t* args[]){
 	free(dummy.nump);
 }
 
-int saveload(bool save){
-	int readfilei;
-	for(readfilei = 5; userInput[readfilei] != '\0'; readfilei++)
-		userInput[readfilei - 5] = userInput[readfilei];
-	userInput[readfilei-6] = '\0';
+void freestack(){
+	for(int i = stackptr; i < stackSize; i++)
+		free(stack[i].nump);
+	free(stack);
+	for(int i = retstackptr; i < stackSize; i++)
+		free(retstack[i].nump);
+	free(retstack);
+}
 
+int saveload(char* path[], bool save){
+//	int readfilei = 0;
 	FILE* fp;
 	if(save){
-		fp = fopen(userInput, "wb+");
+		fp = fopen(*path, "wb+");
 		if(fp == NULL){
 			printf("Could not open file to save to: '%s'.\n", userInput);
 			return 1;
 		}
-		printf("Save to file not implemented yet.\n");
+		for(int i = 0; i < regamount; i++)
+			savenum(fp, &regs[i]);
+		for(int i = stackSize-1; i >= stackptr; i--)
+			savenum(fp, &stack[i]);
+		for(int i = stackSize-1; i >= retstackptr; i--)
+			savenum(fp, &retstack[i]);
+
+		if(!ScriptingMode) printf("Saved state to '%s'.\n", *path);
 	} else {
-		fp = fopen(userInput, "rb");
+		fp = fopen(*path, "rb");
 		if(fp == NULL){
 			printf("Could not open file to load from: '%s'.\n", userInput);
 			return 1;
 		}
-		printf("Load from file not implemented yet.\n");
+		for(int i = 0; i < regamount; i++)
+			loadnum(fp, &regs[i]);
+
+		freestack();
+		stackSize = numtoint(&regs[stacsz], false);
+		stack = (num_t*) malloc(stackSize * sizeof(num_t));
+		retstack = (num_t*) malloc(stackSize * sizeof(num_t));
+		stackptr = numtoint(&regs[mstptr], false);
+		retstackptr = numtoint(&regs[rstptr], false);
+
+		for(int i = stackSize-1; i >= stackptr; i--){
+			initnum(&stack[i], 1, 0, 0);
+			loadnum(fp, &stack[i]);}
+		for(int i = stackSize-1; i >= retstackptr; i--){
+			initnum(&retstack[i], 1, 0, 0);
+			loadnum(fp, &retstack[i]);}
+
+		if(!ScriptingMode) printf("Loaded state from '%s'.\n", *path);
 	}
 	fclose(fp);
 	return 0;
@@ -250,6 +280,8 @@ bool dothing(){
 	startofdothing:;
 	int instruction = strlook(userInput, instructstring, offsetbegin, &startat);
 
+	int readfilei;//this is used in the things that take strings as arguments
+
 	switch (instruction){
 		case 0:
 			printf("Not a valid instruction.\n");
@@ -261,6 +293,7 @@ bool dothing(){
 			goto donothing;
 			break;
 		case slashn:
+		case wincrap:
 		case semicolon:
 			goto donothing;
 			break;
@@ -285,19 +318,26 @@ bool dothing(){
 			break;
 		case SCR:
 			ScriptingMode = true;
-			int readfilei;
-			for(readfilei = 4; userInput[readfilei] != '\0'; readfilei++)
+			for(readfilei = 4; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
 				userInput[readfilei - 4] = userInput[readfilei];
-			if(userInput[readfilei - 5] == '\n') userInput[readfilei - 5] = '\0';
-			else userInput[readfilei - 4] = '\0';
+			userInput[readfilei - 4] = '\0';
+
 			goto donothing;
 			break;
 		case SAVE:
-			saveload(true);
+			for(readfilei = 5; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
+				userInput[readfilei - 5] = userInput[readfilei];
+			userInput[readfilei - 5] = '\0';
+
+			saveload(&userInput, true);
 			goto donothing;
 			break;
 		case LOAD:
-			saveload(false);
+			for(readfilei = 5; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
+				userInput[readfilei - 5] = userInput[readfilei];
+			userInput[readfilei - 5] = '\0';
+
+			saveload(&userInput, false);
 			goto donothing;
 			break;
 	}
@@ -306,7 +346,7 @@ bool dothing(){
 	num_t tmp[3];
 	initnumarray(3, tmp, 1, 0, 0);
 	tmpptr[0] = &tmp[0]; tmpptr[1] = &tmp[1]; tmpptr[2] = &tmp[2];
-	
+
 	int or12 = 0;
 	int loInputentry = 0;
 	char entry;
@@ -368,22 +408,13 @@ void setessentialsready(){
 	inttonum(&regs[rstptr], stackSize);
 }
 
-void freestack(){
-	for(int i = stackptr; i < stackSize; i++)
-		free(stack[i].nump);
-	free(stack);
-	for(int i = retstackptr; i < stackSize; i++)
-		free(retstack[i].nump);
-	free(retstack);
-}
-
 void flushuserInput(){
 	for(unsigned int i = 0; i < inputlen; i++)
 		userInput[i] = ';';
 }
 
 int main(int argc, char* argv[]){
-	initnumarray(13, regs, 21, 0, 0);
+	initnumarray(regamount, regs, 21, 0, 0);
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	retstackptr = stackSize;
@@ -401,7 +432,9 @@ int main(int argc, char* argv[]){
 	bool wascommand = false;
 	int8_t ataste;
 	clock_t begin_time;
-	
+
+	bool using = false;
+	int usingarg = 0;
 	for(int i = 1; i < argc; i++){
 		if(argv[i][0] == '-'){
 			switch(argv[i][1]){
@@ -413,8 +446,9 @@ int main(int argc, char* argv[]){
 				case 'u':
 					if(i+1 < argc){
 						i++;
-						//saveload(argv[i], false);
-						printf("Using statefile: '%s'.\n", argv[i]);
+						saveload(&argv[i], false);
+						using = true;
+						usingarg = i;
 					} else printf("Statefile name missing.\n");
 					break;
 				case 'B':
@@ -488,8 +522,10 @@ int main(int argc, char* argv[]){
 //		printf("running %d, cont %d, ScriptingMode %d\n", running, cont, ScriptingMode);
 	} while ((running && cont) || ScriptingMode);
 
+	if(using) saveload(&argv[usingarg], true);
+
 	free(userInput);
 	freestack();
-	freenumarray(13, regs);
+	freenumarray(regamount, regs);
 	return 0;
 }
