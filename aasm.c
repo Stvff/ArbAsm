@@ -384,7 +384,6 @@ void flushuserInput(){
 
 int main(int argc, char* argv[]){
 	initnumarray(13, regs, 21, 0, 0);
-	setessentialsready();
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	retstackptr = stackSize;
@@ -418,6 +417,10 @@ int main(int argc, char* argv[]){
 						printf("Using statefile: '%s'.\n", argv[i]);
 					} else printf("Statefile name missing.\n");
 					break;
+				case 'B':
+				case 'b':
+					bigEndian = true;
+					break;
 			}
 		} else {
 			sscanf(argv[i], "%s", userInput);
@@ -425,6 +428,8 @@ int main(int argc, char* argv[]){
 			wascommand = true;
 		}
 	}
+
+	setessentialsready();
 
 	if(cont) printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
 

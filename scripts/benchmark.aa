@@ -1,0 +1,22 @@
+; This script is a little benchmark for testing the preformance difference between several devices
+; it divides 10^n by 3, where n = 10^i where i is incremented up to the number on line 19
+; $ ./aasm SCR_scripts/benchmark.aa -e
+cmp loop, 0
+Ce set endian, 1
+Ce set gr1, 1
+Ce push gr1
+Ce set ir, 1
+Ce set loop, 1
+
+peek gr1
+peek gr2
+shf gr1, ir
+shf gr2, gr1
+div gr2, 3
+print time
+
+inc ir
+
+cmp ir, 5 			; CHANGE THIS TO 4 if you don't feel like waiting 15 - 30 minutes
+Cg set loop, 0
+Cg pop
