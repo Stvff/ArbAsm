@@ -19,7 +19,7 @@ num_t* retstack;
 int retstackptr;
 
 num_t regs[13];//Change it in main() too if you change it here!
-enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, staptr, rstptr, tme, loop};
+enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
 enum instructs {endprog=1, slashn, semicolon, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, len, 
@@ -27,14 +27,14 @@ enum instructs {endprog=1, slashn, semicolon, h, set, dset, dget, rev, sel,
 				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
-char instructstring[][10] = { "\\\0", "\n\0", ";\0", "h\0", "set\0", "dset\0", "dget\0", "rev\0", "sel\0",
-							"inc\0", "dec\0", "add\0", "sub\0", "mul\0", "div\0", "mod\0",
-							"cmp\0", "ucmp\0", "rot\0", "shf\0", "len\0",
-							"print\0", "push\0", "pop\0", "peek\0", "flip\0", "ret\0",
-							"SCR\0", "SAVE\0", "LOAD\0", "Ce\0", "Cg\0", "Cs\0", "\0end"};
-char registerstring[][10] = { "gr1\0", "gr2\0", "gr3\0", "gr4\0", "ir\0",
-							"flag\0", "inplen\0", "endian\0", "stacsz\0", "staptr\0", "rstptr\0",
-							"time\0", "loop\0", "\0end" };
+char instructstring[][10] = { "\\", "\n", ";", "h", "set", "dset", "dget", "rev", "sel",
+							"inc", "dec", "add", "sub", "mul", "div", "mod",
+							"cmp", "ucmp", "rot", "shf", "len",
+							"print", "push", "pop", "peek", "flip", "ret",
+							"SCR", "SAVE", "LOAD", "Ce", "Cg", "Cs", "\0end"};
+char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
+							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
+							"time", "loop", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -334,7 +334,7 @@ bool dothing(){
 			
 				loInputentry = inpstrtonum(&tmp[or12], userInput, i, bigEndian);
 				tmpptr[or12] = &tmp[or12];
-				
+								
 			}
 		}
 	}
@@ -355,7 +355,7 @@ void updateessentials(){
 	inputlen = numtoint(&regs[inplen], false);
 	bigEndian = numtoint(&regs[endian], false);
 	scriptLoops = numtoint(&regs[loop], false);
-	inttonum(&regs[staptr], stackptr);
+	inttonum(&regs[mstptr], stackptr);
 	inttonum(&regs[rstptr], retstackptr);
 }
 
@@ -364,7 +364,7 @@ void setessentialsready(){
 	inttonum(&regs[endian], bigEndian);
 	inttonum(&regs[stacsz], stackSize);
 	inttonum(&regs[loop], scriptLoops);
-	inttonum(&regs[staptr], stackSize);
+	inttonum(&regs[mstptr], stackSize);
 	inttonum(&regs[rstptr], stackSize);
 }
 

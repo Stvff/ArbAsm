@@ -64,7 +64,7 @@ Registers are effectively built-in variables.
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endian`|1|yes|Holds the endianness, 0 for little endian, 1 for big endian.|
 |`stacsz`|variable|yes|Holds the size of the both the main and return stack, note that both stacks will be cleared if this register is re-set.|
-|`staptr`|variable|no|Holds the main stack pointer. As the main stack grows, this number goes to zero.|
+|`mstptr`|variable|no|Holds the main stack pointer. As the main stack grows, this number goes to zero.|
 |`rstptr`|variable|no|Holds the return stack pointer. As the return stack grows, this number goes to zero.|
 |`time`|variable|no|Contains the amount of seconds the previous statement took to execute.|
 |`flag`|1|yes-(ish)|It contains the result of the comparison instructions `cmp` and `scmp`.|

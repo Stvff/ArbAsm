@@ -10,7 +10,7 @@ add gr4, gr3 			; add the length to the length-data-register
 shf gr4, 10 			; shifts the length-data-register by a reasonable amount, ready for the next length to be added
 
 set loop, 1
-cmp staptr, stacsz 		; looks at if the bottom of the stack has been reached, if it has:
+cmp mstptr, stacsz 		; looks at if the bottom of the stack has been reached, if it has:
 Ce push gr1 			; pushes complete-stack-register to the stack
 Ce push gr4 			; pushes length-data-register to the stack
 Ce set loop, 0 			; The stack now looks like this: top ( length-data-register   complete-stack-register ) bottom

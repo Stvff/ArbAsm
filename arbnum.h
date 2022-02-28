@@ -101,36 +101,32 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	switch(str[i]){
 		case 'i':
 			number->dim = 1;
-			i++; signage++;
+			signage++;
 			break;
 		case 'j':
 			number->dim = 2;
-			i++; signage++;
+			signage++;
 			break;
 		case 'k':
 			number->dim = 3;
-			i++; signage++;
+			signage++;
 			break;
 		default:
 			number->dim = 0;
 			break;
 	}
-	if(str[i] == '-'){ number->sign = 1; signage++;}
-	else if(str[i] == '+'){ number->sign = 0; signage++;}
+	if(str[i + signage] == '-'){ number->sign = 1; signage++;}
+	else if(str[i + signage] == '+'){ number->sign = 0; signage++;}
 
 	int dirio = 1 - 2*isbigend;
-	i = offset*(1 - isbigend) + (i - signage - 1)*(isbigend);
 	j = 0;
-	int z = 0;
-	while((str[i] >= '0' && str[i] <= '9') || str[i] == ' '){
-		if(str[i] != ' '){
-			number->nump[j] = (int) str[i] - 0x30;
+	for(int inc = offset*(1 - isbigend) + (i-1)*(isbigend); inc != (offset-1)*(isbigend) + i*(1 - isbigend); inc += dirio){
+		if(str[inc] != ' '){
+			number->nump[j] = (int) str[inc] - 0x30;
 			j++;
 		}
-		i+= dirio;
-		z++;
 	}
-	return z + signage;
+	return i + signage - offset;
 }
 
 bool isnumzero(num_t* num){
