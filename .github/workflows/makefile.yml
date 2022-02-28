@@ -21,7 +21,7 @@ jobs:
       run: sudo apt install gcc-mingw-w64-x86-64 -y
     
     - name: Build Windows executable
-      run: x86_64-w64-minggw32-gcc -o aasm.exe aasm.c
+      run: x86_64-w64-mingw32-gcc -o aasm.exe aasm.c
       
     - name: Test
       run: ./aasm SCR_scripts/test.aa -e
