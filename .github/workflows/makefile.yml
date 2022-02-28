@@ -16,6 +16,12 @@ jobs:
       
     - name: Make the program
       run: make
+    
+    - name: Install mingw-gcc
+      run: sudo apt install gcc-mingw-w64-x86-64 -y
+    
+    - name: Build Windows executable
+      run: x86_64-w64-minggw32-gcc -o aasm.exe aasm.c
       
     - name: Test
       run: ./aasm SCR_scripts/test.aa -e
@@ -26,6 +32,7 @@ jobs:
         # A file, directory or wildcard pattern that describes what to upload
         path: |
           ./aasm
+          ./aasm.exe
           ./scripts/
         # The desired behavior if no files are found using the provided path.
         if-no-files-found: error
