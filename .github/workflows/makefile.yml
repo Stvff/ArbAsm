@@ -14,17 +14,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       
-    - name: Make the program
+    - name: Build Linux executable
       run: make
+      
+    - name: Test Linux executable
+      run: ./aasm SCR_scripts/test.aa -e
     
     - name: Install mingw-gcc
       run: sudo apt install gcc-mingw-w64-x86-64 -y
     
     - name: Build Windows executable
       run: make windows
-      
-    - name: Test
-      run: ./aasm SCR_scripts/test.aa -e
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.3.1
