@@ -400,7 +400,7 @@ int main(int argc, char* argv[]){
 	bool prevmode = false;
 	bool cont = true;
 	bool wascommand = false;
-	char ataste;
+	int8_t ataste;
 	clock_t begin_time;
 	
 	for(int i = 1; i < argc; i++){

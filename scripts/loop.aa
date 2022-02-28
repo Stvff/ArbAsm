@@ -1,0 +1,16 @@
+cmp loop, 0
+Ce set ir, 0
+
+add gr1, 2
+print gr1
+
+push gr1
+ret
+peek gr1
+flip
+
+inc ir
+cmp ir, gr1
+Ce set loop, 0
+
+pop gr1
