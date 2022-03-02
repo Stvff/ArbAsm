@@ -14,6 +14,8 @@ NC = \033[0m # No Color
 $(OUTPUT): $(C_FILES)
 	$(CC) -o $@ $^ -lm
 
+build: $(OUTPUT)
+
 windows:
 	@if x86_64-w64-mingw32-gcc -o $(OUTPUT).exe $(C_FILES); then \
 		echo "Compilation succeeded!"; \
@@ -34,3 +36,11 @@ formicro: $(OUTPUT)
 
 run: $(OUTPUT)
 	./$^
+
+help:
+	@echo "All make commands that you can run:"
+	@echo " make             | Compiles the program for your current platform (Tested on Linux & Windows (Using MSYS2))"
+	@echo " make build       | Does the same"
+	@echo " make forwindows  | Compiles the program for Windows using mingw. (Linux only)"
+	@echo " make formicro    | Compiles and sets up some files to add support for ArbAsm in the Micro editor"
+	@echo " make run         | Compiles and runs the program"
