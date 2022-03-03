@@ -22,7 +22,7 @@ int retstackptr;
 int regamount = 13;
 num_t regs[13];
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
-enum instructs {endprog=1, slashn, wincrap, semicolon, h, set, dset, dget, rev, sel,
+enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, len, 
 				print, push, pop, peek, flip, ret,
@@ -32,7 +32,7 @@ const int TheMaximumLengthOfTheThings = 10;
 char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
 							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
 							"time", "loop", "\0end" };
-char instructstring[][10] = { "\\", "\n", "\r", ";", "h", "set", "dset", "dget", "rev", "sel",
+char instructstring[][10] = { "\\", "\n", "\r", " ", "	", ";", "h", "set", "dset", "dget", "rev", "sel",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
 							"cmp", "ucmp", "rot", "shf", "len",
 							"print", "push", "pop", "peek", "flip", "ret",
@@ -145,7 +145,8 @@ void functionswitch(int instruction, num_t* args[], bool wasquat, qua_t* qargs[]
 		case push:
 			stackptr--;
 			if(stackptr < 0){
-				printf("The bottom of the stack has been reached (it currently contains %d items)\nIt is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n", stackSize);
+				printf("The bottom of the stack has been reached (it currently contains %d items)\n", stackSize);
+				printf("It is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n");
 				stackptr = 0;
 				doprint = false;
 				break;
@@ -181,7 +182,8 @@ void functionswitch(int instruction, num_t* args[], bool wasquat, qua_t* qargs[]
 			}
 			retstackptr--;
 			if(retstackptr < 0){
-				printf("The bottom of the return stack has been reached (it currently contains %d items)\nIt is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n", stackSize);
+				printf("The bottom of the return stack has been reached (it currently contains %d items)\n", stackSize);
+				printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
 				retstackptr = 0;
 				doprint = false;
 				break;
@@ -200,7 +202,8 @@ void functionswitch(int instruction, num_t* args[], bool wasquat, qua_t* qargs[]
 			}
 			stackptr--;
 			if(stackptr < 0){
-				printf("The bottom of the main stack has been reached (it currently contains %d items)\nIt is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n", stackSize);
+				printf("The bottom of the main stack has been reached (it currently contains %d items)\n", stackSize);
+				printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
 				stackptr = 0;
 				doprint = false;
 				break;
@@ -279,13 +282,12 @@ int saveload(char* path[], bool save){
 }
 
 bool dothing(){
-	//printf("start dothing\n");
+//	printf("start dothing\n");
 	bool returnbool = true;
 	int startat;
 	int offsetbegin = 0;
 	startofdothing:;
 	int instruction = strlook(userInput, instructstring, offsetbegin, &startat);
-
 	int readfilei;//this is used in the things that take strings as arguments
 
 	switch (instruction){
@@ -304,8 +306,18 @@ bool dothing(){
 			goto donothing;
 			break;
 		case h:
-			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`) and add the appropriate amount of arguments seperated by commas.\n\nThe general purpose registers are `gr1`, `gr2`, `gr3` and `gr4`.\n\nTo change notation from little endian (the default) to big endian, set the register `endian` to 1. To change maximum line length, set the register `inplen` to the desired value.\n\nEnter `\\` to close the program.\n\n(P.S. Did you know that the actual plural of \"comma\" is \"commata\"? Wild.)\n");
+			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`) and add the appropriate amount of arguments seperated by commas.\n\n");
+			printf("The general purpose registers are `gr1`, `gr2`, `gr3` and `gr4`.\n\n");
+			printf("To change notation from little endian (the default) to big endian, set the register `endian` to 1.\n");
+			printf("To change maximum line length, set the register `inplen` to the desired value.\n\n");
+			printf("Enter `\\` to close the program.\n\n");
+			printf("(P.S. Did you know that the actual plural of \"comma\" is \"commata\"?)\n");
 			goto donothing;
+			break;
+		case space:
+		case tab:
+			offsetbegin++;
+			goto startofdothing;
 			break;
 		case Ce:
 			offsetbegin = startat + 1;
@@ -497,10 +509,20 @@ int main(int argc, char* argv[]){
 				case 'b':
 					bigEndian = true;
 					break;
+				case 'H':
+				case 'h':
+					printf("Usage: aasm <statement (without spaces)> <options>\n");
+					printf("Options:\n");
+					printf("  -e              Exit immediately after executing the statement that was passed as argument.\n");
+					printf("  -u <statefile>  Load the designated statefile, and save to it again on exit.\n");
+					printf("  -b              Sets the notation to big endian before doing anything else.\n");
+					printf("  -h              Look ma! I'm on TV!\n");
+					cont = false;
+					wascommand = true;
+					break;
 			}
 		} else {
 			sscanf(argv[i], "%s", userInput);
-			//printf("userInput: '%s'\n", userInput);
 			wascommand = true;
 		}
 	}
