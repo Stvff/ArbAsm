@@ -4,6 +4,7 @@
 CC=gcc
 
 C_FILES = aasm.c
+H_FILES = arbnum.h
 OUTPUT = aasm
 
 MICRO_TARGET=~/.config/micro/syntax/
@@ -11,8 +12,8 @@ MICRO_TARGET=~/.config/micro/syntax/
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-$(OUTPUT): $(C_FILES)
-	$(CC) -o $@ $^ -lm
+$(OUTPUT): $(C_FILES) $(H_FILES)
+	$(CC) -o $@ $(C_FILES) -lm
 
 build: $(OUTPUT)
 
