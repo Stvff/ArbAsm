@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include "arbnum.h"
+#include "arbnum_quats.h"
 unsigned int inputlen = 256;
 char* userInput;
 
@@ -19,7 +20,7 @@ num_t* retstack;
 int retstackptr;
 
 int regamount = 13;
-num_t regs[13];//Change it in main() too if you change it here!
+num_t regs[13];
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
 enum instructs {endprog=1, slashn, wincrap, semicolon, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
@@ -28,14 +29,22 @@ enum instructs {endprog=1, slashn, wincrap, semicolon, h, set, dset, dget, rev, 
 				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
 const int TheMaximumLengthOfTheThings = 10;
+char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
+							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
+							"time", "loop", "\0end" };
 char instructstring[][10] = { "\\", "\n", "\r", ";", "h", "set", "dset", "dget", "rev", "sel",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
 							"cmp", "ucmp", "rot", "shf", "len",
 							"print", "push", "pop", "peek", "flip", "ret",
-							"SCR", "SAVE", "LOAD", "Ce", "Cg", "Cs", "\0end"};
-char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
-							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
-							"time", "loop", "\0end" };
+							"SCR", "SAVE", "LOAD", "Ce", "Cg", "Cs", "\0end" };
+
+int qregamount = 4;
+qua_t qregs[4];
+enum quaternionregisters {qr1, qr2, qr3, qr4};
+enum quaternioninstructs {qset=1, qnget, qnset, qadd, qsub, qmul, qsmul};
+
+char quatregistring[][10] = { "qr1", "qr2", "qr3", "qr4", "\0end" };
+char quatinstructstring[][10] = { "qset", "qnget", "qadd", "qsub", "qmul", "qsmul", "\0end" };
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -56,63 +65,65 @@ int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offse
 	return 0;
 }
 
-void functionswitch(int instruction, num_t* args[]){
+void functionswitch(int instruction, num_t* args[], bool wasquat, qua_t* qargs[]){
 	clock_t begin_time = clock();
-	num_t* printptr; bool doprint = !ScriptingMode;
+	bool doprint = !ScriptingMode;
+	num_t* printptr = args[0];
+	qua_t* qprintptr = qargs[0];
 	num_t dummy;
 	initnum(&dummy, 15, 0, 0);
 	switch (instruction){
 		case set:
-			copynum(args[0], args[1], 0);
-			printptr = args[0];
+			if(wasquat)
+				copyquat(qargs[0], qargs[1], 0);
+			else
+				copynum(args[0], args[1], 0);
 			break;
 		case dset:
 			args[0]->nump[numtoint(args[1], false) % args[0]->len] = args[2]->nump[0];
-			printptr = args[0];
 			break;
 		case dget:
 			free(dummy.nump);
 			initnum(&dummy, 1, args[0]->sign, args[1]->dim);
 			dummy.nump[0] = args[0]->nump[numtoint(args[1], false) % args[0]->len];
 			copynum(args[0], &dummy, 0);
-			printptr = args[0];
 			break;
 		case rev:
 			reversenum(args[0]);
-			printptr = args[0];
 			break;
 		case sel:
 			selectsectionnum(&dummy, args[0], numtoint(args[1], false), numtoint(args[2], false));
 			copynum(args[0], &dummy, 0);
-			printptr = args[0];
 			break;
 		case inc:
 			incnum(args[0], false);
-			printptr = args[0];
 			break;
 		case dec:
 			incnum(args[0], true);
-			printptr = args[0];
 			break;
 		case add:
-			sumnum(args[0], args[0], args[1], false);
-			printptr = args[0];
+			if(wasquat)
+				sumquat(qargs[0], qargs[0], qargs[1], false);
+			else
+				sumnum(args[0], args[0], args[1], false);
 			break;
 		case sub:
-			sumnum(args[0], args[0], args[1], true);
-			printptr = args[0];
+			if(wasquat)
+				sumquat(qargs[0], qargs[0], qargs[1], true);
+			else
+				sumnum(args[0], args[0], args[1], true);
 			break;
 		case mul:
-			multnum(args[0], args[0], args[1]);
-			printptr = args[0];
+			if(wasquat)
+				multquat(qargs[0], qargs[0], qargs[1]);
+			else
+				multnum(args[0], args[0], args[1]);
 			break;
 		case divi:
 			divnum(args[0], args[2], args[0], args[1]);
-			printptr = args[0];
 			break;
 		case modu:
 			divnum(args[2], args[0], args[0], args[1]);
-			printptr = args[0];
 			break;
 		case cmp:
 			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
@@ -124,14 +135,11 @@ void functionswitch(int instruction, num_t* args[]){
 			break;
 		case rot:
 			rotnum(args[0], numtoint(args[1], true));
-			printptr = args[0];
 			break;
 		case shf:
 			shiftnum(args[0], numtoint(args[1], true));
-			printptr = args[0];
 			break;
 		case print:
-			printptr = args[0];
 			doprint = true;
 			break;
 		case push:
@@ -144,7 +152,6 @@ void functionswitch(int instruction, num_t* args[]){
 			}
 			initnum(&stack[stackptr], 1, 0, 0);
 			copynum(&stack[stackptr], args[0], 0);
-			printptr = args[0];
 			break;
 		case pop:
 			if(stackptr >= stackSize){
@@ -156,7 +163,6 @@ void functionswitch(int instruction, num_t* args[]){
 			copynum(args[0], &stack[stackptr], 0);
 			free(stack[stackptr].nump);
 			stackptr++;
-			printptr = args[0];
 			break;
 		case peek:
 			if(stackptr == stackSize){
@@ -165,7 +171,6 @@ void functionswitch(int instruction, num_t* args[]){
 				break;
 			}
 			copynum(args[0], &stack[stackptr], 0);
-			printptr = args[0];
 			break;
 		case flip:
 			if(stackptr >= stackSize){
@@ -211,7 +216,8 @@ void functionswitch(int instruction, num_t* args[]){
 			break;
 	}
 
-	if(doprint) printnum(printptr, bigEndian);
+	if(doprint && !wasquat) printnum(printptr, bigEndian);
+	if(doprint && wasquat) printquat(qprintptr, bigEndian);
 
 	inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
 	free(dummy.nump);
@@ -342,12 +348,24 @@ bool dothing(){
 			break;
 	}
 
+	int argam = 3;
 	num_t* tmpptr[3];
 	num_t tmp[3];
-	initnumarray(3, tmp, 1, 0, 0);
-	tmpptr[0] = &tmp[0]; tmpptr[1] = &tmp[1]; tmpptr[2] = &tmp[2];
 
-	int or12 = 0;
+	qua_t* tmpqptr[3];
+	qua_t tmpq[3];
+
+	for(int i = 0; i < argam; i++){
+		initnum(&tmp[i], 1, 0, 0);
+		tmp[i].nump[0] = 0;
+		tmpptr[i] = &tmp[i];
+		initquat(&tmpq[i]);
+		tmpqptr[i] = &tmpq[i];
+	}
+
+	int argn = 0;
+	int diminq = 0;
+	bool wasquat = false;
 	int loInputentry = 0;
 	char entry;
 	bool therewasnosemi = true;
@@ -360,21 +378,40 @@ bool dothing(){
 			break;
 		}
 
-		if(or12 < 3){
-			if(entry == ',') or12++;
+		if(argn < argam){
+			if(entry == ','){ argn++; diminq = 0;}
+			if(entry == '+'){ diminq++; wasquat = true;}
 			if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
 
-				int id = strlook(userInput, registerstring, i, &loInputentry);
-				if(id == 0){
-					printf("Register at argument %d is not a register.\n", or12 + 1);
-					goto donothingsafe;
-				} else tmpptr[or12] = &regs[id - 1];
+				int id;
+				if(entry != 'q'){
+					id = strlook(userInput, registerstring, i, &loInputentry);
+					if(id == 0){
+						printf("Register at argument %d is not a register.\n", argn + 1);
+						goto donothingsafe;
+					} else {
+						tmpptr[argn] = &regs[id - 1];
+						copynum(&tmpqptr[argn]->q[diminq%4], tmpptr[argn], false);
+					}
+				} else {
+					id = strlook(userInput, quatregistring, i, &loInputentry);
+					if(id == 0){
+						printf("Register at argument %d is not a (quaternion) register.\n", argn + 1);
+						goto donothingsafe;
+					} else {
+						wasquat = true;
+						tmpqptr[argn] = &qregs[id - 1];
+						tmpptr[argn] = &qregs[id - 1].q[diminq%4];
+//						copynum(tmpptr[argn], &tmpqptr[argn]->q[diminq%4], false);
+					}
+				}
 
 			} else if (entry >= '0' && entry <= '9'){
 			
-				loInputentry = inpstrtonum(&tmp[or12], userInput, i, bigEndian);
-				tmpptr[or12] = &tmp[or12];
-								
+				loInputentry = inpstrtonum(&tmpqptr[argn]->q[diminq%4], userInput, i, bigEndian);
+				tmpptr[argn] = &tmpqptr[argn]->q[diminq%4];
+//				copynum(&tmpqptr[argn]->q[diminq%4], tmpptr[argn], false);
+
 			}
 		}
 	}
@@ -382,11 +419,15 @@ bool dothing(){
 		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", inputlen);
 		goto donothingsafe;
 	}
+//	for(int i = 0; i < argam; i++) printquat(tmpqptr[i], bigEndian);
 
-	functionswitch(instruction, tmpptr);
+	functionswitch(instruction, tmpptr, wasquat, tmpqptr);
 
 	donothingsafe:
-	freenumarray(3, tmp);
+	for(int i; i < argam; i++){
+		freequat(&tmpq[i]);
+		free(tmp[i].nump);
+	}
 	donothing:
 	return returnbool;
 }
@@ -415,6 +456,7 @@ void flushuserInput(){
 
 int main(int argc, char* argv[]){
 	initnumarray(regamount, regs, 21, 0, 0);
+	initquatarray(qregamount, qregs);
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	retstackptr = stackSize;
@@ -527,5 +569,6 @@ int main(int argc, char* argv[]){
 	free(userInput);
 	freestack();
 	freenumarray(regamount, regs);
+	freequatarray(qregamount, qregs);
 	return 0;
 }

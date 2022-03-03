@@ -23,7 +23,7 @@ uint8_t* initnum(num_t* number, unsigned int length, int sign, int dim){
 	number->len = length;
 	number->nump = (uint8_t*) malloc(number->len*sizeof(uint32_t));
 	if(number->nump == NULL){
-		printf("Malloc error on initnum: %lu\n", (unsigned long int)number->nump);
+		printf("Malloc error on initnum.\n");
 	}
 	return number->nump;
 }
@@ -51,14 +51,17 @@ void copynum(num_t* des, num_t* src, int keeplen){
 }
 
 void printnum(num_t* number, int isbigend){
+	bool donewline = true;
+	if(isbigend > 1){ donewline = false; isbigend -= 2;}
+
 	for(int i = isbigend*((int)number->len-1); i != (1-isbigend)*(int)number->len - isbigend; i+= (1 - 2*isbigend))
 		printf("%u ", number->nump[i]);
 	switch (number->dim){
 		case 1: printf("i"); break;
 		case 2: printf("j"); break;
 		case 3: printf("k"); break;
-	} if (number->sign == 1) printf("-");// else printf("+");
-	printf("\n");
+	} if (number->sign == 1) printf("-");
+	if(donewline) printf("\n");
 }
 
 int numtoint(num_t* num, bool considersign){
@@ -91,7 +94,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	free(number->nump);
 	number->len = j;
 	number->nump = (uint8_t*) malloc(j*sizeof(uint32_t));
-	if(number->nump == NULL) printf("There is a malloc problem on inpstrtonum: %lu\n", (unsigned long int)number->nump);
+	if(number->nump == NULL) printf("There is a malloc problem on inpstrtonum.\n");
 
 	int signage = 0;
 	switch(str[i]){
@@ -111,8 +114,9 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 			number->dim = 0;
 			break;
 	}
+	number->sign = 0;
 	if(str[i + signage] == '-'){ number->sign = 1; signage++;}
-	else if(str[i + signage] == '+'){ number->sign = 0; signage++;}
+//	else if(str[i + signage] == '+'){ number->sign = 0; signage++;}
 
 	int dirio = 1 - 2*isbigend;
 	j = 0;
@@ -278,7 +282,7 @@ void sumnum(num_t* res, num_t* arg1, num_t* arg2, bool subtract){
 	free(dummy.nump);
 }
 
-int multquaternion(int one, int two){//This returns dim*2 + sign, so account for that!
+int multquaternionbase(int one, int two){//This returns dim*2 + sign, so account for that!
 	const int table[4][4] ={ 
 	{0, 2, 4, 6},
 	{2, 1, 6, 5},
@@ -289,7 +293,7 @@ int multquaternion(int one, int two){//This returns dim*2 + sign, so account for
 
 void multnum(num_t* res, num_t* arg1, num_t* arg2){
 	num_t dummy;
-	initnum(&dummy, arg1->len + arg2->len, (arg1->sign + arg2->sign)%2, multquaternion(arg1->dim, arg2->dim));
+	initnum(&dummy, arg1->len + arg2->len, (arg1->sign + arg2->sign)%2, multquaternionbase(arg1->dim, arg2->dim));
 	dummy.sign = (dummy.sign + dummy.dim)%2;
 	dummy.dim = dummy.dim/2;
 	for(unsigned int i = 0; i < dummy.len; i++)
@@ -319,7 +323,7 @@ void multnum(num_t* res, num_t* arg1, num_t* arg2){
 }
 
 void divnum(num_t* res, num_t* mod, num_t* num, num_t* den){
-	int dim = multquaternion(num->dim, den->dim);
+	int dim = multquaternionbase(num->dim, den->dim);
 	int sign = (num->sign + den->sign + dim)%2;
 	if(den->dim > 0) sign = 1 - sign;
 	dim /= 2;
