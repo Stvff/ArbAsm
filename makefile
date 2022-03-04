@@ -4,7 +4,7 @@
 CC=gcc
 
 C_FILES = aasm.c
-H_FILES = arbnum.h
+H_FILES = arbnum.h arbnum_quats.h
 OUTPUT = aasm
 
 MICRO_TARGET=~/.config/micro/syntax/
@@ -33,7 +33,7 @@ windows:
 
 formicro: $(OUTPUT)
 	mkdir -p $(MICRO_TARGET)
-	cp scripts/arbasm.yaml $(MICRO_TARGET)
+	cp .github/arbasm.yaml $(MICRO_TARGET)
 
 run: $(OUTPUT)
 	./$^
