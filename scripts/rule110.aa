@@ -1,32 +1,59 @@
-set endia, 0 		; Look ma! The language can do  e v e r y t h i n g
+cmp loop, 0 			; rule 110, calculates and prints n amount of iterations of the beginning tape t(0)
+Ce set ir, 0 			; return stack summary: ( n t(0) -- n t(n) )
+Ce set loop, 1
+Ce set endian, 0
+Ce push 0 				; sets the iteration number to 0
+Ce push 0 				; sets the mode (translate: 0, transform: 1)
 
-cmp loop, 0 		; check if loop is zero, if this is the first iteration
-Ce set gr1, 10 		; make the beginning tape, 64 zeroes with a 1 right before the end
-Ce shf gr1, 36
-Ce set ir, 0
-Ce push ir
+peek gr1
+cmp gr1, 0 				; everything belonging to this cmp translates the tape into numbers
+Ce pop
+Ce push, 1
+Ce ret
+Ce peek gr1
+Ce flip
+Ce push gr1
+Ce set gr4, gr1
 
-print ir
+Ce rot gr1, 1
+Ce set gr2, gr1
 
-push gr1
-set gr2, gr1
-set gr1, ir
-add gr1, 3
+Ce rot gr1, 1-
+Ce mul gr1, 2
+Ce add gr2, gr1
+
+Ce peek gr1
+Ce rot gr1, 1-
+Ce mul gr1, 4
+Ce add gr2, gr1
+
+Ce pop
+Ce print gr2
+
+Ce pop
+Ce push 2
+Ce push gr2
+
+peek gr1
+len gr1, gr2
+dget gr1, ir
+set gr3, 00111110 		; 0: 000, 1: 100, 2: 010, 3: 110, 4: 001, 5: 101, 6: 011, 7: 111
+dget gr3, gr1
+dset gr4, ir, gr3
 print gr1
-print 888888888888
-
-cmp ir, 36 			; this switches the incrementer to a different value
-
-pop gr1
-Ce pop ir
-Ce print gr1 		; prints gr1 at the end of the subloop
-
 
 inc ir
-
-set loop, 1
-push flag
-Ce cmp ir, gr4
+cmp ir, gr2
+Ce print gr4
 Ce set loop, 0
-pop flag
-Ce push ir
+Ce pop
+Ce pop
+
+Ce ret
+Ce pop
+Ce push gr4
+Ce flip
+
+Ce pop gr4
+Ce inc gr4
+Ce push gr3
