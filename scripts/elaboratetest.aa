@@ -1,0 +1,28 @@
+set gr1, 1
+set gr2, 22
+set gr3, 333
+set gr4, 4444
+set ir, 11111
+set flag, 4
+
+push gr1
+push gr2
+push gr3
+push gr4
+push ir
+push flag
+
+SAVE state.aal
+
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1
+pop gr1
+print gr1

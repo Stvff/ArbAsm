@@ -8,6 +8,7 @@
 unsigned int inputlen = 256;
 char* userInput;
 
+bool reCurse = false;
 bool ScriptingMode = false;
 int scriptLoops = 0;
 
@@ -51,6 +52,9 @@ typedef struct FileInfo {
 	int rdpos;
 	int linenr;
 } file_t;
+
+int recdep = 10;
+file_t flist[10];
 
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
@@ -295,6 +299,7 @@ bool dothing(file_t file){
 	startofdothing:;
 	int instruction = strlook(userInput, instructstring, offsetbegin, &startat);
 	int readfilei;//this is used in the things that take strings as arguments
+	int thatoff;  //idem
 
 	switch (instruction){
 		case 0:
@@ -341,25 +346,29 @@ bool dothing(file_t file){
 			else goto donothing;
 			break;
 		case SCR:
+			if(ScriptingMode) reCurse = true;
 			ScriptingMode = true;
-			for(readfilei = 4; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
-				userInput[readfilei - 4] = userInput[readfilei];
-			userInput[readfilei - 4] = '\0';
+			thatoff = offsetbegin + 4;
+			for(readfilei = thatoff; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
+				userInput[readfilei - thatoff] = userInput[readfilei];
+			userInput[readfilei - thatoff] = '\0';
 
 			goto donothing;
 			break;
 		case SAVE:
-			for(readfilei = 5; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
-				userInput[readfilei - 5] = userInput[readfilei];
-			userInput[readfilei - 5] = '\0';
+			thatoff = offsetbegin + 5;
+			for(readfilei = thatoff; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
+				userInput[readfilei - thatoff] = userInput[readfilei];
+			userInput[readfilei - thatoff] = '\0';
 
 			saveload(&userInput, true);
 			goto donothing;
 			break;
 		case LOAD:
-			for(readfilei = 5; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
-				userInput[readfilei - 5] = userInput[readfilei];
-			userInput[readfilei - 5] = '\0';
+			thatoff = offsetbegin + 5;
+			for(readfilei = offsetbegin + thatoff; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
+				userInput[readfilei - thatoff] = userInput[readfilei];
+			userInput[readfilei - thatoff] = '\0';
 
 			saveload(&userInput, false);
 			goto donothing;
@@ -487,6 +496,8 @@ int main(int argc, char* argv[]){
 	file.fp = stdin;
 	file.rdpos = 0;
 	file.linenr = 0;
+	int watch = 0;
+	bool recursing = false;
 
 	bool running = true;
 	bool prevmode = false;
@@ -555,16 +566,23 @@ int main(int argc, char* argv[]){
 			fseek(file.fp, file.rdpos, SEEK_SET);
 			if(ataste == EOF && scriptLoops == 1){
 				file.rdpos = 0;
+				file.linenr = 0;
 				fseek(file.fp, file.rdpos, SEEK_SET);
 			} else if(ataste == EOF){
 				inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
-				printf("Script completed.\n");
-				ScriptingMode = false;
 				file.rdpos = 0;
 				file.linenr = 0;
 				fclose(file.fp);
-				file.fp = stdin;
-				wascommand = true;
+				if(watch == 0){
+					printf("Script completed.\n");
+					file.fp = stdin;
+					ScriptingMode = false;
+					wascommand = true;
+					recursing = false;
+				} else if(recursing){
+					file = flist[--watch];
+					wascommand = true;
+				}
 			}
 		}
 		
@@ -579,6 +597,13 @@ int main(int argc, char* argv[]){
 
 		running = dothing(file);
 		updateessentials();
+
+		if(reCurse){
+			flist[watch++] = file;
+			prevmode = false;
+			reCurse = false;
+			recursing = true;
+		}
 
 		if(prevmode != ScriptingMode && ScriptingMode){
 			file.fp = fopen(userInput, "r");

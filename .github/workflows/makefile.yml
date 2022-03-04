@@ -18,7 +18,7 @@ jobs:
       run: make
       
     - name: Test Linux executable
-      run: ./aasm SCR_scripts/test.aa -e
+      run: ./aasm SCR_scripts/elaboratetest.aa -e
     
     - name: Install mingw-gcc
       run: sudo apt install gcc-mingw-w64-x86-64 -y
