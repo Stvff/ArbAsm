@@ -1,17 +1,17 @@
-cmp loop, 0 			; This script calculates D digits of exp(x) with a taylor series for n terms where the return stack goes: (D n x -- D n x exp(x))
-
-Ce set loop, 1
-Ce ret
-Ce ret
-Ce ret
-Ce peek gr4 			; gr4 is now D
-Ce flip
-Ce flip
-Ce flip
-Ce set ir, 1 			; i = 1
-Ce set gr3, 1 			; 0!
-Ce set gr1, 0 			; sum = 0
-Ce push 1 				; mst: ( -- x^0)
+; This script calculates D digits of exp(x) with a taylor series for n terms where the return stack goes: (D n x -- D n x exp(x))
+cmp loop, 0
+	Ce set loop, 1
+	Ce ret
+	Ce ret
+	Ce ret
+	Ce peek gr4 		; gr4 is now D
+	Ce flip
+	Ce flip
+	Ce flip
+	Ce set ir, 1 		; i = 1
+	Ce set gr3, 1 		; 0!
+	Ce set gr1, 0 		; sum = 0
+	Ce push 1 			; mst: ( -- x^0)
 
 mul gr3, ir 			; i!
 
@@ -27,7 +27,7 @@ push gr2
 ret 					; rst: (n   x sum -- n   x   -- n   x)
 pop gr1 				; mst: (x^i       -- x^i sum -- x^i  ) and now gr1 is sum again
 
-Ce inc gr2 				; first term is 1, so that gets added here (while flag = 0 from cmp loop, 0 at the start)
+	Ce inc gr2 			; first term is 1, so that gets added here (while flag = 0 from cmp loop, 0 at the start)
 shf gr2, gr4 			; make x^i ultra accurate (shift by D)
 div gr2, gr3 			; x^i/i!
 
@@ -42,8 +42,8 @@ flip
 flip
 
 cmp gr2, ir 			; if n < i
-Cs set loop, 0 
-Cs print gr1
-Cs push gr1
-Cs flip 				; rst: (D n x -- D n x exp(x))
-Cs pop 					; mst: (x^i -- )
+	Cs set loop, 0 
+	Cs print gr1
+	Cs push gr1
+	Cs flip 			; rst: (D n x -- D n x exp(x))
+	Cs pop 				; mst: (x^i -- )

@@ -46,6 +46,12 @@ enum quaternioninstructs {qset=1, qnget, qnset, qadd, qsub, qmul, qsmul};
 char quatregistring[][10] = { "qr1", "qr2", "qr3", "qr4", "\0end" };
 char quatinstructstring[][10] = { "qset", "qnget", "qadd", "qsub", "qmul", "qsmul", "\0end" };
 
+typedef struct FileInfo {
+	FILE *fp;
+	int rdpos;
+	int linenr;
+} file_t;
+
 int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offset, int* lengthoflocated){
 	int i = 0;
 	int j;
@@ -281,7 +287,7 @@ int saveload(char* path[], bool save){
 	return 0;
 }
 
-bool dothing(){
+bool dothing(file_t file){
 //	printf("start dothing\n");
 	bool returnbool = true;
 	int startat;
@@ -292,7 +298,7 @@ bool dothing(){
 
 	switch (instruction){
 		case 0:
-			printf("Not a valid instruction.\n");
+			printf("Not a valid instruction. (line %d)\n", file.linenr);
 			goto donothing;
 			break;
 		case endprog:
@@ -306,7 +312,7 @@ bool dothing(){
 			goto donothing;
 			break;
 		case h:
-			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`) and add the appropriate amount of arguments seperated by commas.\n\n");
+			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`)\nand add the appropriate amount of arguments seperated by commas.\n\n");
 			printf("The general purpose registers are `gr1`, `gr2`, `gr3` and `gr4`.\n\n");
 			printf("To change notation from little endian (the default) to big endian, set the register `endian` to 1.\n");
 			printf("To change maximum line length, set the register `inplen` to the desired value.\n\n");
@@ -399,7 +405,7 @@ bool dothing(){
 				if(entry != 'q'){
 					id = strlook(userInput, registerstring, i, &loInputentry);
 					if(id == 0){
-						printf("Register at argument %d is not a register.\n", argn + 1);
+						printf("Register at argument %d on line %d is not a register.\n", argn + 1, file.linenr);
 						goto donothingsafe;
 					} else {
 						tmpptr[argn] = &regs[id - 1];
@@ -408,7 +414,7 @@ bool dothing(){
 				} else {
 					id = strlook(userInput, quatregistring, i, &loInputentry);
 					if(id == 0){
-						printf("Register at argument %d is not a (quaternion) register.\n", argn + 1);
+						printf("Register at argument %d on line %d is not a (quaternion) register.\n", argn + 1, file.linenr);
 						goto donothingsafe;
 					} else {
 						wasquat = true;
@@ -428,7 +434,7 @@ bool dothing(){
 		}
 	}
 	if(therewasnosemi){
-		printf("The statement is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", inputlen);
+		printf("The statement on line %d is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", file.linenr, inputlen);
 		goto donothingsafe;
 	}
 //	for(int i = 0; i < argam; i++) printquat(tmpqptr[i], bigEndian);
@@ -477,8 +483,10 @@ int main(int argc, char* argv[]){
 	userInput = (char*) malloc((TheMaximumLengthOfTheThings + inputlen) * sizeof(char));
 	flushuserInput();
 
-	FILE* fp = stdin;
-	int readheadpos = 0;
+	file_t file;
+	file.fp = stdin;
+	file.rdpos = 0;
+	file.linenr = 0;
 
 	bool running = true;
 	bool prevmode = false;
@@ -542,42 +550,44 @@ int main(int argc, char* argv[]){
 		}
 
 		if(ScriptingMode){
-			ataste = fgetc(fp);
-			fseek(fp, readheadpos, SEEK_SET);
+			ataste = fgetc(file.fp);
+			file.linenr++;
+			fseek(file.fp, file.rdpos, SEEK_SET);
 			if(ataste == EOF && scriptLoops == 1){
-				readheadpos = 0;
-				fseek(fp, readheadpos, SEEK_SET);
+				file.rdpos = 0;
+				fseek(file.fp, file.rdpos, SEEK_SET);
 			} else if(ataste == EOF){
 				inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
 				printf("Script completed.\n");
 				ScriptingMode = false;
-				readheadpos = 0;
-				fclose(fp);
-				fp = stdin;
+				file.rdpos = 0;
+				file.linenr = 0;
+				fclose(file.fp);
+				file.fp = stdin;
 				wascommand = true;
 			}
 		}
 		
 		if(!wascommand){
 			if(!ScriptingMode) printf("\\\\\\ ");
-			fgets(userInput, inputlen, fp);
+			fgets(userInput, inputlen, file.fp);
 //			printf("userInput: '%s', readheadpos: %d\n", userInput, readheadpos);
 
 			for(int i = 0; userInput[i] != '\0' && ScriptingMode; i++)
-				readheadpos++;
+				file.rdpos++;
 		} wascommand = false;
 
-		running = dothing();
+		running = dothing(file);
 		updateessentials();
 
 		if(prevmode != ScriptingMode && ScriptingMode){
-			fp = fopen(userInput, "r");
-			if(fp == NULL){
+			file.fp = fopen(userInput, "r");
+			if(file.fp == NULL){
 				printf("Could not open script '%s'.\n", userInput);
 				ScriptingMode = false;
-				fp = stdin;
+				file.fp = stdin;
 			} else begin_time = clock();
-			readheadpos = 0;
+			file.rdpos = 0;
 		} prevmode = ScriptingMode;
 
 		free(userInput);
