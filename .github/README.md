@@ -50,10 +50,11 @@ In the command line interface, when an instruction is executed, the number it re
 The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endian` register).
 
 ### Numbers
-Numbers can be of any length, and must be a string of decimal digits that may be interrupted by spaces. To input the sign of a number, a `+` or `-` can be placed at the end. The default is positive.\
+Numbers can be of any length, and must be a string of decimal digits that may be interrupted by spaces. To input the sign of a number, a `-` can be placed at the end. The default is positive.\
 Some examples:\
-`314159265358979`, `310771-`, `00003+`, `000 000 1`\
-Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.
+`314159265358979`, `310771-`, `00003 -`, `000 000 1`\
+Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.\
+The `+` character is for quaternions, but those are currently work in process.
 
 ### Registers
 Registers are effectively built-in variables.
