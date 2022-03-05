@@ -451,7 +451,7 @@ bool dothing(file_t file){
 	functionswitch(instruction, tmpptr, wasquat, tmpqptr);
 
 	donothingsafe:
-	for(int i; i < argam; i++){
+	for(int i = 0; i < argam; i++){
 		freequat(&tmpq[i]);
 		free(tmp[i].nump);
 	}
