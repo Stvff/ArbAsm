@@ -1,0 +1,18 @@
+print gr1
+print gr2
+print gr3
+print gr4
+print ir
+print flag
+print inplen
+print endian
+print stacsz
+print mstptr
+print rstptr
+print time
+print loop
+
+print qr1
+print qr2
+print qr3
+print qr4

@@ -1,0 +1,29 @@
+; currently mostly tests the `set` and `print` instructions
+set endian, 0
+set gr1, 123456789
+print gr1
+set gr1, 978 654 321 
+print gr1
+set gr1, 123 -
+print gr1
+set gr1, 321-
+print gr1
+
+set endian, 1
+set gr1, 123456789
+print gr1
+set gr1, 978 654 321 
+print gr1
+set gr1, 123 -
+print gr1
+set gr1, 321-
+print gr1
+
+set endian, 0
+
+set qr1, 1 + 2i + 3j + 4k
+print qr1
+set qr1, 4+3i+2j+1k
+print qr1
+set qr1, 3 - +2+ 4k + 1-
+print qr1
