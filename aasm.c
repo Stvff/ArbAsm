@@ -366,7 +366,7 @@ bool dothing(file_t file){
 			break;
 		case LOAD:
 			thatoff = offsetbegin + 5;
-			for(readfilei = offsetbegin + thatoff; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
+			for(readfilei = thatoff; userInput[readfilei] != '\0' && userInput[readfilei] != '\r' && userInput[readfilei] != '\n'; readfilei++)
 				userInput[readfilei - thatoff] = userInput[readfilei];
 			userInput[readfilei - thatoff] = '\0';
 

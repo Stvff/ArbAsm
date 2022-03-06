@@ -2,5 +2,6 @@ add gr1, 3
 print gr1
 
 cmp gr1, 3
-Ce SCR test.aa
+	Ce SCR test.aa
+	Ce LOAD state.aal
 print 8888

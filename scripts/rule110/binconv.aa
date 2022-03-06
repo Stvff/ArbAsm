@@ -1,0 +1,19 @@
+; takes the tape and encodes the neigbours of each cell in each cell
+; return stack summary: ( binarytape -- encodedtape )
+ret
+peek gr1
+
+set gr2, gr1 		; first neigbor has no shift
+mul gr2, 2 			; but it has a weight of 2
+
+rot gr1, 1  		; second neighbor is the one to the left
+add gr2, gr1 		; and has a weight of 1, so is directly added
+
+peek gr1 			; refresh gr1
+rot gr1, 1- 		; third neigbor is the one to the right
+mul gr1, 4 			; and has a weight of 4
+add gr2, gr1
+
+pop
+push gr2 			; these three add the encoded tape to the return stack again
+flip

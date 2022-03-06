@@ -1,0 +1,21 @@
+; Takes the encoded tape and enforces rule 110
+; return stack summary: ( encodedtape -- binarytape )
+cmp loop, 0
+Ce set loop, 1
+Ce ret
+Ce set ir, 0
+Ce peek gr4
+
+peek gr1
+len gr1, gr2
+dget gr1, ir
+set gr3, 00111110 ; 0: 000, 1: 100, 2: 010, 3: 110, 4: 001, 5: 101, 6: 011, 7: 111
+dget gr3, gr1
+dset gr4, ir, gr3
+
+inc ir
+cmp ir, gr2
+Ce set loop, 0
+Ce pop
+Ce push gr4
+Ce flip
