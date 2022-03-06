@@ -1,6 +1,7 @@
-; These are tests
-print 11111111111111111111111111111111
+; These are tests, its rigorousness is dubious, but
+; I'm just throwing stuff at it to see how it'll handle
+print "\n##################REGISTERS\n"
 SCR registers.aa
-print 22222222222222222222222222222222
+print "\n##################INPUTS\n"
 SCR inputs.aa
-print 33333333333333333333333333333333
+print "\n##################END OF TEST\n"

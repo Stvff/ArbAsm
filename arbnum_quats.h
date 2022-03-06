@@ -87,4 +87,10 @@ void multquat(qua_t* res, qua_t* arg1, qua_t* arg2){
 	freequat(&dummy1);
 	freequat(&dummy2);
 }
+
+/*void divquat(qua_t* res, qua_t* mod, qua_t* num, num_t* den){
+
+
+}*/
+
 #endif

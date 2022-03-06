@@ -21,7 +21,7 @@ uint8_t* initnum(num_t* number, unsigned int length, int sign, int dim){
 	number->sign = sign;
 	number->dim = dim;
 	number->len = length;
-	number->nump = (uint8_t*) malloc(number->len*sizeof(uint32_t));
+	number->nump = (uint8_t*) malloc(number->len*sizeof(uint8_t));
 	if(number->nump == NULL){
 		printf("Malloc error on initnum.\n");
 	}
@@ -50,7 +50,7 @@ void copynum(num_t* des, num_t* src, int keeplen){
 	}
 }
 
-void printnum(num_t* number, int isbigend){
+void printnum(num_t* number, int isbigend){//add 2 to isbigend to make it not newline
 	bool donewline = true;
 	if(isbigend > 1){ donewline = false; isbigend -= 2;}
 
@@ -93,7 +93,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	}
 	free(number->nump);
 	number->len = j;
-	number->nump = (uint8_t*) malloc(j*sizeof(uint32_t));
+	number->nump = (uint8_t*) malloc(j*sizeof(uint8_t));
 	if(number->nump == NULL) printf("There is a malloc problem on inpstrtonum.\n");
 
 	int signage = 0;
@@ -127,6 +127,49 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 		}
 	}
 	return i + signage - offset;
+}
+
+int strtostrnum(num_t* number, char str[], int offset){
+	int i = offset;
+	int j = 0;
+	int escapes = 0;
+	while(str[i] != '"' && str[i] != '\0'){
+		if(str[i] == '\\') escapes++;
+		else j++;
+		i++;
+	}
+	free(number->nump);
+	number->len = j;
+	number->nump = (uint8_t*) malloc(j*sizeof(uint8_t));
+	if(number->nump == NULL) printf("There is a malloc problem on strtostrnum.\n");
+
+	number->sign = 0;
+	number->dim = 0;
+
+	j = 0;
+	for(int n = offset; n < i; n++){
+		if(str[n] == '\\'){
+			switch (str[n+1]){
+				case '0':
+					number->nump[j] = '\0';
+					break;
+				case 'n':
+					number->nump[j] = '\n';
+					break;
+				case 'r':
+					number->nump[j] = '\r';
+					break;
+			}
+			n++;
+		} else number->nump[j] = str[n];
+		j++;
+	}
+	return i + 1;
+}
+
+void printstrnum(num_t* number){
+	for(unsigned int i = 0; i < number->len; i++)
+		printf("%c", number->nump[i]);
 }
 
 void savenum(FILE* fp, num_t* num){//File needs to be opened already!

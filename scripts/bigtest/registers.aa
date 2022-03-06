@@ -1,18 +1,36 @@
+
+sprint "gr1: "
 print gr1
+sprint "gr2: "
 print gr2
+sprint "gr3: "
 print gr3
+sprint "gr4: "
 print gr4
+sprint "ir: "
 print ir
+sprint "flag: "
 print flag
+sprint "inplen: "
 print inplen
+sprint "endian: "
 print endian
+sprint "stacsz: "
 print stacsz
+sprint "mstptr: "
 print mstptr
+sprint "rstptr: "
 print rstptr
+sprint "time: "
 print time
+sprint "loop: "
 print loop
 
+sprint "qr1: "
 print qr1
+sprint "qr2: "
 print qr2
+sprint "qr3: "
 print qr3
+sprint "qr4: "
 print qr4
