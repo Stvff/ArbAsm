@@ -1,0 +1,38 @@
+cmp loop, 0
+	Ce set loop, 1
+	Ce set endian, 1
+	Ce set gr1, 2 000 000- 		; gr1 is a aka x      Xmin
+	Ce set gr2, 1 000 000 		; gr2 is b aka y      Ymax
+
+push gr2
+push gr1
+push loop
+push ir
+
+push 20
+flip 			; rst: ( I )
+
+push gr2
+push gr1
+
+set ir, 0
+set loop, 1
+SCR checkboundedness.aa
+ret
+pop gr1
+sprint gr1
+
+pop ir
+pop loop
+pop gr1
+pop gr2
+
+add gr1, 0 020 000 				; Xstep
+
+cmp gr1, 0 500 000 				; Xmax
+	Cg sprint "\n"
+	Cg add gr2, 0 050 000- 		; Ystep
+	Cg set gr1, 2 000 000- 		; Xmin (again)
+
+cmp gr2, 1 000 000- 			; Ymin
+	Cs set loop, 0
