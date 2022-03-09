@@ -134,8 +134,8 @@ int strtostrnum(num_t* number, char str[], int offset){
 	int j = 0;
 	int escapes = 0;
 	while(str[i] != '"' && str[i] != '\0'){
-		if(str[i] == '\\') escapes++;
-		else j++;
+		if(str[i] == '\\' && !prevescaped){ escapes++; prevescaped = true;}
+		else{ j++; prevescaped = false;}
 		i++;
 	}
 	free(number->nump);
@@ -158,6 +158,9 @@ int strtostrnum(num_t* number, char str[], int offset){
 					break;
 				case 'r':
 					number->nump[j] = '\r';
+					break;
+				case '\\':
+					number->nump[j] = '\\';
 					break;
 			}
 			n++;
@@ -242,6 +245,17 @@ void shiftnum(num_t* num, int amount){
 		j--;
 	}
 	copynum(num, &dummy, 0);
+	free(dummy.nump);
+}
+
+void appendnum(num_t* des, num_t* appendage){
+	num_t dummy;
+	initnum(&dummy, des->len + appendage->len, des->sign, des->dim);
+	copynum(&dummy, des, 1);
+	for(unsigned int i = des->len; i < dummy.len; i++){
+		dummy.nump[i] = appendage->nump[i - des->len];
+	}
+	copynum(des, &dummy, 0);
 	free(dummy.nump);
 }
 

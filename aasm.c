@@ -25,8 +25,9 @@ num_t regs[13];
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
 enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h, set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
-				cmp, ucmp, rot, shf, len, 
-				print, sprint, fprint, draw,
+				cmp, ucmp, rot, shf, app, len, 
+				print, sprint, nprint, draw,
+				firead, fiwrite, input, sinput,
 				push, pop, peek, flip, ret,
 				SCR, SAVE, LOAD, Ce, Cg, Cs};
 
@@ -36,8 +37,9 @@ char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
 							"time", "loop", "\0end" };
 char instructstring[][10] = { "\\", "\n", "\r", " ", "	", ";", "h", "set", "dset", "dget", "rev", "sel",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
-							"cmp", "ucmp", "rot", "shf", "len",
-							"print", "sprint", "fprint", "draw",
+							"cmp", "ucmp", "rot", "shf", "app", "len",
+							"print", "sprint", "nprint", "draw",
+							"fread", "fwrite", "input", "sinput",
 							"push", "pop", "peek", "flip", "ret", 
 							"SCR", "SAVE", "LOAD", "Ce", "Cg", "Cs", "\0end" };
 
@@ -47,7 +49,6 @@ enum quaternionregisters {qr1, qr2, qr3, qr4};
 enum quaternioninstructs {qset=1, qnget, qnset, qadd, qsub, qmul, qsmul};
 
 char quatregistring[][10] = { "qr1", "qr2", "qr3", "qr4", "\0end" };
-char quatinstructstring[][10] = { "qset", "qnget", "qadd", "qsub", "qmul", "qsmul", "\0end" };
 
 enum typeenum {number, quater, string, image};
 
@@ -79,12 +80,38 @@ int strlook(char string[], char source[][TheMaximumLengthOfTheThings], int offse
 	return 0;
 }
 
+bool pushtomst(num_t* num){
+	stackptr--;
+	if(stackptr < 0){
+		printf("The bottom of the stack has been reached (it currently contains %d items)\n", stackSize);
+		printf("It is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n");
+		stackptr = 0;
+		return false;
+	}
+	initnum(&stack[stackptr], 1, 0, 0);
+	copynum(&stack[stackptr], num, 0);
+	return true;
+}
+bool popfrommst(num_t* num){
+	if(stackptr >= stackSize){
+		printf("The top of the stack has been reached (there are no elements to be popped).\n");
+		stackptr = stackSize;
+		return false;
+	}
+	copynum(num, &stack[stackptr], 0);
+	free(stack[stackptr].nump);
+	stackptr++;
+	return true;
+}
+
 void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[]){
 	clock_t begin_time = clock();
 	bool doprint = !ScriptingMode;
 	int rettype = types[0];
 	num_t* printptr = args[0];
 	qua_t* qprintptr = qargs[0];
+	FILE* quicfptr;
+
 	num_t dummy;
 	initnum(&dummy, 15, 0, 0);
 	switch (instruction){
@@ -155,36 +182,66 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 		case shf:
 			shiftnum(args[0], numtoint(args[1], true));
 			break;
+		case app:
+			appendnum(args[0], args[1]);
+			break;
 		case print:
 			doprint = true;
+			break;
+		case nprint:
+			doprint = false;
+			rettype = number;
+			printnum(args[0], bigEndian + 2);
 			break;
 		case sprint:
 			doprint = false;
 			rettype = string;
 			printstrnum(args[0]);
 			break;
+		case firead:
+			quicfptr = fopen((char*)(args[1]->nump), "rb");
+			if(quicfptr == NULL){ printf("Could not open file '%s'.\n", args[1]->nump); break;}
+
+			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
+			fread(args[0]->nump, 1, args[0]->len, quicfptr);
+
+			fclose(quicfptr);
+			rettype = string;
+			break;
+		case fiwrite:
+			if(args[3]->nump[0] == 0) quicfptr = fopen((char*)(args[1]->nump), "wb");
+			else quicfptr = fopen((char*)(args[1]->nump), "wb+");
+			if(quicfptr == NULL){ printf("Could not open or create file '%s'.\n", args[1]->nump); break;}
+
+			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
+			fwrite(args[0]->nump, 1, args[0]->len, quicfptr);
+
+			fclose(quicfptr);
+			rettype = string;
+			break;
+		case input:
+			fgets(userInput, inputlen, stdin);
+			if(userInput[0] >= '0' && userInput[0] <= '9')
+				inpstrtonum(args[0], userInput, 0, bigEndian);
+			else if (userInput[0] == '"'){
+				strtostrnum(args[0], userInput, 1);
+				rettype = string;
+			} else {printf("Input must be a number or string\n"); doprint = false;}
+			break;
+		case sinput:
+			fgets(userInput, inputlen, stdin);
+			free(args[0]->nump);
+			for(int i = 0; userInput[i] != '\n'; i++)
+				if(userInput[i + 1] == '\n') initnum(args[0], i + 1, 0, 0);
+			for(unsigned int i = 0; i < args[0]->len; i++)
+				args[0]->nump[i] = userInput[i];
+			rettype = string;
+			break;
 		case push:
-			stackptr--;
-			if(stackptr < 0){
-				printf("The bottom of the stack has been reached (it currently contains %d items)\n", stackSize);
-				printf("It is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n");
-				stackptr = 0;
-				doprint = false;
-				break;
-			}
-			initnum(&stack[stackptr], 1, 0, 0);
-			copynum(&stack[stackptr], args[0], 0);
+			if(!pushtomst(args[0])) doprint = false;
 			break;
 		case pop:
-			if(stackptr >= stackSize){
-				printf("The top of the stack has been reached (there are no elements to be popped).\n");
-				stackptr = stackSize;
-				doprint = false;
-				break;
-			}
-			copynum(args[0], &stack[stackptr], 0);
-			free(stack[stackptr].nump);
-			stackptr++;
+			if(!popfrommst(args[0])) doprint = false;
 			break;
 		case peek:
 			if(stackptr == stackSize){
@@ -212,6 +269,7 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			initnum(&retstack[retstackptr], 1, 0, 0);
 			copynum(&retstack[retstackptr], &stack[stackptr], 0);
 			printptr = &retstack[retstackptr];
+			free(stack[stackptr].nump);
 			stackptr++;
 			break;
 		case ret:
@@ -232,6 +290,7 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			initnum(&stack[stackptr], 1, 0, 0);
 			copynum(&stack[stackptr], &retstack[retstackptr], 0);
 			printptr = &stack[stackptr];
+			free(retstack[retstackptr].nump);
 			retstackptr++;
 			break;
 		case len:

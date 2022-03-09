@@ -1,7 +1,14 @@
-add gr1, 3
-print gr1
+set loop, 1
 
-cmp gr1, 3
-	Ce SCR test.aa
-	Ce LOAD state.aal
-print 8888
+sprint "\\\\\\ "
+sinput gr1
+
+set gr2, gr1
+dget gr2, 0
+cmp gr2, "9"
+	Cg sprint gr1
+	Cg sprint "\n"
+	Cs print gr1
+
+cmp gr2, "\\"
+	Ce set loop, 0
