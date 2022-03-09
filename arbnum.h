@@ -133,6 +133,7 @@ int strtostrnum(num_t* number, char str[], int offset){
 	int i = offset;
 	int j = 0;
 	int escapes = 0;
+	bool prevescaped = false;
 	while(str[i] != '"' && str[i] != '\0'){
 		if(str[i] == '\\' && !prevescaped){ escapes++; prevescaped = true;}
 		else{ j++; prevescaped = false;}
