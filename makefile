@@ -17,7 +17,7 @@ $(OUTPUT): $(C_FILES) $(H_FILES)
 
 build: $(OUTPUT)
 
-windows:
+forwindows:
 	@if x86_64-w64-mingw32-gcc -o $(OUTPUT).exe $(C_FILES); then \
 		echo "Compilation succeeded!"; \
 	else \
