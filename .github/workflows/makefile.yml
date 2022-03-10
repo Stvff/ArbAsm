@@ -24,7 +24,7 @@ jobs:
       run: sudo apt install gcc-mingw-w64-x86-64 -y
     
     - name: Build Windows executable
-      run: make windows
+      run: make forwindows
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.3.1
