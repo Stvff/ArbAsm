@@ -1,21 +1,26 @@
 # Arbitrary Assembly
-Command line interface and interpreter for an assembly language-styled scripting language with a strong focus on arithmetic for its main data type: arbitrary precision integers.
+Interpreter and command line interface for an assembly language-styled scripting language mainly featuring arbitrary digit integer arithmetic.
 
-A long term, distant goal is making a standalone handheld calculator with the functions and conventions outlined by this implementation.
+The `scripts/` folder has some examples of what it's like to use this language.
+
+Very work in progress.
 
 ## Table of contents
-* [Compilation](#compilation)
-* [Syntax, instructions, options](#syntax-instructions-options)
+* [Compilation (feat. GNU make)](#compilation-feat-gnu-make)
+* [Running the program](#running-the-program)
+* [Syntax, instructions, options](#syntax-registers-instructions)
   * [Numbers](#numbers)
+  * [Strings](#strings)
   * [Registers](#registers)
   * [Instruction mnemonics](#instruction-mnemonics)
-    * [Register control and Information](#register-control-and-information)
+    * [Intra-number](#intra-number)
     * [Arithmetic](#arithmetic)
+    * [IO](#io)
     * [Logic and Conditional statements](#logic-and-conditional-statements)
     * [Stack control](#stack-control)
   * [Scripts and files](#scripts-and-files)
 
-## Compilation
+## Compilation (feat. GNU make)
 To compile it, enter
 ```
 $ make
@@ -30,6 +35,12 @@ There is a syntax highlighting file for the text editor [micro](https://github.c
 ```
 $ make formicro
 ```
+To compile for windows, enter
+```
+$ make forwindows
+```
+
+## Running the program
 After compilation, the program can be run like so:
 ```
 $ ./aasm
@@ -38,9 +49,23 @@ It might need execute permission, in which case:
 ```
 $ sudo chmod +x ./aasm
 ```
-should do the trick.
+should do the trick.\
+For ease of reading, the rest of this document assumes the program is either in the path variable, or aliased in some way.
 
-## Syntax, instructions, options
+`aasm` can take arguments from the shell:
+```
+$ aasm <statement (without spaces)> <options>
+```
+Good replacements for spaces are dots (`.`) and underscores (`_`).\
+|Option|Description|
+|------|-----------|
+|`-e`|Exit immediately after executing the statement that was passed as argument.|
+|`-u <statefile>`|Load the designated statefile, and save to it again on exit.|
+|`-b`|Sets the notation to big endian before doing anything else.|
+|`-h`|Prints this table.|
+
+
+## Syntax, registers and instructions
 Every statement is of the form:
 ```
 <instruction mnemonic(s)> <arguments seperated by commas>
@@ -50,11 +75,23 @@ In the command line interface, when an instruction is executed, the number it re
 The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endian` register).
 
 ### Numbers
-Numbers can be of any length, and must be a string of decimal digits that may be interrupted by spaces. To input the sign of a number, a `-` can be placed at the end. The default is positive.\
+Numbers can be of any length, and must be a set of decimal digits that may be interrupted by spaces. To input the sign of a number, a minus sign (`-`) can be placed at the end. The default is positive.\
 Some examples:\
-`314159265358979`, `310771-`, `00003 -`, `000 000 1`\
+`314159265358979`,\
+`310771-`, `00003 -`,\
+`000 000 1`\
 Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.\
 The `+` character is for quaternions, but those are currently work in process.
+
+### Strings
+A string is internally the same as a number, so it is possible to save them to registers and such. However, instead of 0-9, every digit is ASCII encoded, so arithmetic operations preform what C devs would call 'Undefined Behaviour'.\
+Inputting a string is done by starting with a double quote character (`"`), then typing the desired string, and closing it again with a double quote character.\
+These are the supported escaped characters:\
+`\0`, `\r`, `\n`, `\\`\
+Some examples of strings:\
+`"Hello world!\n"`,\
+`"I am using a DOS system...\r\n"`,\
+`"I am a null-terminated string.\0"`
 
 ### Registers
 Registers are effectively built-in variables.
@@ -74,16 +111,18 @@ Registers are effectively built-in variables.
 ### Instruction mnemonics
 The first thing in a statement is always the instruction mnemonic. The result of an operation is stored in the first argument (if it is a register), unless stated otherwise.
 
-#### Register control and Information
+#### Intra-number
 |Mnemonic|Intended Syntax|Name and description|Returns|
 |--------|---------------|--------------------|-------|
-|`set`|`<register>, <register/number>`|Set. Sets the first argument as the second argument|The second argument.|
-|`print`|`<register/number>`|Print. Prints the number of the first argument to the console. It is effectively a no-op in the cli.|The first argument|
+|`set`|`<register>, <register/number>`|Set. Sets the first argument as the second argument|The second argument|
+|`dget`|`<register/number>`, `<register/number>`|Digit get. Gets, from the first argument, the digit at the index given by the second argument.|The selected digit|
+|`dset`|`<register>`, `<register/number>`, `<register/number>`|Digit set. Sets, in the first argument, the digit at the index given by the second argument to the first digit of the third argument.|The first argument with one changed digit|
 |`len`|`<register/number>, <register>`|Length. Gets the length of the first argument and stores the it the second argument|The length of the first argument|
 |`rot`|`<register/number>, <register/number>`|Rotate. Rotates the first argument by the second argument.|The rotated argument|
-|`shf`|`<register/number>, <register/number>`|Shift. Arithmetically shifts the first argument by the second argument.|The shifted argument|
+|`shf`|`<register/number>, <register/number>`|Shift. Arithmetically shifts (base 10) the first argument by the second argument.|The shifted argument|
 |`rev`|`<register/number>`|Reverse. Reverses the first argument.|The reversed argument|
 |`sel`|`<register/number>, <register/number>, <register/number>`|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
+|`app`|`<register/number>`, `<register/number>`|Append. Appends the second argument to the end (so at the side of the most significant digits) of the first argument.|The second argument appended to the first|
 
 #### Arithmetic
 |Mnemonic|Intended Syntax|Name and description|Returns|
@@ -95,6 +134,17 @@ The first thing in a statement is always the instruction mnemonic. The result of
 |`mul`|`<register/number>, <register/number>`|Multiplication. Multiplies the two arguments together.|The product of the two arguments|
 |`div`|`<register/number>, <register/number>, <register>`|Division. Divides (integer division) the first argument by the second argument, storing the remainder in the third argument|The first argument divided by the second argument|
 |`mod`|`<register/number>, <register/number>, <register>`|Modulo. Preforms a modulo operation where the second argument is the modulus, storing the division of the first argument by the second argument in the third argument|The remainder of the first argument divided by the second argument|
+
+#### IO
+|Mnemonic|Intended Syntax|Name and description|Returns|
+|--------|---------------|--------------------|-------|
+|`print`|`<register/number>`|Print. Prints the first argument to the console, starting a new line afterwards. It attempts to correctly guess the type and prints it accordingly.|The first argument|
+|`nprint`|`<register/number>`|Number print. Prints the first argument as a number, not starting a new line afterwards.|The first argument|
+|`sprint`|`<register/number>`|String print. Prints the first argument as string, not automatically starting a new line afterwards.|The first argument|
+|`input`|`<register>`|Input. Pauses the program to read user input, as number or string.|The number inputted by the user|
+|`sinput`|`<register>`|String input. Pauses the program to read user input, as direct keyboard inputs.|The user input, as string|
+|`fread`|`<register>`, `<register/string>`, `<register/number>`|File read. Reads a section from the file of which the path is given by the second argument, starting at the position given by the third argument. The length of the read section is equal to the length of the first argument.|The selected section from the file, as string|
+|`fwrite`|`<register>`, `<register/string>`, `<register/number>`, `<register/number>`|File write. Writes the first argument as ASCII string to the file of which the path is given by the second argument, starting at the position given by the third argument. If the third argument is 1, it first truncates the designated file.|The first argument, as string|
 
 #### Logic and Conditional statements
 |Mnemonic|Intended Syntax|Name and description|Returns|
@@ -115,11 +165,23 @@ There are two stacks: The main stack and the return stack. The main stack is mea
 |`flip`||Flip. Pops the number on top of the main stack and pushes it onto the return stack.|The number that was popped and pushed|
 |`ret`||Return. Pops the number on top of the return stack and pushes (returns) it onto the main stack.|The number that was popped and pushed|
 
-### Scripts and files
+### Scripts and statefiles
 A script is a simple text file with the `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed with `SCR`:
 ```
-\\\ SCR <path relative to the current working directory>
+SCR <path relative to the current working directory>
 ```
-Which only works in the CLI (for now).\
 The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` is `1`, the script will loop until `loop` is `0` again.\
-A script runs in the instance it is called in, so this is a way to pass user inputs.
+A script runs in the instance it is called in.\
+It is possible to run a script from a script, but the maximum 'recursion' depth is currently set at 10, so that means:\
+A script in a script in a script in a script in a script in a script in a script in a script in a script in a script.
+
+It is possible to save the state of the registers and stacks to a file, to later retrieve it again, or for debugging purposes. As convention, statefiles get the extension `.aal`.\
+Saving:
+```
+SAVE <path relative to the current working directory>
+```
+Loading:
+```
+LOAD <path relative to the current working directory>
+```
+These also work in scripts.

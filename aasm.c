@@ -23,7 +23,8 @@ int retstackptr;
 int regamount = 13;
 num_t regs[13];
 enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
-enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h, set, dset, dget, rev, sel,
+enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h,
+				set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, app, len, 
 				print, sprint, nprint, draw,
@@ -35,7 +36,8 @@ const int TheMaximumLengthOfTheThings = 10;
 char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
 							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
 							"time", "loop", "\0end" };
-char instructstring[][10] = { "\\", "\n", "\r", " ", "	", ";", "h", "set", "dset", "dget", "rev", "sel",
+char instructstring[][10] = { "\\", "\n", "\r", " ", "	", ";", "h",
+							"set", "dset", "dget", "rev", "sel",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
 							"cmp", "ucmp", "rot", "shf", "app", "len",
 							"print", "sprint", "nprint", "draw",
@@ -200,7 +202,7 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			break;
 		case firead:
 			quicfptr = fopen((char*)(args[1]->nump), "rb");
-			if(quicfptr == NULL){ printf("Could not open file '%s'.\n", args[1]->nump); break;}
+			if(quicfptr == NULL){ printf("Could not open file '%s'.\n", args[1]->nump); doprint = false; break;}
 
 			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
 			fread(args[0]->nump, 1, args[0]->len, quicfptr);
@@ -211,7 +213,7 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 		case fiwrite:
 			if(args[3]->nump[0] == 0) quicfptr = fopen((char*)(args[1]->nump), "wb");
 			else quicfptr = fopen((char*)(args[1]->nump), "wb+");
-			if(quicfptr == NULL){ printf("Could not open or create file '%s'.\n", args[1]->nump); break;}
+			if(quicfptr == NULL){ printf("Could not open or create file '%s'.\n", args[1]->nump); doprint = false; break;}
 			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
 			fwrite(args[0]->nump, 1, args[0]->len, quicfptr);
 
