@@ -189,6 +189,7 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			break;
 		case print:
 			doprint = true;
+			if(args[0]->nump[0] > 9) rettype = string;
 			break;
 		case nprint:
 			doprint = false;
@@ -225,13 +226,14 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			rettype = string;
 			break;
 		case input:
+			inputfailed:
 			fgets(userInput, inputlen, stdin);
 			if(userInput[0] >= '0' && userInput[0] <= '9')
 				inpstrtonum(args[0], userInput, 0, bigEndian);
 			else if (userInput[0] == '"'){
 				strtostrnum(args[0], userInput, 1);
 				rettype = string;
-			} else {printf("Input must be a number or string\n"); doprint = false;}
+			} else {printf("Input must be a number or string\n"); goto inputfailed;}
 			break;
 		case sinput:
 			fgets(userInput, inputlen, stdin);

@@ -19,7 +19,7 @@ print gr1
 
 print "123-:"
 print 123-
-set gr1, 321-
+set gr1, 123-
 print gr1
 
 
@@ -43,7 +43,7 @@ print gr1
 
 print "123-:"
 print 123-
-set gr1, 321-
+set gr1, 123-
 print gr1
 
 set endian, 0

@@ -33,7 +33,7 @@ endian is 0
 1 2 3 -
 123-:
 1 2 3 -
-3 2 1 -
+1 2 3 -
 
 endian is 1
 123456789:
@@ -47,7 +47,7 @@ endian is 1
 1 2 3 -
 123-:
 1 2 3 -
-3 2 1 -
+1 2 3 -
 
 endian is 0
 1 + 2i + 3j + 4k:
@@ -59,4 +59,3 @@ endian is 0
 
 ##################END OF TEST
 
-Script completed.

@@ -54,14 +54,24 @@ void printnum(num_t* number, int isbigend){//add 2 to isbigend to make it not ne
 	bool donewline = true;
 	if(isbigend > 1){ donewline = false; isbigend -= 2;}
 
-	for(int i = isbigend*((int)number->len-1); i != (1-isbigend)*(int)number->len - isbigend; i+= (1 - 2*isbigend))
-		printf("%u ", number->nump[i]);
+	char* buffer = (char*) malloc((4 + number->len*2)*sizeof(char));
+	int j = 0;
+	for(int i = isbigend*((int)number->len-1); i != (1-isbigend)*(int)number->len - isbigend; i+= (1 - 2*isbigend)){
+		buffer[j] = 0x30 + number->nump[i];
+		buffer[j + 1] = ' ';
+		j += 2 ;
+	}
+
 	switch (number->dim){
-		case 1: printf("i"); break;
-		case 2: printf("j"); break;
-		case 3: printf("k"); break;
-	} if (number->sign == 1) printf("-");
-	if(donewline) printf("\n");
+		case 1: buffer[j] = 'i'; j++; break;
+		case 2: buffer[j] = 'j'; j++; break;
+		case 3: buffer[j] = 'k'; j++; break;
+	} if (number->sign == 1){ buffer[j] = '-'; j++;}
+
+	if(donewline){ buffer[j] = '\n'; j++;}
+	buffer[j] = '\0';
+	printf("%s", buffer);
+	free(buffer);
 }
 
 int numtoint(num_t* num, bool considersign){
@@ -172,8 +182,12 @@ int strtostrnum(num_t* number, char str[], int offset){
 }
 
 void printstrnum(num_t* number){
+	char* buffer = (char*) malloc((1 + number->len)*sizeof(char));
 	for(unsigned int i = 0; i < number->len; i++)
-		printf("%c", number->nump[i]);
+		buffer[i] = (char)number->nump[i];
+	buffer[number->len] = '\0';
+	printf("%s", buffer);
+	free(buffer);
 }
 
 void savenum(FILE* fp, num_t* num){//File needs to be opened already!
