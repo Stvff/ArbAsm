@@ -28,10 +28,11 @@ pop gr4 				; retrieving the registers this script needs
 pop loop
 pop ir
 
-ret 					; these four lines print the updated tape each iteration
-peek gr1
-print gr1
-flip
+;ret 					; these four lines print the updated tape each iteration
+;peek gr1
+;print gr1
+;flip
+sprint "\n"
 
 inc ir
 ucmp ir, gr4

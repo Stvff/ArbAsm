@@ -18,7 +18,7 @@ jobs:
       run: make
       
     - name: Test Linux executable
-      run: cd scripts/bigtest/ && ./../../aasm SCR_bigtest.aa -e && cd ../../
+      run: cd scripts/bigtest/ && ./../../aasm SCR_main.aa -e && cd ../../
     
     - name: Install mingw-gcc
       run: sudo apt install gcc-mingw-w64-x86-64 -y

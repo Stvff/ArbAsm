@@ -20,9 +20,11 @@ int stackptr;
 num_t* retstack;
 int retstackptr;
 
-int regamount = 13;
-num_t regs[13];
-enum registers {gr1, gr2, gr3, gr4, ir, flag, inplen, endian, stacsz, mstptr, rstptr, tme, loop};
+int regamount = 14;
+num_t regs[14];
+enum registers {gr1, gr2, gr3, gr4, ir, flag,
+				inplen, endian, stacsz, mstptr,
+				rstptr, tme, ptme, loop};
 enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h,
 				set, dset, dget, rev, sel,
 				inc, dec, add, sub, mul, divi, modu,
@@ -35,7 +37,7 @@ enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h,
 const int TheMaximumLengthOfTheThings = 10;
 char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
 							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
-							"time", "loop", "\0end" };
+							"time", "ptime", "loop", "\0end" };
 char instructstring[][10] = { "\\", "\n", "\r", " ", "	", ";", "h",
 							"set", "dset", "dget", "rev", "sel",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
@@ -58,6 +60,7 @@ typedef struct FileInfo {
 	FILE *fp;
 	int rdpos;
 	int linenr;
+	time_t begin_time;
 } file_t;
 
 int recdep = 10;
@@ -107,7 +110,7 @@ bool popfrommst(num_t* num){
 }
 
 void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[]){
-	clock_t begin_time = clock();
+	time_t begin_time = time(&begin_time);
 	bool doprint = !ScriptingMode;
 	int rettype = types[0];
 	num_t* printptr = args[0];
@@ -318,9 +321,10 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			printf("\n");
 			break;
 	};
-	
-	inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
-	free(dummy.nump);
+
+	free(dummy.nump);	
+	time_t end_time = time(&end_time);
+	inttonum(&regs[ptme], end_time - begin_time);
 }
 
 void freestack(){
@@ -560,6 +564,8 @@ void updateessentials(){
 	scriptLoops = numtoint(&regs[loop], false);
 	inttonum(&regs[mstptr], stackptr);
 	inttonum(&regs[rstptr], retstackptr);
+	time_t thetime = time(&thetime);
+	inttonum(&regs[tme], (int32_t) thetime);
 }
 
 void setessentialsready(){
@@ -569,6 +575,8 @@ void setessentialsready(){
 	inttonum(&regs[loop], scriptLoops);
 	inttonum(&regs[mstptr], stackSize);
 	inttonum(&regs[rstptr], stackSize);
+	time_t thetime = time(&thetime);
+	inttonum(&regs[tme], (int32_t) thetime);
 }
 
 void flushuserInput(){
@@ -591,6 +599,7 @@ int main(int argc, char* argv[]){
 	file.fp = stdin;
 	file.rdpos = 0;
 	file.linenr = 0;
+	file.begin_time = time(&file.begin_time);
 	int watch = 0;
 	bool recursing = false;
 
@@ -599,7 +608,7 @@ int main(int argc, char* argv[]){
 	bool cont = true;
 	bool wascommand = false;
 	int8_t ataste;
-	clock_t begin_time;
+	time_t end_time;
 
 	bool using = false;
 	int usingarg = 0;
@@ -664,10 +673,12 @@ int main(int argc, char* argv[]){
 				file.linenr = 0;
 				fseek(file.fp, file.rdpos, SEEK_SET);
 			} else if(ataste == EOF){
-				inttonum(&regs[tme], (int)((double)(clock() - begin_time)/CLOCKS_PER_SEC));
 				file.rdpos = 0;
 				file.linenr = 0;
 				fclose(file.fp);
+				end_time = time(&end_time);
+				inttonum(&regs[ptme], end_time - file.begin_time);
+//				printf("time: "); printnum(&regs[tme], bigEndian);
 				if(watch == 0){
 //					printf("Script completed.\n");
 					file.fp = stdin;
@@ -706,7 +717,7 @@ int main(int argc, char* argv[]){
 				printf("Could not open script '%s'.\n", userInput);
 				ScriptingMode = false;
 				file.fp = stdin;
-			} else begin_time = clock();
+			} else file.begin_time = time(&file.begin_time);
 			file.rdpos = 0;
 		} prevmode = ScriptingMode;
 

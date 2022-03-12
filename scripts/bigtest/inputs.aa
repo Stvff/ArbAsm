@@ -60,3 +60,14 @@ print qr1
 print "3 - +2+ 4k + 1-:"
 set qr1, 3 - +2+ 4k + 1-
 print qr1
+
+
+sprint "\nThis is `sprint`\n"
+print "DOS things\r\nThat was a CRLF\nThat was a newline"
+print "Null coming in! '\0' That was a null"
+print "Multiple nulls '\0\0\0\0\0\0' 6 of them"
+print "5 backslashes '\\\\\\\\\\'"
+
+sprint "nprint of 13579: "
+nprint 13579
+sprint "\n"

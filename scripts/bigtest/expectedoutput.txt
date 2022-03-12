@@ -1,5 +1,5 @@
 
-##################REGISTERS
+################## REGISTERS
 
 gr1: 0 0 0 0 0 0 0 
 gr2: 0 0 0 0 0 0 0 
@@ -12,14 +12,15 @@ endian: 0
 stacsz: 0 2 
 mstptr: 0 2 
 rstptr: 0 2 
-time: 0 
+time: 6 9 5 0 2 1 7 4 6 1 
+ptime: 0 
 loop: 0 
 qr1: 0  + 0 i + 0 j + 0 k
 qr2: 0  + 0 i + 0 j + 0 k
 qr3: 0  + 0 i + 0 j + 0 k
 qr4: 0  + 0 i + 0 j + 0 k
 
-##################INPUTS
+################## INPUTS
 
 endian is 0
 123456789:
@@ -57,5 +58,39 @@ endian is 0
 3 - +2+ 4k + 1-:
 3 - + 2  + 4 k + 1 -
 
-##################END OF TEST
+This is `sprint`
+DOS things
+That was a CRLF
+That was a newline
+Null coming in! '
+Multiple nulls '
+5 backslashes '\\\\\'
+nprint of 13579: 1 3 5 7 9 
+
+################## INTRA-NUMBER
+
+dset
+
+7 7 7 8 7 7 7 by 3:
+7 7 7 8 7 7 7 
+7 7 7 8 7 7 7 by 3-:
+7 7 7 8 7 7 7 
+7 7 7 7 8 7 7 by 23:
+7 7 7 7 8 7 7 
+7 7 7 7 8 7 7 by 23-:
+7 7 7 7 8 7 7 
+
+dget
+
+The following all on 123 456 789
+4 by 3:
+4 
+4 by 3-:
+4 
+6 by 23:
+6 
+6 by 23-:
+6 
+
+################## END OF TEST
 

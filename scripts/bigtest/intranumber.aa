@@ -1,0 +1,45 @@
+print "dset\n"
+
+print "7 7 7 8 7 7 7 by 3:"
+set gr1, 777 7 777
+dset gr1, 3, 8
+print gr1
+
+print "7 7 7 8 7 7 7 by 3-:"
+set gr1, 777 7 777
+dset gr1, 3-, 8
+print gr1
+
+print "7 7 7 7 8 7 7 by 23:"
+set gr1, 777 7 777
+dset gr1, 23, 8
+print gr1
+
+print "7 7 7 7 8 7 7 by 23-:"
+set gr1, 777 7 777
+dset gr1, 23-, 8
+print gr1
+
+
+print "\ndget\n"
+
+print "The following all on 123 456 789"
+print "4 by 3:"
+set gr1, 123 456 789
+dget gr1, 3
+print gr1
+
+print "4 by 3-:"
+set gr1, 123 456 789
+dget gr1, 3-
+print gr1
+
+print "6 by 23:"
+set gr1, 123 456 789
+dget gr1, 23
+print gr1
+
+print "6 by 23-:"
+set gr1, 123 456 789
+dget gr1, 23-
+print gr1

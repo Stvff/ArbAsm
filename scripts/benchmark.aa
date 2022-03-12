@@ -13,7 +13,7 @@ peek gr2
 shf gr1, ir
 shf gr2, gr1
 div gr2, 3
-print time
+print ptime
 
 inc ir
 

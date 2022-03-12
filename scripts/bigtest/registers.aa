@@ -23,6 +23,8 @@ sprint "rstptr: "
 print rstptr
 sprint "time: "
 print time
+sprint "ptime: "
+print ptime
 sprint "loop: "
 print loop
 
