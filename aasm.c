@@ -204,6 +204,10 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			quicfptr = fopen((char*)(args[1]->nump), "rb");
 			if(quicfptr == NULL){ printf("Could not open file '%s'.\n", args[1]->nump); doprint = false; break;}
 
+			args[0]->len = numtoint(args[0], false);
+			free(args[0]->nump);
+			initnum(args[0], args[0]->len, 0, 0);
+			
 			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
 			fread(args[0]->nump, 1, args[0]->len, quicfptr);
 

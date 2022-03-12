@@ -151,7 +151,7 @@ If one of the arguments is expected to be a number or string, a register can alw
 |`sprint`|`<s>`               |String print. Prints the first argument as string, not automatically starting a new line afterwards.|The first argument|
 |`input` |`<r>`               |Input. Pauses the program to read user input, as number or string.|The number inputted by the user|
 |`sinput`|`<r>`               |String input. Pauses the program to read user input, as direct keyboard inputs.|The user input, as string|
-|`fread` |`<r>, <s>, <n>`     |File read. Reads a section from the file of which the path is given by the second argument, starting at the position given by the third argument. The length of the read section is equal to the length of the first argument.|The selected section from the file, as string|
+|`fread` |`<r>, <s>, <n>`     |File read. Reads a section from the file of which the path is given by the second argument, starting at the position given by the third argument. The length of the section is given by the first argument.|The selected section from the file, as string|
 |`fwrite`|`<r>, <s>, <n>, <n>`|File write. Writes the first argument as ASCII string to the file of which the path is given by the second argument, starting at the position given by the third argument. If the third argument is 1, it first truncates the designated file.|The first argument, as string|
 |        |`******************`|||
 
