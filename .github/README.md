@@ -129,6 +129,8 @@ If one of the arguments is expected to be a number or string, a register can alw
 |`rev`   |`<n/s>`              |Reverse. Reverses the first argument.|The reversed argument|
 |`sel`   |`<n/s>, <n/s>, <n/s>`|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
 |`app`   |`<n/s>, <n/s>`       |Append. Appends the second argument to the end (so at the side of the most significant digits) of the first argument.|The second argument appended to the first|
+|`ntoc`  |`<n>`                |Number to character. Convers the first three digits of the first argument to an 8 bit integer; an ASCII character.|The first argument as character|
+|`cton`  |`<s>, <n>`           |Character to number. Converts, from the first argument, the character at the index given by the second argument into a 3-digit number.|The selected character as number|
 |        |`*******************`|||
 
 #### Arithmetic

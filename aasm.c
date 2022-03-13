@@ -26,7 +26,7 @@ enum registers {gr1, gr2, gr3, gr4, ir, flag,
 				inplen, endian, stacsz, mstptr,
 				rstptr, tme, ptme, loop};
 enum instructs {endprog=1, slashn, wincrap, space, tab, semicolon, h,
-				set, dset, dget, rev, sel, dton, ntod,
+				set, dset, dget, rev, sel, cton, ntoc,
 				inc, dec, add, sub, mul, divi, modu,
 				cmp, ucmp, rot, shf, app, len, 
 				print, sprint, nprint, draw,
@@ -39,7 +39,7 @@ char registerstring[][10] = { "gr1", "gr2", "gr3", "gr4", "ir",
 							"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
 							"time", "ptime", "loop", "\0end" };
 char instructstring[][10] = { "\\", "\n", "\r", " ", "	", ";", "h",
-							"set", "dset", "dget", "rev", "sel", "dton", "ntod",
+							"set", "dset", "dget", "rev", "sel", "cton", "ntoc",
 							"inc", "dec", "add", "sub", "mul", "div", "mod",
 							"cmp", "ucmp", "rot", "shf", "app", "len",
 							"print", "sprint", "nprint", "draw",
@@ -143,15 +143,15 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			selectsectionnum(&dummy, args[0], numtoint(args[1], false), numtoint(args[2], false));
 			copynum(args[0], &dummy, 0);
 			break;
-		case dton:
+		case cton:
 			uint8tonum(args[0], args[0]->nump[numtoint(args[1], false) % (int32_t)args[0]->len]);
 			rettype = number;
 			break;
-		case ntod:
-			uint8_t dig = numtouint8(args[0]);
+		case ntoc:
+			dummy.nump[0] = numtouint8(args[0]);
 			free(args[0]->nump);
 			initnum(args[0], 1, 0, 0);
-			args[0]->nump[0] = dig;
+			args[0]->nump[0] = dummy.nump[0];
 			rettype = string;
 			break;
 		case inc:
