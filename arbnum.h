@@ -89,9 +89,27 @@ void inttonum(num_t* num, int inte){
 	free(num->nump);
 	if(inte == 0) initnum(num, 1, 0, 0);
 	else initnum(num, 1+(uint32_t)(log((double)inte)/log(10.0)), 0, 0);
-	for(unsigned int i = 0; i < num->len; i++){
+	for(unsigned int i = 0; i < num->len; i++)
 		num->nump[i] = psi(10, i, inte);
+}
+
+uint8_t numtouint8(num_t* num){
+	uint8_t cum = 0;
+	uint32_t pow = 1;
+	num_t dummy; initnum(&dummy, 3, 0, 0);
+	copynum(&dummy, num, true);
+	for(unsigned int i = 0; i < 3; i++){
+		cum += dummy.nump[i]*pow;
+		pow *= 10;
 	}
+	return cum;
+}
+
+void uint8tonum(num_t* num, uint8_t inte8){
+	free(num->nump);
+	initnum(num, 3, 0, 0);
+	for(unsigned int i = 0; i < 3; i++)
+		num->nump[i] = (uint8_t) psi(10, i, inte8);
 }
 
 int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
@@ -178,7 +196,7 @@ int strtostrnum(num_t* number, char str[], int offset){
 		} else number->nump[j] = str[n];
 		j++;
 	}
-	return i + 1;
+	return j + escapes + 1;
 }
 
 void printstrnum(num_t* number){

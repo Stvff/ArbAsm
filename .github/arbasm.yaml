@@ -7,8 +7,9 @@ rules:
     # This file is made for Arbitrary Assembly, it is adapted from the NASM assembly file from micro itself
 
     ## Instructions
-    - statement: "\\b(?i)(set|dset|dget|rev|sel|inc|dec|add|sub|mul|div|mod|cmp|ucmp|rot|shf|app|print|nprint|sprint|fread|fwrite|input|sinput|draw|len|dset|dget)(?-i)\\b"
+    - statement: "\\b(?i)(set|dset|dget|rev|sel|dton|ntod|inc|dec|add|sub|mul|div|mod|cmp|ucmp|rot|shf|app|print|nprint|sprint|fread|fwrite|input|sinput|draw|len|dset|dget)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
+    - symbol.operator: "([,+]|)"
 
       ## Registers
     - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ir|flag|inplen|endian|stacsz|mstptr|rstptr|ptime|time|loop)(?-i)\\b"
@@ -16,12 +17,12 @@ rules:
 
       ## Constants
       # Number - it works
-    - constant.number: "\\b[0-9 \ ]+(|\ )+(|i|j|k)+\\b"
+    - constant.number: "\\b[0-9 \ ijk]+\\b"
+    - constant.number: "([-]|)"
 
       ## Other
     - statement: "\\b(?i)(SCR|SAVE|LOAD)(?-i)\\b"
     - statement: "\\b(?i)(Ce|Cg|Cs)(?-i)\\b"
-    - identifier: "[a-z A-Z 0-9 _]+:"
 
     - constant.string:
         start: "\""
