@@ -118,23 +118,20 @@ The second column gives the syntax with expected 'types' for its corresponding i
 If one of the arguments is expected to be a number or string, a register can always be substituted, unlike if an argument is expected to be a register, in which case replacing it with a number or string results in a no-op, or Undefined Behaviour.
 
 #### Intra-number
-|Mnemonic|Syntax               |Name and description|Returns|
-|--------|---------------------|--------------------|-------|
-|`set`   |`<r>, <n/s>`         |Set. Sets the first argument as the second argument|The second argument|
-|`dget`  |`<n/s>, <n/s>`       |Digit get. Gets, from the first argument, the digit at the index given by the second argument.|The selected digit|
-|`dset`  |`<r>, <n/s>, <n/s>`  |Digit set. Sets, in the first argument, the digit at the index given by the second argument to the first digit of the third argument.|The first argument with one changed digit|
-|`len`   |`<n/s>, <r>`         |Length. Gets the length of the first argument and stores the it the second argument|The length of the first argument|
-|`rot`   |`<n/s>, <n/s>`       |Rotate. Rotates the first argument by the second argument.|The rotated argument|
-|`shf`   |`<n/s>, <n/s>`       |Shift. Arithmetically shifts (base 10) the first argument by the second argument.|The shifted argument|
-|`rev`   |`<n/s>`              |Reverse. Reverses the first argument.|The reversed argument|
-|`sel`   |`<n/s>, <n/s>, <n/s>`|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
-|`app`   |`<n/s>, <n/s>`       |Append. Appends the second argument to the end (so at the side of the most significant digits) of the first argument.|The second argument appended to the first|
-|`ntoc`  |`<n>`                |Number to character. Convers the first three digits of the first argument to an 8 bit integer; an ASCII character.|The first argument as character|
-|`cton`  |`<s>, <n>`           |Character to number. Converts, from the first argument, the character at the index given by the second argument into a 3-digit number.|The selected character as number|
-|        |`*******************`|||
+|Mnemonic|<div style="width:130px">Syntax</div>|Name and description|Returns|
+|--------|-----------------|--------------------|-------|
+|`set`   |`<r>, <n/s>`     |Set. Sets the first argument as the second argument|The second argument|
+|`dget`  |`<n/s>, <n>`     |Digit get. Gets, from the first argument, the digit at the index given by the second argument.|The selected digit|
+|`dset`  |`<r>, <s>, <n/s>`|Digit set. Sets, in the first argument, the digit at the index given by the second argument to the first digit of the third argument.|The first argument with one changed digit|
+|`len`   |`<n/s>, <r>`     |Length. Gets the length of the first argument and stores the it the second argument|The length of the first argument|
+|`rot`   |`<n/s>, <s>`     |Rotate. Rotates the first argument by the second argument.|The rotated argument|
+|`shf`   |`<n/s>, <s>`     |Shift. Arithmetically shifts (base 10) the first argument by the second argument.|The shifted argument|
+|`rev`   |`<n/s>`          |Reverse. Reverses the first argument.|The reversed argument|
+|`sel`   |`<n/s>, <s>, <s>`|Selection. Selects a region of the first argument, starting at the index given by the second argument and ending at the index given by the third argument.|The selected region|
+|`app`   |`<n/s>, <n/s>`   |Append. Appends the second argument to the end (so at the side of the most significant digits) of the first argument.|The second argument appended to the first|
 
 #### Arithmetic
-|Mnemonic|Syntax         |Name and description|Returns|
+|Mnemonic|<div style="width:110px">Syntax</div>|Name and description|Returns|
 |--------|---------------|--------------------|-------|
 |`inc`   |`<n>`          |Increment. Increments the first argument by 1.|The incremented argument|
 |`dec`   |`<n>`          |Decrement. Decrements the first argument by 1.|The decremented argument|
@@ -143,19 +140,17 @@ If one of the arguments is expected to be a number or string, a register can alw
 |`mul`   |`<n>, <n>`     |Multiplication. Multiplies the two arguments together.|The product of the two arguments|
 |`div`   |`<n>, <n>, <r>`|Division. Divides (integer division) the first argument by the second argument, storing the remainder in the third argument|The first argument divided by the second argument|
 |`mod`   |`<n>, <n>, <r>`|Modulo. Preforms a modulo operation where the second argument is the modulus, storing the division of the first argument by the second argument in the third argument|The remainder of the first argument divided by the second argument|
-|        |`*************`|||
 
 #### IO
-|Mnemonic|Syntax              |Name and description|Returns|
+|Mnemonic|<div style="width:160px">Syntax</div>|Name and description|Returns|
 |--------|--------------------|--------------------|-------|
 |`print` |`<n/s>`             |Print. Prints the first argument to the console, starting a new line afterwards. It attempts to correctly guess the type and prints it accordingly.|The first argument|
-|`nprint`|`<n/s>`             |Number print. Prints the first argument as a number, not starting a new line afterwards.|The first argument|
+|`nprint`|`<n>`               |Number print. Prints the first argument as a number, not starting a new line afterwards.|The first argument|
 |`sprint`|`<s>`               |String print. Prints the first argument as string, not automatically starting a new line afterwards.|The first argument|
 |`input` |`<r>`               |Input. Pauses the program to read user input, as number or string.|The number inputted by the user|
 |`sinput`|`<r>`               |String input. Pauses the program to read user input, as direct keyboard inputs.|The user input, as string|
-|`fread` |`<r>, <s>, <n>`     |File read. Reads a section from the file of which the path is given by the second argument, starting at the position given by the third argument. The length of the section is given by the first argument.|The selected section from the file, as string|
+|`fread` |`<r>, <s>, <n>`     |File read. Reads a section from the file of which the path is given by the second argument, starting at the position given by the third argument. The length of the read section is equal to the length of the first argument.|The selected section from the file, as string|
 |`fwrite`|`<r>, <s>, <n>, <n>`|File write. Writes the first argument as ASCII string to the file of which the path is given by the second argument, starting at the position given by the third argument. If the third argument is 1, it first truncates the designated file.|The first argument, as string|
-|        |`******************`|||
 
 #### Logic and Conditional statements
 |Mnemonic|Syntax       |Name and description|Returns|
@@ -165,7 +160,6 @@ If one of the arguments is expected to be a number or string, a register can alw
 |`Ce`    |`<statement>`|Condition equal. Preforms the statement that follows it when the `flag` register is `0`.|Nothing or the result of the statement|
 |`Cg`    |`<statement>`|Condition greater. Preforms the statement that follows it when the `flag` register is `1`.|Nothing or the result of the statement|
 |`Cs`    |`<statement>`|Condition smaller. Preforms the statement that follows it when the `flag` register is `2`.|Nothing or the result of the statement|
-|        |`***********`|||
 
 #### Stack control
 There are two stacks: The main stack and the return stack. The main stack is meant to be used for temporarily relieving registers so that they can be used for different operations. The return stack is meant to be used to store numbers that will be returned at the end of the script or procedure it is being used in.
