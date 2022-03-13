@@ -230,7 +230,7 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			rettype = string;
 			break;
 		case fiwrite:
-			if(args[3]->nump[0] == 0) quicfptr = fopen((char*)(args[1]->nump), "wb");
+			if(args[2]->sign == 0) quicfptr = fopen((char*)(args[1]->nump), "wb");
 			else quicfptr = fopen((char*)(args[1]->nump), "wb+");
 			if(quicfptr == NULL){ printf("Could not open or create file '%s'.\n", args[1]->nump); doprint = false; break;}
 			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
@@ -477,14 +477,14 @@ bool dothing(file_t file){
 			break;
 	}
 
-	int argam = 4;
-	num_t* tmpptr[4];
-	num_t tmp[4];
+	int argam = 3;
+	num_t* tmpptr[3];
+	num_t tmp[3];
 
-	qua_t* tmpqptr[4];
-	qua_t tmpq[4];
+	qua_t* tmpqptr[3];
+	qua_t tmpq[3];
 
-	int types[4];
+	int types[3];
 
 	for(int i = 0; i < argam; i++){
 		initnum(&tmp[i], 1, 0, 0);
