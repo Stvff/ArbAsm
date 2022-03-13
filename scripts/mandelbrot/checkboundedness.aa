@@ -6,9 +6,9 @@ push gr1
 push gr2
 
 mul gr1, gr1 		; a^2 - b^2
-shf gr1, 6-
+shf gr1, 9-
 mul gr2, gr2
-shf gr2, 6-
+shf gr2, 9-
 sub gr1, gr2
 
 pop gr2
@@ -16,7 +16,7 @@ pop gr3
 
 mul gr2, gr3 		; 2ab
 mul gr2, 2
-shf gr2, 6-
+shf gr2, 9-
 
 peek gr3
 flip
@@ -30,21 +30,13 @@ mul gr3, gr3
 set gr4, gr2
 mul gr4, gr4
 add gr3, gr4 		; x^2 + y^2
-shf gr3, 6-
-;sprint "magnitude: "
-;print gr3
+shf gr3, 9-
 
 inc ir
-;print ir
 
-cmp gr3, 4000000
+cmp gr3, 4 000 000 000
 	Cg set loop, 0
-	Cg ret
-	Cg pop
-	Cg pop
-	Cg pop
 	Cg push " "
-	Cg flip
 
 ret
 peek gr3
@@ -52,9 +44,4 @@ flip
 cmp ir, gr3
 	Cg cmp loop, 0
 	Cg set loop, 0
-	Cg ret
-	Cg pop
-	Cg pop
-	Cg pop
 	Cg push "#"
-	Cg flip
