@@ -7,28 +7,31 @@
 #include "defglobal.h"
 #include "arbnum_stdlib.h"
 
-enum CompiletimeConstants {
+enum CompiletimeConstantsMain {
 	libAmount = 2,
-	userInputLength = 256,
-	recursionDepth = 10
+	initaluserInputLen = 256,
+	recursionDepth = 10,
 };
 
 fun initfuncs[libAmount];
-fun updatefuncs[libAmount];
-fun freefuncs[libAmount];
+
 fun instructions[libAmount];
 fun arguments[libAmount];
 
+fun updatefuncs[libAmount];
+fun freefuncs[libAmount];
+
 //############################################### <Main surroundings>
 int initmain(GLOBAL* mainptrs){
-	mainptrs->userInputLen = userInputLength;
+	mainptrs->userInputLen = initaluserInputLen;
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + 10)*sizeof(char));
 	mainptrs->readhead = 0;
 
-	mainptrs->running = true;
-	mainptrs->mode = 'i';
-
 	mainptrs->lookingMode = 'i';
+
+	mainptrs->running = true;
+	mainptrs->scriptLoops = 0;
+	mainptrs->mode = 'i';
 
 	mainptrs->bigEndian = 0;
 
@@ -40,8 +43,31 @@ int initmain(GLOBAL* mainptrs){
 	mainptrs->flist[mainptrs->fileNr].linenr = 0;
 	mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 
-	printf("main initted\n");
+	mainptrs->debug = 'v';
+	if(mainptrs->debug == 'v') printf("main initted\n");
 	return 0;
+}
+
+int instructionsmain(GLOBAL* mainptrs){
+	char entry = mainptrs->userInput[mainptrs->readhead];
+	if(entry == '\\' || entry == 'q') mainptrs->running = false;
+
+	if(mainptrs->debug == 'v') printf("main instructed\n");
+	return 0;
+}
+
+int argumentsmain(GLOBAL* mainptrs){
+
+	if(mainptrs->debug == 'v') printf("main argumented\n");
+	return 0;
+}
+
+int updatemain(GLOBAL* mainptrs){
+	free(mainptrs->userInput);
+	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + maxKeywordLen)*sizeof(char));
+
+	if(mainptrs->debug == 'v') printf("main updated\n");
+	return 1;
 }
 
 int freemain(GLOBAL* mainptrs){
@@ -49,15 +75,7 @@ int freemain(GLOBAL* mainptrs){
 
 	free(mainptrs->flist);
 
-	printf("main freed\n");
-	return 1;
-}
-
-int updatemain(GLOBAL* mainptrs){
-	free(mainptrs->userInput);
-	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + 10)*sizeof(char));
-
-	printf("main updated\n");
+	if(mainptrs->debug == 'v') printf("main freed\n");
 	return 1;
 }
 //############################################### </Main surroundings>
@@ -66,6 +84,12 @@ int updatemain(GLOBAL* mainptrs){
 int initLibFuncPtrs(){	
 	initfuncs[0] = &initmain;
 	initfuncs[1] = &initstd;
+
+	instructions[0] = &instructionsmain;
+	instructions[1] = &instructionsstd;
+
+	arguments[0] = &argumentsmain;
+	arguments[1] = &argumentsstd;
 
 	updatefuncs[0] = &updatemain;
 	updatefuncs[1] = &updatestd;
@@ -78,26 +102,29 @@ int initLibFuncPtrs(){
 
 //############################################### <Main operation>
 int dothing(GLOBAL* mainptrs){
+	int libNr = 0;
+	int instructNr = 0;
 	mainptrs->readhead = 0;
 	char entry = mainptrs->userInput[mainptrs->readhead];
-	while (entry != '\0' && entry != '\n' && entry != '\r'){
+	while (entry != '\0' && entry != '\n' && entry != '\r' && entry != ';'){
 		entry = mainptrs->userInput[mainptrs->readhead];
-		
+		instructions[instructNr](mainptrs);
+		mainptrs->readhead++;
 	}
-	
+	if(mainptrs->debug == 'v') printf("thing done\n");
 	return 0;
 }
 
 int getuserInput(GLOBAL* mainptrs){
 	switch (mainptrs->mode) {
 		case 'i':
-			printf("<> ");
+			printf("\\\\\\ ");
 		case 'f':
 		case 'F':
 			fgets(mainptrs->userInput, mainptrs->userInputLen, mainptrs->flist[mainptrs->fileNr].fp);
 			break;
 	}
-
+	if(mainptrs->debug == 'v') printf("userInput gotten\n");
 	return 0;
 }
 //############################################### </Main operation>
@@ -116,6 +143,7 @@ int main(){
 		for(int i = 0; i < libAmount; i++)
 			updatefuncs[i](&mainitems);
 
+		if(mainitems.debug == 'v') printf("end of main while loop\n");
 	} while(mainitems.running);
 
 	for(int i = 0; i < libAmount; i++)

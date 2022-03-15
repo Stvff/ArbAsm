@@ -7,21 +7,22 @@
 #include "arbnum.h"
 
 enum CompiletimeConstantsStdlib {
-	stackSize = 20,
+	initialstackSize = 20,
 	regAmount = 14,
 };
 
+int stackSize = initialstackSize;
 num_t* stack;
 int stackptr;
 num_t* retstack;
 int retstackptr;
 
-int regamount = 14;
-num_t regs[14];
+num_t regs[regAmount];
 enum registers {
 	gr1, gr2, gr3, gr4, ir, flag,
 	inplen, endian, stacsz, mstptr,
-	rstptr, tme, ptme, loop
+	rstptr, tme, ptme, loop,
+	registerend
 };
 
 enum instructs {
@@ -31,17 +32,18 @@ enum instructs {
 	print, sprint, nprint, draw,
 	firead, fiwrite, input, sinput,
 	push, pop, peek, flip, ret,
-	SCR, SAVE, LOAD, Ce, Cg, Cs
+	SCR, SAVE, LOAD, Ce, Cg, Cs,
+	instructend
 };
 
-char registerstring[][10] = { 
+char registerstring[][maxKeywordLen] = { 
 	"gr1", "gr2", "gr3", "gr4", "ir",
 	"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
 	"time", "ptime", "loop",
 	"\0end"
 };
 
-char instructstring[][10] = {
+char instructstring[][maxKeywordLen] = {
 	"set", "dset", "dget", "rev", "sel", "cton", "ntoc",
 	"inc", "dec", "add", "sub", "mul", "div", "mod",
 	"cmp", "ucmp", "rot", "shf", "app", "len",
@@ -52,30 +54,77 @@ char instructstring[][10] = {
 	"\0end"
 };
 
-
-char(*)[][] returnfuncstrstd(){
-	return &instructstring;
+void freestacks(){
+	for(int i = stackptr; i < stackSize; i++)
+		free(stack[i].nump);
+	free(stack);
+	for(int i = retstackptr; i < stackSize; i++)
+		free(retstack[i].nump);
+	free(retstack);
 }
 
-char* returnargstrstd
-
 int initstd(GLOBAL* mainptrs){
+	initnumarray(regAmount, regs, 7, 0, 0);
+
+	stackptr = stackSize;
+	stack = (num_t*) malloc(stackSize * sizeof(num_t));
+	retstackptr = stackSize;
+	retstack = (num_t*) malloc(stackSize * sizeof(num_t));
+
+	inttonum(&regs[inplen], mainptrs->userInputLen);
+	inttonum(&regs[endian], mainptrs->bigEndian);
+	inttonum(&regs[loop], mainptrs->scriptLoops);
+
+	inttonum(&regs[stacsz], stackSize);
+	inttonum(&regs[mstptr], stackSize);
+	inttonum(&regs[rstptr], stackSize);
+	
+	time_t thetime = time(&thetime);
+	inttonum(&regs[tme], (int32_t) thetime);
+
+	if(mainptrs->debug == 'v') printf("stdlib initted\n");
 	return 0;
 }
 
 int updatestd(GLOBAL* mainptrs){
+	mainptrs->userInputLen = numtoint(&regs[inplen], false);
+	mainptrs->bigEndian = numtoint(&regs[endian], false);
+	mainptrs->scriptLoops = numtoint(&regs[loop], false);
+
+	if(stackSize != numtoint(&regs[stacsz], false)){
+		freestacks();
+		stackSize = numtoint(&regs[stacsz], false);
+		stackptr = stackSize;
+		retstackptr = stackSize;
+		stack = (num_t*) malloc(stackSize * sizeof(num_t));
+		retstack = (num_t*) malloc(stackSize * sizeof(num_t));
+	}
+	inttonum(&regs[mstptr], stackptr);
+	inttonum(&regs[rstptr], retstackptr);
+
+	time_t thetime = time(&thetime);
+	inttonum(&regs[tme], (int32_t) thetime);
+
+	if(mainptrs->debug == 'v') printf("stdlib updated\n");
 	return 0;
 }
 
 int freestd(GLOBAL* mainptrs){
+	freestacks();
+	freenumarray(regAmount, regs);
+	if(mainptrs->debug == 'v') printf("stdlib freed\n");
 	return 0;
 }
 
 int instructionsstd(GLOBAL* mainptrs){
+
+	if(mainptrs->debug == 'v') printf("stdlib instructed\n");
 	return 0;
 }
 
 int argumentsstd(GLOBAL* mainptrs){
+
+	if(mainptrs->debug == 'v') printf("stdlib argumented\n");
 	return 0;
 }
 
