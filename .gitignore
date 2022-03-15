@@ -1,2 +1,4 @@
 aasm
 aasm.exe
+scripts/game_of_life/*
+laasm
