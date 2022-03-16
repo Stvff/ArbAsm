@@ -7,23 +7,19 @@
 #include "arbnum_global.h"
 #include "arbnum_stdlib.h"
 
-enum CompiletimeConstantsMain {
-	libAmount = 2,
-	initaluserInputLen = 256,
-	recursionDepth = 10,
-};
-
 fun initfuncs[libAmount];
 
-fun instructshandle[libAmount];
-fun argumentshandle[libAmount];
+fun instructhandlers[libAmount];
+fun argumenthandlers[libAmount];
+
+fun executehandlers[libAmount];
 
 fun updatefuncs[libAmount];
 fun freefuncs[libAmount];
 
 //############################################### <Main surroundings>
-int initmain(GLOBAL* mainptrs){
-	mainptrs->userInputLen = initaluserInputLen;
+int init_main(GLOBAL* mainptrs){
+	mainptrs->userInputLen = initialuserInputLen;
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + 10)*sizeof(char));
 	mainptrs->readhead = 0;
 
@@ -31,7 +27,7 @@ int initmain(GLOBAL* mainptrs){
 
 	mainptrs->running = true;
 	mainptrs->scriptLoops = 0;
-	mainptrs->mode = 'i';
+	mainptrs->inputMode = 'i';
 
 	mainptrs->bigEndian = 0;
 
@@ -43,12 +39,12 @@ int initmain(GLOBAL* mainptrs){
 	mainptrs->flist[mainptrs->fileNr].linenr = 0;
 	mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 
-	mainptrs->debug = 's';
+	mainptrs->debug = 'v';
 	if(mainptrs->debug == 'v') printf("main initted\n");
 	return 0;
 }
 
-int instructhandlemain(GLOBAL* mainptrs){
+int instructhandler_main(GLOBAL* mainptrs){
 	char instructstringmain[][maxKeywordLen] = {"\\", "h", "\0end"};
 	enum instructsmain { slash, help };
 
@@ -74,13 +70,19 @@ int instructhandlemain(GLOBAL* mainptrs){
 	return instruction;
 }
 
-int argumenthandlemain(GLOBAL* mainptrs){
+int argumenthandler_main(GLOBAL* mainptrs){
 
 	if(mainptrs->debug == 'v') printf("main argumented\n");
 	return 0;
 }
 
-int updatemain(GLOBAL* mainptrs){
+int executehandler_main(GLOBAL* mainptrs){
+
+	if(mainptrs->debug == 'v') printf("main executed\n");
+	return 0;
+}
+
+int update_main(GLOBAL* mainptrs){
 	free(mainptrs->userInput);
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + maxKeywordLen)*sizeof(char));
 
@@ -88,7 +90,7 @@ int updatemain(GLOBAL* mainptrs){
 	return 1;
 }
 
-int freemain(GLOBAL* mainptrs){
+int free_main(GLOBAL* mainptrs){
 	free(mainptrs->userInput);
 
 	free(mainptrs->flist);
@@ -100,20 +102,23 @@ int freemain(GLOBAL* mainptrs){
 
 //############################################### <Library declarations>
 int initLibFuncPtrs(){	
-	initfuncs[0] = &initmain;
-	initfuncs[1] = &initstd;
+	initfuncs[0] = &init_main;
+	initfuncs[1] = &init_std;
 
-	instructshandle[0] = &instructhandlemain;
-	instructshandle[1] = &instructhandlestd;
+	instructhandlers[0] = &instructhandler_main;
+	instructhandlers[1] = &instructhandler_std;
 
-	argumentshandle[0] = &argumenthandlemain;
-	argumentshandle[1] = &argumenthandlestd;
+	argumenthandlers[0] = &argumenthandler_main;
+	argumenthandlers[1] = &argumenthandler_std;
 
-	updatefuncs[0] = &updatemain;
-	updatefuncs[1] = &updatestd;
+	executehandlers[0] = &executehandler_main;
+	executehandlers[1] = &executehandler_std;
 
-	freefuncs[0] = &freemain;
-	freefuncs[1] = &freestd;
+	updatefuncs[0] = &update_main;
+	updatefuncs[1] = &update_std;
+
+	freefuncs[0] = &free_main;
+	freefuncs[1] = &free_std;
 	return 0;
 }
 //############################################### </Library declarations>
@@ -123,44 +128,56 @@ int dothing(GLOBAL* mainptrs){
 	int libNr = 0;
 	int instructNr = -1;
 	mainptrs->readhead = 0;
+	mainptrs->argumentNr = 0;
 	mainptrs->lookingMode = 'i';
 	char entry = mainptrs->userInput[mainptrs->readhead];
 
+//	main parsing loop
 	while (mainptrs->lookingMode != 'd' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';')
 	{
 		entry = mainptrs->userInput[mainptrs->readhead];
 		if(entry != ' ' && entry != '\t'){
-
+//			functions
 			if(mainptrs->lookingMode == 'i'){
 
-				for(; libNr < libAmount && instructNr == -1; libNr++){
-					instructNr = instructshandle[libNr](mainptrs);
+				for(libNr = 0; libNr < libAmount && instructNr == -1; libNr++){
+					instructNr = instructhandlers[libNr](mainptrs);
 				}
-				
+
 				if(libNr == libAmount && instructNr == -1){
-					printf("Not a known instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].linenr);
+					printf("Not a valid instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].linenr);
 					mainptrs->lookingMode = 'd';
 				}
 				if(mainptrs->lookingMode == 'i'){
-					libNr = 0;
 					instructNr = -1;
 				}
-
+				libNr--;
+//			arguments
 			} else if(mainptrs->lookingMode == 'a'){
 
-				printf("looking at arguments\n");
+				if(mainptrs->argumentNr == maxArgumentAmount) {
+					mainptrs->lookingMode = 'e';
+					printf("full\n");
+				} else if(entry == ',') {
+					mainptrs->argumentNr++;
+					printf("anrfim: %d\n", mainptrs->argumentNr);
+				} else
+					argumenthandlers[libNr](mainptrs);
 
 			}
 		}
+		printf("entry: %c\n", entry);
 		mainptrs->readhead++;
 	}
+
+	if(mainptrs->lookingMode != 'd') executehandlers[libNr](mainptrs);
 
 	if(mainptrs->debug == 'v') printf("thing done\n");
 	return 0;
 }
 
 int getuserInput(GLOBAL* mainptrs){
-	switch (mainptrs->mode) {
+	switch (mainptrs->inputMode) {
 		case 'i':
 			printf("\\\\\\ ");
 		case 'f':

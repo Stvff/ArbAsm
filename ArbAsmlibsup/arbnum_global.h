@@ -6,6 +6,10 @@
 #include <time.h>
 
 #define maxKeywordLen 10
+#define maxArgumentAmount 4
+#define libAmount 2
+#define recursionDepth 10
+#define initialuserInputLen 256
 
 typedef struct FileInfo {
 	FILE* fp;
@@ -23,10 +27,12 @@ typedef struct __global__ {
 	// 'i' is for instruction mnemonics
 	// 'a' is for arguments
 	// 'd' is for done
+	// 'e' is for execute
+	int argumentNr;
 
 	bool running;
 	int scriptLoops;
-	char mode;
+	char inputMode;
 	// 'i' is from stdin
 	// 'f' is from file
 	// 'F' is from a file in deep
@@ -38,7 +44,7 @@ typedef struct __global__ {
 	file_t* flist;
 
 	char debug;
-	// 'o' is off
+	// 's' is silent
 	// 'v' is verbose
 } GLOBAL;
 
@@ -56,7 +62,7 @@ int strlook(char string[], char source[][maxKeywordLen], int* readhead){
 			j++;
 		}
 		if(isthis){
-			*readhead += j;
+			*readhead += --j;
 			return item;
 		}
 		item++;
