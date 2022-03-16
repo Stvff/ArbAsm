@@ -39,7 +39,7 @@ int init_main(GLOBAL* mainptrs){
 	mainptrs->flist[mainptrs->fileNr].linenr = 0;
 	mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 
-	mainptrs->debug = 'v';
+	mainptrs->debug = 's';
 	if(mainptrs->debug == 'v') printf("main initted\n");
 	return 0;
 }
@@ -48,9 +48,9 @@ int instructhandler_main(GLOBAL* mainptrs){
 	char instructstringmain[][maxKeywordLen] = {"\\", "h", "\0end"};
 	enum instructsmain { slash, help };
 
-	int instruction = strlook(mainptrs->userInput, instructstringmain, &mainptrs->readhead);
+	mainptrs->instructNr = strlook(mainptrs->userInput, instructstringmain, &mainptrs->readhead);
 
-	switch (instruction){
+	switch (mainptrs->instructNr){
 		case slash:
 			mainptrs->lookingMode = 'd';
 			mainptrs->running = false;
@@ -67,7 +67,7 @@ int instructhandler_main(GLOBAL* mainptrs){
 	}
 
 	if(mainptrs->debug == 'v') printf("main instructed\n");
-	return instruction;
+	return 0;
 }
 
 int argumenthandler_main(GLOBAL* mainptrs){
@@ -125,8 +125,8 @@ int initLibFuncPtrs(){
 
 //############################################### <Main operation>
 int dothing(GLOBAL* mainptrs){
-	int libNr = 0;
-	int instructNr = -1;
+	mainptrs->libNr = 0;
+	mainptrs->instructNr = -1;
 	mainptrs->readhead = 0;
 	mainptrs->argumentNr = 0;
 	mainptrs->lookingMode = 'i';
@@ -140,37 +140,35 @@ int dothing(GLOBAL* mainptrs){
 //			functions
 			if(mainptrs->lookingMode == 'i'){
 
-				for(libNr = 0; libNr < libAmount && instructNr == -1; libNr++){
-					instructNr = instructhandlers[libNr](mainptrs);
+				for(mainptrs->libNr = 0; mainptrs->libNr < libAmount && mainptrs->instructNr == -1; mainptrs->libNr++){
+					instructhandlers[mainptrs->libNr](mainptrs);
 				}
 
-				if(libNr == libAmount && instructNr == -1){
+				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
 					printf("Not a valid instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].linenr);
 					mainptrs->lookingMode = 'd';
 				}
 				if(mainptrs->lookingMode == 'i'){
-					instructNr = -1;
+					mainptrs->instructNr = -1;
 				}
-				libNr--;
+				mainptrs->libNr--;
 //			arguments
 			} else if(mainptrs->lookingMode == 'a'){
 
 				if(mainptrs->argumentNr == maxArgumentAmount) {
 					mainptrs->lookingMode = 'e';
-					printf("full\n");
 				} else if(entry == ',') {
 					mainptrs->argumentNr++;
-					printf("anrfim: %d\n", mainptrs->argumentNr);
 				} else
-					argumenthandlers[libNr](mainptrs);
+					argumenthandlers[mainptrs->libNr](mainptrs);
 
 			}
 		}
-		printf("entry: %c\n", entry);
+		if(mainptrs->debug == 'v') printf("entry: %c\n", entry);
 		mainptrs->readhead++;
 	}
 
-	if(mainptrs->lookingMode != 'd') executehandlers[libNr](mainptrs);
+	if(mainptrs->lookingMode != 'd') executehandlers[mainptrs->libNr](mainptrs);
 
 	if(mainptrs->debug == 'v') printf("thing done\n");
 	return 0;

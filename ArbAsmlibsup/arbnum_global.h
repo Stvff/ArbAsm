@@ -28,6 +28,8 @@ typedef struct __global__ {
 	// 'a' is for arguments
 	// 'd' is for done
 	// 'e' is for execute
+	int libNr;
+	int instructNr;
 	int argumentNr;
 
 	bool running;
