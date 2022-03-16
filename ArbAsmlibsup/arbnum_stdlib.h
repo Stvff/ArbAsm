@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "defglobal.h"
-#include "arbnum.h"
+#include "../arbnum.h"
 
 enum CompiletimeConstantsStdlib {
 	initialstackSize = 20,
@@ -25,7 +25,7 @@ enum registers {
 	registerend
 };
 
-enum instructs {
+enum instructsstdlib {
 	set, dset, dget, rev, sel, cton, ntoc,
 	inc, dec, add, sub, mul, divi, modu,
 	cmp, ucmp, rot, shf, app, len, 
@@ -116,13 +116,31 @@ int freestd(GLOBAL* mainptrs){
 	return 0;
 }
 
-int instructionsstd(GLOBAL* mainptrs){
-
+int instructhandlestd(GLOBAL* mainptrs){
+	int instruction = strlook(mainptrs->userInput, instructstring, &mainptrs->readhead);
+	switch(instruction){
+		case Ce:
+			if(regs[flag].nump[0] == 0) mainptrs->lookingMode = 'i';
+			else mainptrs->lookingMode = 'd';
+			break;
+		case Cg:
+			if(regs[flag].nump[0] == 1) mainptrs->lookingMode = 'i';
+			else mainptrs->lookingMode = 'd';
+			break;
+		case Cs:
+			if(regs[flag].nump[0] == 2) mainptrs->lookingMode = 'i';
+			else mainptrs->lookingMode = 'd';
+			break;
+		default:
+			mainptrs->lookingMode = 'a';
+			break;
+	}
+	
 	if(mainptrs->debug == 'v') printf("stdlib instructed\n");
-	return 0;
+	return instruction;
 }
 
-int argumentsstd(GLOBAL* mainptrs){
+int argumenthandlestd(GLOBAL* mainptrs){
 
 	if(mainptrs->debug == 'v') printf("stdlib argumented\n");
 	return 0;

@@ -4,7 +4,7 @@
 CC=gcc
 
 C_FILES = laasm.c
-H_FILES = arbnum.h arbnum_quats.h
+H_FILES = ../arbnum.h arbnum_stdlib.h defglobal.h
 OUTPUT = laasm
 
 MICRO_TARGET=~/.config/micro/syntax/

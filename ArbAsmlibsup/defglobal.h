@@ -22,6 +22,7 @@ typedef struct __global__ {
 	char lookingMode;
 	// 'i' is for instruction mnemonics
 	// 'a' is for arguments
+	// 'd' is for done
 
 	bool running;
 	int scriptLoops;
@@ -43,23 +44,24 @@ typedef struct __global__ {
 
 typedef int (*fun)(GLOBAL*);
 
-int strlook(char string[], char source[][maxKeywordLen], int offset, int* lengthoflocated){
-	int i = 0;
+int strlook(char string[], char source[][maxKeywordLen], int* readhead){
+	int item = 0;
 	int j;
 	bool isthis;
-	while (source[i][0] != '\0'){
+	while (source[item][0] != '\0'){
 		isthis = true;
 		j = 0;
-		while (source[i][j] != '\0'){
-			if(string[j+offset] != source[i][j]) isthis = false;
+		while (source[item][j] != '\0'){
+			if(string[j + *readhead] != source[item][j]) isthis = false;
 			j++;
 		}
-		*lengthoflocated = j;
-		i++;
-		if(isthis) return i;
+		if(isthis){
+			*readhead += j;
+			return item;
+		}
+		item++;
 	}
-	*lengthoflocated = 1;
-	return 0;
+	return -1;
 }
 
 #endif

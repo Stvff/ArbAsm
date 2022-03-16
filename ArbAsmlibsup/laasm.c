@@ -15,8 +15,8 @@ enum CompiletimeConstantsMain {
 
 fun initfuncs[libAmount];
 
-fun instructions[libAmount];
-fun arguments[libAmount];
+fun instructshandle[libAmount];
+fun argumentshandle[libAmount];
 
 fun updatefuncs[libAmount];
 fun freefuncs[libAmount];
@@ -43,20 +43,38 @@ int initmain(GLOBAL* mainptrs){
 	mainptrs->flist[mainptrs->fileNr].linenr = 0;
 	mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 
-	mainptrs->debug = 'v';
+	mainptrs->debug = 's';
 	if(mainptrs->debug == 'v') printf("main initted\n");
 	return 0;
 }
 
-int instructionsmain(GLOBAL* mainptrs){
-	char entry = mainptrs->userInput[mainptrs->readhead];
-	if(entry == '\\' || entry == 'q') mainptrs->running = false;
+int instructhandlemain(GLOBAL* mainptrs){
+	char instructstringmain[][maxKeywordLen] = {"\\", "h", "\0end"};
+	enum instructsmain { slash, help };
+
+	int instruction = strlook(mainptrs->userInput, instructstringmain, &mainptrs->readhead);
+
+	switch (instruction){
+		case slash:
+			mainptrs->lookingMode = 'd';
+			mainptrs->running = false;
+			break;
+		case help:
+			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`)\nand add the appropriate amount of arguments seperated by commas.\n\n");
+			printf("The general purpose registers are `gr1`, `gr2`, `gr3` and `gr4`.\n\n");
+			printf("To change notation from little endian (the default) to big endian, set the register `endian` to 1.\n");
+			printf("To change maximum line length, set the register `inplen` to the desired value.\n\n");
+			printf("Enter `\\` to close the program.\n\n");
+			printf("(P.S. Did you know that the actual plural of \"comma\" is \"commata\"?)\n");
+			mainptrs->lookingMode = 'd';
+			break;
+	}
 
 	if(mainptrs->debug == 'v') printf("main instructed\n");
-	return 0;
+	return instruction;
 }
 
-int argumentsmain(GLOBAL* mainptrs){
+int argumenthandlemain(GLOBAL* mainptrs){
 
 	if(mainptrs->debug == 'v') printf("main argumented\n");
 	return 0;
@@ -85,11 +103,11 @@ int initLibFuncPtrs(){
 	initfuncs[0] = &initmain;
 	initfuncs[1] = &initstd;
 
-	instructions[0] = &instructionsmain;
-	instructions[1] = &instructionsstd;
+	instructshandle[0] = &instructhandlemain;
+	instructshandle[1] = &instructhandlestd;
 
-	arguments[0] = &argumentsmain;
-	arguments[1] = &argumentsstd;
+	argumentshandle[0] = &argumenthandlemain;
+	argumentshandle[1] = &argumenthandlestd;
 
 	updatefuncs[0] = &updatemain;
 	updatefuncs[1] = &updatestd;
@@ -103,14 +121,40 @@ int initLibFuncPtrs(){
 //############################################### <Main operation>
 int dothing(GLOBAL* mainptrs){
 	int libNr = 0;
-	int instructNr = 0;
+	int instructNr = -1;
 	mainptrs->readhead = 0;
+	mainptrs->lookingMode = 'i';
 	char entry = mainptrs->userInput[mainptrs->readhead];
-	while (entry != '\0' && entry != '\n' && entry != '\r' && entry != ';'){
+
+	while (mainptrs->lookingMode != 'd' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';')
+	{
 		entry = mainptrs->userInput[mainptrs->readhead];
-		instructions[instructNr](mainptrs);
+		if(entry != ' ' && entry != '\t'){
+
+			if(mainptrs->lookingMode == 'i'){
+
+				for(; libNr < libAmount && instructNr == -1; libNr++){
+					instructNr = instructshandle[libNr](mainptrs);
+				}
+				
+				if(libNr == libAmount && instructNr == -1){
+					printf("Not a known instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].linenr);
+					mainptrs->lookingMode = 'd';
+				}
+				if(mainptrs->lookingMode == 'i'){
+					libNr = 0;
+					instructNr = -1;
+				}
+
+			} else if(mainptrs->lookingMode == 'a'){
+
+				printf("looking at arguments\n");
+
+			}
+		}
 		mainptrs->readhead++;
 	}
+
 	if(mainptrs->debug == 'v') printf("thing done\n");
 	return 0;
 }
