@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "defglobal.h"
+#include "arbnum_global.h"
 #include "../arbnum.h"
 
 enum CompiletimeConstantsStdlib {

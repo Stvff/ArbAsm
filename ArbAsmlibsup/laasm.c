@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
-#include "defglobal.h"
+#include "arbnum_global.h"
 #include "arbnum_stdlib.h"
 
 enum CompiletimeConstantsMain {
