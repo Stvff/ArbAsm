@@ -109,6 +109,45 @@ bool popfrommst(num_t* num){
 	return true;
 }
 
+bool fliperonie(){
+	if(stackptr >= stackSize){
+		printf("The top of the main stack has been reached (there are no elements to be flipped).\n");
+		stackptr = stackSize;
+		return false;
+	}
+	retstackptr--;
+	if(retstackptr < 0){
+		printf("The bottom of the return stack has been reached (it currently contains %d items)\n", stackSize);
+		printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
+		retstackptr = 0;
+		return false;
+	}
+	initnum(&retstack[retstackptr], 1, 0, 0);
+	copynum(&retstack[retstackptr], &stack[stackptr], 0);
+	free(stack[stackptr].nump);
+	stackptr++;
+	return true;
+}
+bool reteronie(){
+	if(retstackptr >= stackSize){
+		printf("The top of the return stack has been reached (there are no elements to be returned).\n");
+		retstackptr = stackSize;
+		return false;
+	}
+	stackptr--;
+	if(stackptr < 0){
+		printf("The bottom of the main stack has been reached (it currently contains %d items)\n", stackSize);
+		printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
+		stackptr = 0;
+		return false;
+	}
+	initnum(&stack[stackptr], 1, 0, 0);
+	copynum(&stack[stackptr], &retstack[retstackptr], 0);
+	free(retstack[retstackptr].nump);
+	retstackptr++;
+	return true;
+}
+
 void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[]){
 	time_t begin_time = time(&begin_time);
 	bool doprint = !ScriptingMode;
@@ -273,46 +312,12 @@ void functionswitch(int instruction, num_t* args[], int types[], qua_t* qargs[])
 			copynum(args[0], &stack[stackptr], 0);
 			break;
 		case flip:
-			if(stackptr >= stackSize){
-				printf("The top of the main stack has been reached (there are no elements to be flipped).\n");
-				stackptr = stackSize;
-				doprint = false;
-				break;
-			}
-			retstackptr--;
-			if(retstackptr < 0){
-				printf("The bottom of the return stack has been reached (it currently contains %d items)\n", stackSize);
-				printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
-				retstackptr = 0;
-				doprint = false;
-				break;
-			}
-			initnum(&retstack[retstackptr], 1, 0, 0);
-			copynum(&retstack[retstackptr], &stack[stackptr], 0);
-			printptr = &retstack[retstackptr];
-			free(stack[stackptr].nump);
-			stackptr++;
+			if(!fliperonie()) doprint = false;
+			else printptr = &retstack[retstackptr];
 			break;
 		case ret:
-			if(retstackptr >= stackSize){
-				printf("The top of the return stack has been reached (there are no elements to be returned).\n");
-				retstackptr = stackSize;
-				doprint = false;
-				break;
-			}
-			stackptr--;
-			if(stackptr < 0){
-				printf("The bottom of the main stack has been reached (it currently contains %d items)\n", stackSize);
-				printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
-				stackptr = 0;
-				doprint = false;
-				break;
-			}
-			initnum(&stack[stackptr], 1, 0, 0);
-			copynum(&stack[stackptr], &retstack[retstackptr], 0);
-			printptr = &stack[stackptr];
-			free(retstack[retstackptr].nump);
-			retstackptr++;
+			if(!reteronie()) doprint = false;
+			else printptr = &stack[stackptr];
 			break;
 		case len:
 			inttonum(args[1], args[0]->len);

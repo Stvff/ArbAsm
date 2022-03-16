@@ -1,2 +1,4 @@
 aasm
 aasm.exe
+ArbAsmlibsup/*
+scripts/game_of_life/*
