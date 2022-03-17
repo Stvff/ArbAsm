@@ -1,0 +1,6 @@
+cmp gr1, 3
+set gr1, 3
+print gr1
+print "test succesful?\n"
+
+		Cs SCR "test.aa"

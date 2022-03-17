@@ -14,7 +14,7 @@
 typedef struct FileInfo {
 	FILE* fp;
 	int rdpos;
-	int linenr;
+	int lineNr;
 	time_t begin_time;
 } file_t;
 
@@ -37,11 +37,11 @@ typedef struct __global__ {
 	char inputMode;
 	// 'i' is from stdin
 	// 'f' is from file
-	// 'F' is from a file in deep
+	// 'w' is there already was a command
+	// if they are capitized there was an error
 
 	int bigEndian;
 	
-	int recDep;
 	int fileNr;
 	file_t* flist;
 

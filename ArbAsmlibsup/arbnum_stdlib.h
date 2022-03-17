@@ -233,7 +233,8 @@ int argumenthandler_std(GLOBAL* mainptrs){
 	if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
 		registerNr = strlook(mainptrs->userInput, registerstring, &mainptrs->readhead);
 		if(registerNr == -1){
-			printf("Register at argument %d on line %d is not a register.\n", mainptrs->argumentNr + 1, mainptrs->flist[mainptrs->fileNr].linenr);
+			printf("Register at argument %d on line %d is not a register.\n", mainptrs->argumentNr + 1, mainptrs->flist[mainptrs->fileNr].lineNr);
+			mainptrs->lookingMode = 'd';
 		} else {
 			args[mainptrs->argumentNr] = &regs[registerNr];
 		}
@@ -418,7 +419,15 @@ int executehandler_std(GLOBAL* mainptrs){
 			doprint = false;
 			break;
 		case SCR:
-			printf("SCR not implemented yet\n");
+			mainptrs->flist[++mainptrs->fileNr].fp = fopen((char*)args[0]->nump, "r");
+			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
+				printf("Could not open script '%s'.\n", args[0]->nump);
+				mainptrs->fileNr--;
+			} else {
+				mainptrs->inputMode = 'f';
+				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
+				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
+			}
 			doprint = false;
 			break;
 	}

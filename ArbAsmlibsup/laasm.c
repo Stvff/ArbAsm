@@ -31,12 +31,11 @@ int init_main(GLOBAL* mainptrs){
 
 	mainptrs->bigEndian = 0;
 
-	mainptrs->recDep = recursionDepth;
-	mainptrs->flist = (file_t*) malloc(mainptrs->recDep*sizeof(file_t));
+	mainptrs->flist = (file_t*) malloc(recursionDepth*sizeof(file_t));
 	mainptrs->fileNr = 0;
 	mainptrs->flist[mainptrs->fileNr].fp = stdin;
 	mainptrs->flist[mainptrs->fileNr].rdpos = 0;
-	mainptrs->flist[mainptrs->fileNr].linenr = 0;
+	mainptrs->flist[mainptrs->fileNr].lineNr = 0;
 	mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 
 	mainptrs->debug = 's';
@@ -136,6 +135,7 @@ int dothing(GLOBAL* mainptrs){
 	while (mainptrs->lookingMode != 'd' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';')
 	{
 		entry = mainptrs->userInput[mainptrs->readhead];
+		if(mainptrs->debug == 'v') printf("entry: %c\n", entry);
 		if(entry != ' ' && entry != '\t'){
 //			functions
 			if(mainptrs->lookingMode == 'i'){
@@ -145,8 +145,9 @@ int dothing(GLOBAL* mainptrs){
 				}
 
 				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
-					printf("Not a valid instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].linenr);
+					printf("Not a valid instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].lineNr);
 					mainptrs->lookingMode = 'd';
+					mainptrs->inputMode -= 0x20;
 				}
 				if(mainptrs->lookingMode == 'i'){
 					mainptrs->instructNr = -1;
@@ -164,7 +165,6 @@ int dothing(GLOBAL* mainptrs){
 
 			}
 		}
-		if(mainptrs->debug == 'v') printf("entry: %c\n", entry);
 		mainptrs->readhead++;
 	}
 
@@ -175,17 +175,38 @@ int dothing(GLOBAL* mainptrs){
 }
 
 int getuserInput(GLOBAL* mainptrs){
+	file_t* thefile = &mainptrs->flist[mainptrs->fileNr];
 	switch (mainptrs->inputMode) {
+		case 'I':
+			mainptrs->inputMode = 'i';
 		case 'i':
 			printf("\\\\\\ ");
-			fgets(mainptrs->userInput, mainptrs->userInputLen, mainptrs->flist[mainptrs->fileNr].fp);
+			fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp);
 			break;
+
 		case 'F':
-		case 'f':
-			
-			fgets(mainptrs->userInput, mainptrs->userInputLen, mainptrs->flist[mainptrs->fileNr].fp);
+			mainptrs->userInput[0] = '\0';
+			fclose(thefile->fp);
+			mainptrs->fileNr--;
+			if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 			break;
-		case 'c':
+		case 'f':			
+			thefile->lineNr++;
+			if(fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp) == NULL){
+				thefile->lineNr = 0;
+				if(mainptrs->scriptLoops == 1){
+					fseek(thefile->fp, 0, SEEK_SET);
+				} else {
+					mainptrs->userInput[0] = '\0';
+					fclose(thefile->fp);
+					mainptrs->fileNr--;
+					if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
+				}
+			}
+			break;
+
+		case 'W':
+		case 'w':
 			mainptrs->inputMode = 'i';
 			break;
 	}
@@ -205,21 +226,35 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'b':
 					mainptrs->bigEndian = true;
 					break;
+				case 'I':
+				case 'i':
+					if(i+1 < argc){
+						i++;
+						sscanf(argv[i], "%s", mainptrs->userInput);
+						mainptrs->inputMode = 'w';
+					} else printf("Statement missing");
+					break;
 				case 'H':
 				case 'h':
-					printf("Usage: aasm <statement (without spaces)> <options>\n");
+					printf("Usage: aasm <script> <options>\n");
 					printf("Options:\n");
 					printf("  -e              Exit immediately after executing the statement that was passed as argument.\n");
 					printf("  -u <statefile>  Load the designated statefile, and save to it again on exit.\n");
+					printf("  -i <statement>  Executes the designated statement. Statement can not contain spaces\n");
 					printf("  -b              Sets the notation to big endian before doing anything else.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
-					mainptrs->inputMode = 'c';
+					mainptrs->inputMode = 'w';
 					mainptrs->running = false;
 					break;
 			}
 		} else {
-			sscanf(argv[i], "%s", mainptrs->userInput);
-			mainptrs->inputMode = 'c';
+			mainptrs->flist[++mainptrs->fileNr].fp = fopen(argv[i], "r");
+			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
+				printf("Could not open script '%s'.\n", argv[i]);
+				mainptrs->fileNr--;
+			} else {
+				mainptrs->inputMode = 'f';
+			}
 		}
 	}
 	return 0;
