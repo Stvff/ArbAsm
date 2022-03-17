@@ -19,7 +19,7 @@ int retstackptr;
 
 num_t* args[maxArgumentAmount];
 num_t tmps[maxArgumentAmount];
-enum typesstd { Number, String };
+enum typesstd { UnDef, Number, String };
 
 enum registers {
 	gr1, gr2, gr3, gr4, ans, ir, flag,
@@ -296,8 +296,7 @@ int executehandler_std(GLOBAL* mainptrs){
 	time_t begin_time = time(&begin_time);
 	bool doprint = true;
 	if(mainptrs->inputMode != 'i') doprint = false;
-	int rettype = Number;
-	if(args[0]->nump[0] > 9) rettype = String;
+	int rettype = UnDef;
 	num_t* printptr = args[0];
 	FILE* quicfptr;
 
@@ -309,6 +308,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case dset:
 			args[0]->nump[numtoint(args[1], false) % args[0]->len] = args[2]->nump[0];
+			break;
 		case dget:
 			free(dummy.nump);
 			initnum(&dummy, 1, args[0]->sign, args[1]->dim);
@@ -475,6 +475,10 @@ int executehandler_std(GLOBAL* mainptrs){
 			}
 			doprint = false;
 			break;
+	}
+	if(rettype == UnDef){
+		if(printptr->nump[0] > 9) rettype = String;
+		else rettype = Number;
 	}
 
 	if(doprint){

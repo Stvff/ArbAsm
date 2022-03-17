@@ -168,6 +168,9 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				mainptrs->fileNr--;
 			} else {
 				mainptrs->inputMode = 'f';
+				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
+				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
+				mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 			}
 		}
 	}
@@ -199,7 +202,7 @@ int dothing(GLOBAL* mainptrs){
 				}
 
 				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
-					printf("Not a valid instruction on line %d", mainptrs->flist[mainptrs->fileNr].lineNr);
+					printf("Invalid instruction on line %d", mainptrs->flist[mainptrs->fileNr].lineNr);
 					if(mainptrs->inputMode == 'f'){
 						printf(", in file %d:\n", mainptrs->fileNr);
 						printf("'%s'\n", mainptrs->userInput);
@@ -260,7 +263,7 @@ int getuserInput(GLOBAL* mainptrs){
 					fclose(thefile->fp);
 					mainptrs->fileNr--;
 					end_time = time(&end_time);
-					inttonum(&regs[ptme], end_time - thefile->begin_time);
+					inttonum(&regs[ptme], (int32_t) end_time - thefile->begin_time);
 					if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 				}
 			}

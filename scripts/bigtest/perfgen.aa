@@ -1,0 +1,39 @@
+cmp loop, 0
+	Ce push time
+	Ce set endian, 1
+	Ce set loop, 1
+	Ce sprint "How many times?\n> "
+	Ce input gr4
+	Ce set ir, 0
+	Ce set gr1, "push time\n"
+	Ce app gr1, "set endian, 1\n"
+	Ce app gr1, "set ir, 0\n"
+	Ce app gr1, "push 0 	; m:( -- pdig )\n"
+
+app gr1, "inc ir\n"
+app gr1, "push ir 	; m:( pdig -- pdig ir )\n"
+app gr1, "flip 	; m:( pdig ir -- ) r:( -- ir )\n"
+app gr1, "shf ir, 3-\n"
+app gr1, "push ir 	; m:( pdig -- pdig dig )\n"
+app gr1, "flip 	; m:( pdig dig -- pdig ) r:( ir -- ir dig )\n"
+app gr1, "pop gr2 	; m:( pdig -- )\n"
+app gr1, "cmp gr2, ir\n"
+app gr1, "ret 	; m:( -- dig ) r:( ir dig -- ir )\n"
+app gr1, "ret 	; m:( dig -- dig ir) r:( ir -- )\n"
+app gr1, "pop ir 	; m:( dig ir -- dig )\n"
+app gr1, "	Cs print ir\n"
+
+inc ir
+cmp ir, gr4
+	Cg app gr1, "pop\n"
+	Cg app gr1, "pop gr3\n"
+	Cg app gr1, "set gr2, time\n"
+	Cg app gr1, "sub gr2, gr3\n"
+	Cg app gr1, "print gr2\n"
+	Cg app gr1, "set loop, 0\n"
+	Cg fwrite gr1, "perf.aa", 0-
+	Cg pop gr2
+	Cg set gr3, time
+	Cg sub gr3, gr2
+	Cg print gr3
+	Cg set loop, 0
