@@ -57,7 +57,7 @@ int instructhandler_main(GLOBAL* mainptrs){
 		case help:
 			printf("To preform an operation, type an instruction mnemonic (e.g. `set`, `print`, `add`, `push`)\nand add the appropriate amount of arguments seperated by commas.\n\n");
 			printf("The general purpose registers are `gr1`, `gr2`, `gr3` and `gr4`.\n\n");
-			printf("To change notation from little endian (the default) to big endian, set the register `endian` to 1.\n");
+			printf("To change notation from little endian (the default) to big endian, enter `set endian, 1`\n");
 			printf("To change maximum line length, set the register `inplen` to the desired value.\n\n");
 			printf("Enter `\\` to close the program.\n\n");
 			printf("(P.S. Did you know that the actual plural of \"comma\" is \"commata\"?)\n");
@@ -263,7 +263,7 @@ int getuserInput(GLOBAL* mainptrs){
 					fclose(thefile->fp);
 					mainptrs->fileNr--;
 					end_time = time(&end_time);
-					inttonum(&regs[ptme], (int32_t) end_time - thefile->begin_time);
+					inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
 					if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 				}
 			}

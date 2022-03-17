@@ -9,15 +9,15 @@
 typedef struct Number {
 	int32_t sign;
 	int32_t dim;
-	uint32_t len;
+	uint64_t len;
 	uint8_t* nump;
 } num_t;
 
-int psi(int g,int h,int n){
-	return (n % (int)pow((float)g, (float)(h+1)))/(int)pow(g,h);
+int64_t psi(int64_t g,int64_t h,int64_t n){
+	return (n % (int64_t)pow((float)g, (float)(h+1)))/(int64_t)pow(g,h);
 }
 
-uint8_t* initnum(num_t* number, unsigned int length, int sign, int dim){
+uint8_t* initnum(num_t* number, uint64_t length, int sign, int dim){
 	number->sign = sign;
 	number->dim = dim;
 	number->len = length;
@@ -28,7 +28,7 @@ uint8_t* initnum(num_t* number, unsigned int length, int sign, int dim){
 	return number->nump;
 }
 
-void initnumarray(int size, num_t* numarray, unsigned int length, int sign, int dim){
+void initnumarray(int size, num_t* numarray, uint64_t length, int sign, int dim){
 	for(int i = 0; i < size; i++)
 		initnum(&numarray[i], length, sign, dim);
 }
@@ -40,11 +40,11 @@ void freenumarray(int size, num_t* numarray){
 
 void copynum(num_t* des, num_t* src, int keeplen){
 	if(des == src) return;
-	unsigned int len = src->len*(1-keeplen) + des->len*keeplen;
-	unsigned int otherlen = src->len*keeplen + des->len*(1-keeplen);
+	uint64_t len = src->len*(1-keeplen) + des->len*keeplen;
+	uint64_t otherlen = src->len*keeplen + des->len*(1-keeplen);
 	free(des->nump);
 	initnum(des, len, src->sign, src->dim);
-	for(unsigned int i = 0; i < len; i++){
+	for(uint64_t i = 0; i < len; i++){
 		if(keeplen == 0) des->nump[i] = src->nump[i];
 		else if (i < otherlen) des->nump[i] = src->nump[i];
 		else des->nump[i] = 0;
@@ -57,7 +57,7 @@ void printnum(num_t* number, int isbigend){//add 2 to isbigend to make it not ne
 
 	char* buffer = (char*) malloc((4 + number->len*2)*sizeof(char));
 	int j = 0;
-	for(int i = isbigend*((int)number->len-1); i != (1-isbigend)*(int)number->len - isbigend; i+= (1 - 2*isbigend)){
+	for(int64_t i = isbigend*((int64_t)number->len-1); i != (1-isbigend)*(int64_t)number->len - isbigend; i+= (1 - 2*isbigend)){
 		buffer[j] = 0x30 + number->nump[i];
 		buffer[j + 1] = ' ';
 		j += 2 ;
@@ -75,10 +75,10 @@ void printnum(num_t* number, int isbigend){//add 2 to isbigend to make it not ne
 	free(buffer);
 }
 
-int numtoint(num_t* num, bool considersign){
-	int cum = 0;
-	int pow = 1;
-	for(unsigned int i = 0; i < num->len; i++){
+int64_t numtoint(num_t* num, bool considersign){
+	int64_t cum = 0;
+	int64_t pow = 1;
+	for(uint64_t i = 0; i < num->len; i++){
 		cum += num->nump[i]*pow;
 		pow *= 10;
 	}
@@ -86,11 +86,11 @@ int numtoint(num_t* num, bool considersign){
 	return cum;
 }
 
-void inttonum(num_t* num, int inte){
+void inttonum(num_t* num, int64_t inte){
 	free(num->nump);
 	if(inte == 0) initnum(num, 1, 0, 0);
-	else initnum(num, 1+(uint32_t)(log((double)inte)/log(10.0)), 0, 0);
-	for(unsigned int i = 0; i < num->len; i++)
+	else initnum(num, 1+(uint64_t)(log((double)inte)/log(10.0)), 0, 0);
+	for(uint64_t i = 0; i < num->len; i++)
 		num->nump[i] = psi(10, i, inte);
 }
 
@@ -99,7 +99,7 @@ uint8_t numtouint8(num_t* num){
 	uint32_t pow = 1;
 	num_t dummy; initnum(&dummy, 3, 0, 0);
 	copynum(&dummy, num, true);
-	for(unsigned int i = 0; i < 3; i++){
+	for(uint64_t i = 0; i < 3; i++){
 		cum += dummy.nump[i]*pow;
 		pow *= 10;
 	}
@@ -109,7 +109,7 @@ uint8_t numtouint8(num_t* num){
 void uint8tonum(num_t* num, uint8_t inte8){
 	free(num->nump);
 	initnum(num, 3, 0, 0);
-	for(unsigned int i = 0; i < 3; i++)
+	for(uint64_t i = 0; i < 3; i++)
 		num->nump[i] = (uint8_t) psi(10, i, inte8);
 }
 
@@ -192,6 +192,9 @@ int strtostrnum(num_t* number, char str[], int offset){
 				case '\\':
 					number->nump[j] = '\\';
 					break;
+				case '\"':
+					number->nump[j] = '\"';
+					break;
 			}
 			n++;
 		} else number->nump[j] = str[n];
@@ -202,7 +205,7 @@ int strtostrnum(num_t* number, char str[], int offset){
 
 void printstrnum(num_t* number){
 	char* buffer = (char*) malloc((1 + number->len)*sizeof(char));
-	for(unsigned int i = 0; i < number->len; i++)
+	for(uint64_t i = 0; i < number->len; i++)
 		buffer[i] = (char)number->nump[i];
 	buffer[number->len] = '\0';
 	printf("%s", buffer);
@@ -222,7 +225,7 @@ void loadnum(FILE* fp, num_t* num){//File needs to be opened already!
 }
 
 bool isnumzero(num_t* num){
-	for(unsigned int i = num->len - 1; i != (unsigned int)-1; i--)
+	for(uint64_t i = num->len - 1; i != (uint64_t)-1; i--)
 		if(num->nump[i] != 0) return false;
 	return true;
 }
@@ -235,9 +238,9 @@ void incnum(num_t* num, bool decrement){
 	if(iszero && decrement && dummy.sign == 0) dummy.sign = 1;
 	if(iszero && !decrement && dummy.sign == 1) dummy.sign = 0;
 
-	uint32_t carry = 3 - 2*dummy.sign;
+	uint8_t carry = 3 - 2*dummy.sign;
 	if(decrement) carry = 1 + 2*dummy.sign;
-	for(unsigned int i = 0; i < dummy.len; i++){
+	for(uint64_t i = 0; i < dummy.len; i++){
 		dummy.nump[i] += 18 + carry;
 		carry = psi(10, 1, dummy.nump[i]);
 		dummy.nump[i] = psi(10, 0, dummy.nump[i]);
@@ -250,21 +253,21 @@ void incnum(num_t* num, bool decrement){
 	free(dummy.nump);
 }
 
-void rotnum(num_t* num, int amount){
+void rotnum(num_t* num, int64_t amount){
 	num_t dummy; initnum(&dummy, 1, 0, 0);
 	copynum(&dummy, num, 0);
-	int index;
-	for(unsigned int i = 0; i < num->len; i++){
-		index = amount + (int)i;
-		index = index - (int)dummy.len*floor((float)index/(float)dummy.len);
+	int64_t index;
+	for(uint64_t i = 0; i < num->len; i++){
+		index = amount + (int64_t)i;
+		index = index - (int64_t)dummy.len*floor((float)index/(float)dummy.len);
 		dummy.nump[index] = num->nump[i];
 	}
 	copynum(num, &dummy, 0);
 	free(dummy.nump);
 }
 
-void shiftnum(num_t* num, int amount){
-	if(-1*amount >= (int)num->len){
+void shiftnum(num_t* num, int64_t amount){
+	if(-1*amount >= (int64_t)num->len){
 		free(num->nump);
 		initnum(num, 1, num->sign, num->dim);
 		num->nump[0] = 0;
@@ -272,8 +275,8 @@ void shiftnum(num_t* num, int amount){
 	}
 	num_t dummy;
 	initnum(&dummy, num->len + amount, num->sign, num->dim);
-	int j = (int)(num->len) - 1;
-	for(int i = (int)dummy.len - 1; i >= 0; i--){
+	int64_t j = (int64_t)(num->len) - 1;
+	for(int64_t i = (int64_t)dummy.len - 1; i >= 0; i--){
 		if(j >= 0) dummy.nump[i] = num->nump[j];
 		else dummy.nump[i] = 0;
 		j--;
@@ -286,7 +289,7 @@ void appendnum(num_t* des, num_t* appendage){
 	num_t dummy;
 	initnum(&dummy, des->len + appendage->len, des->sign, des->dim);
 	copynum(&dummy, des, 1);
-	for(unsigned int i = des->len; i < dummy.len; i++){
+	for(uint64_t i = des->len; i < dummy.len; i++){
 		dummy.nump[i] = appendage->nump[i - des->len];
 	}
 	copynum(des, &dummy, 0);
@@ -295,35 +298,35 @@ void appendnum(num_t* des, num_t* appendage){
 
 void reversenum(num_t* num){
 	num_t dummy; initnum(&dummy, num->len, num->sign, num->dim);
-	for(unsigned int i = 0; i < dummy.len; i++)
+	for(uint64_t i = 0; i < dummy.len; i++)
 		dummy.nump[i] = num->nump[num->len - 1 - i];
 	copynum(num, &dummy, 0);
 	free(dummy.nump);
 }
 
-void selectsectionnum(num_t* section, num_t* source, int start, int end){
+void selectsectionnum(num_t* section, num_t* source, int64_t start, int64_t end){
 	free(section->nump);
 	if(start == end){
 		initnum(section, 1, source->sign, source->dim);
 		source->nump[0] = 0;
 		return;		
 	}
-	int tempformax = start;
+	int64_t tempformax = start;
 	if(start > end){ start = end; end = tempformax;}
 	initnum(section, end - start + 1, source->sign, source->dim);
-	for(int i = start; i <= end; i++)
+	for(int64_t i = start; i <= end; i++)
 		section->nump[i - start] = source->nump[i % source->len];
 }
 
-unsigned int cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2
-	unsigned int result = 0;
-	uint32_t num1 = 0;
-	uint32_t num2 = 0;
-	unsigned int maxlen = arg1->len;
+uint8_t cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2
+	uint8_t result = 0;
+	uint8_t num1 = 0;
+	uint8_t num2 = 0;
+	uint64_t maxlen = arg1->len;
 	if(arg2->len > maxlen) maxlen = arg2->len;
-	for(int i = (int)maxlen - 1; i >= 0; i--){
-		if(i < (int)arg1->len) num1 = arg1->nump[i];
-		if(i < (int)arg2->len) num2 = arg2->nump[i];
+	for(int64_t i = (int64_t)maxlen - 1; i >= 0; i--){
+		if(i < (int64_t)arg1->len) num1 = arg1->nump[i];
+		if(i < (int64_t)arg2->len) num2 = arg2->nump[i];
 		if(num1 > num2){ result = 1; break;}
 		if(num1 < num2){ result = 2; break;}
 	}
@@ -349,15 +352,15 @@ void sumnum(num_t* res, num_t* arg1, num_t* arg2, bool subtract){
 		arg1 = tempformax;
 	}// arg1 is now the highest number
 
-	unsigned int maxlen = arg1->len;
+	uint64_t maxlen = arg1->len;
 	if(maxlen < arg2->len) maxlen = arg1->len;
 	num_t dummy; initnum(&dummy, maxlen + 1, 0, 0);
 	copynum(&dummy, arg1, 1);
 
 	if(subtract && tempformax == arg1) dummy.sign += 1 - 2*dummy.sign;
 
-	uint32_t carry = 2;
-	for(unsigned int i = 0; i < dummy.len; i++){
+	uint8_t carry = 2;
+	for(uint64_t i = 0; i < dummy.len; i++){
 		//20 + arg1->nump[i] - arg2->nump[i] + (carry - 2)
 		dummy.nump[i] += 18 + carry;
 		if(i < arg2->len) dummy.nump[i] += (suboradd)*arg2->nump[i];
@@ -387,16 +390,16 @@ void multnum(num_t* res, num_t* arg1, num_t* arg2){
 	initnum(&dummy, arg1->len + arg2->len, (arg1->sign + arg2->sign)%2, multquaternionbase(arg1->dim, arg2->dim));
 	dummy.sign = (dummy.sign + dummy.dim)%2;
 	dummy.dim = dummy.dim/2;
-	for(unsigned int i = 0; i < dummy.len; i++)
+	for(uint64_t i = 0; i < dummy.len; i++)
 		dummy.nump[i] = 0;
 
 	num_t* tempformax = arg2;
 	if(arg1->len < arg2->len){ arg2 = arg1; arg1 = tempformax;}//arg1 is now always the longest (not nessecarily the largest)
 
-	unsigned int j = 0;
-	unsigned int maxj = arg1->len;
-	for(unsigned int z = 0; z < arg2->len; z++){
-		for(unsigned int i = 0; i < arg1->len; i++){
+	uint64_t j = 0;
+	uint64_t maxj = arg1->len;
+	for(uint64_t z = 0; z < arg2->len; z++){
+		for(uint64_t i = 0; i < arg1->len; i++){
 			dummy.nump[i + z] += arg1->nump[i]*arg2->nump[z];
 			j = i + z;
 			while(psi(10, 1, dummy.nump[j]) != 0 && j < dummy.len){
@@ -433,25 +436,25 @@ void divnum(num_t* res, num_t* mod, num_t* num, num_t* den){
 	copynum(&moddummy, num, 0);
 	moddummy.dim = 0; moddummy.sign = 0;
 	
-	unsigned int testpower = num->len - den->len;
+	uint64_t testpower = num->len - den->len;
 	num_t resdummy;
 	initnum(&resdummy, testpower + 1, 0, 0);
-	for(unsigned int i = 0; i < resdummy.len; i++)
+	for(uint64_t i = 0; i < resdummy.len; i++)
 		resdummy.nump[i] = 0;
 
 	num_t dummy;
-	unsigned int j;
+	uint64_t j;
 
-	unsigned int previouscmp;
-	unsigned int thiscmp;
-	for(testpower = testpower; testpower != (unsigned int)-1; testpower--){
+	uint64_t previouscmp;
+	uint64_t thiscmp;
+	for(testpower = testpower; testpower != (uint64_t)-1; testpower--){
 		previouscmp = 1;
-		for(uint32_t testdigit = 9; testdigit != 0; testdigit--){ 
+		for(uint8_t testdigit = 9; testdigit != 0; testdigit--){ 
 			initnum(&dummy, den->len + 1, 0, 0);
-			for(unsigned int i = 0; i < dummy.len; i++)
+			for(uint64_t i = 0; i < dummy.len; i++)
 				dummy.nump[i] = 0;
 
-			for(unsigned int i = 0; i < den->len; i++){
+			for(uint64_t i = 0; i < den->len; i++){
 				dummy.nump[i] += den->nump[i]*testdigit;
 				j = i;
 				while(psi(10, 1, dummy.nump[j]) != 0 && j < den->len){

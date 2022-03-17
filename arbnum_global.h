@@ -8,7 +8,7 @@
 #define maxKeywordLen 10
 #define maxArgumentAmount 4
 #define libAmount 2
-#define recursionDepth 10
+#define recursionDepth 16
 #define initialuserInputLen 256
 
 typedef struct FileInfo {

@@ -8,7 +8,7 @@
 
 //############################################### </Std globals>
 enum CompiletimeConstantsStdlib {
-	initialstackSize = 20
+	initialstackSize = 64
 };
 
 int stackSize = initialstackSize;
@@ -194,7 +194,7 @@ int init_std(GLOBAL* mainptrs){
 	inttonum(&regs[rstptr], stackSize);
 
 	time_t thetime = time(&thetime);
-	inttonum(&regs[tme], (int32_t) thetime);
+	inttonum(&regs[tme], (int64_t) thetime);
 
 	for(int i = 0; i < maxArgumentAmount; i++){
 		args[i] = &tmps[i];
@@ -230,7 +230,7 @@ int update_std(GLOBAL* mainptrs){
 	}
 
 	time_t thetime = time(&thetime);
-	inttonum(&regs[tme], (int32_t) thetime);
+	inttonum(&regs[tme], (int64_t) thetime);
 
 	if(mainptrs->debug == 'v') printf("stdlib updated\n");
 	return 0;
@@ -323,7 +323,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			copynum(args[0], &dummy, 0);
 			break;
 		case cton:
-			uint8tonum(args[0], args[0]->nump[numtoint(args[1], false) % (int32_t)args[0]->len]);
+			uint8tonum(args[0], args[0]->nump[numtoint(args[1], false) % (int64_t)args[0]->len]);
 			rettype = Number;
 			break;
 		case ntoc:
@@ -424,7 +424,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			free(args[0]->nump);
 			for(int i = 0; mainptrs->userInput[i] != '\n'; i++)
 				if(mainptrs->userInput[i + 1] == '\n') initnum(args[0], i + 1, 0, 0);
-			for(unsigned int i = 0; i < args[0]->len; i++)
+			for(uint64_t i = 0; i < args[0]->len; i++)
 				args[0]->nump[i] = mainptrs->userInput[i];
 			rettype = String;
 			break;
@@ -496,7 +496,7 @@ int executehandler_std(GLOBAL* mainptrs){
 	free(dummy.nump);
 
 	time_t end_time = time(&end_time);
-	inttonum(&regs[ptme], end_time - begin_time);
+	inttonum(&regs[ptme], (int64_t) end_time - begin_time);
 
 	if(mainptrs->debug == 'v') printf("stdlib executed\n");
 	return 0;
