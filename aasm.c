@@ -129,6 +129,27 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'e':
 					mainptrs->running = false;
 					break;
+				case 'D':
+				case 'd':
+					mainptrs->debug = 'v';
+					printf("Debugging mode enabled.\n");
+					break;
+				case 'V':
+				case 'v':
+					printf("\n");
+					printf("        Arbitrary Assembly Vea     \n");
+					printf("              x-------x            \n");
+					printf("              | A r b |            \n");
+					printf("              | A s m |            \n");
+					printf("              | V e a |            \n");
+					printf("              x-------x            \n");
+					printf("   github.com/StevenClifford/ArbAsm\n\n");
+					printf("   Libraries:\n");
+					printf("             arbnum_stdlib\n");
+					printf("\n");
+					mainptrs->inputMode = 'w';
+					mainptrs->running = false;
+					break;
 				case 'B':
 				case 'b':
 					mainptrs->bigEndian = true;
@@ -152,10 +173,11 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'h':
 					printf("Usage: aasm <script> <options>\n");
 					printf("Options:\n");
-					printf("  -e              Exit immediately after the given arguments have executed.\n");
 					printf("  -i <statement>  Executes the designated statement. This statement can not contain spaces.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
+					printf("  -e              Exit immediately after the given arguments have executed.\n");
 					printf("  -b              Sets the notation to big endian before doing anything else.\n");
+					printf("  -v              Displays the name, version and libraries.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
 					mainptrs->inputMode = 'w';
 					mainptrs->running = false;
