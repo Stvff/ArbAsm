@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "arbnum_global.h"
-#include "../arbnum.h"
+#include "arbnum.h"
 
 //############################################### </Std globals>
 enum CompiletimeConstantsStdlib {

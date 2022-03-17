@@ -1,5 +1,0 @@
-print "Test"
-
-cmp loop, 1
-	Cs set loop, 1
-	Ce set loop, 0
