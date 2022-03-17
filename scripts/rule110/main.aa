@@ -2,8 +2,8 @@
 ; rule 110, calculates and prints n amount of iterations of the beginning tape t(0)
 ; return stack summary: ( tape(0) n -- tape(n) )
 cmp loop, 0
-	; uncomment next line if you just want to see the pretty pattern
-	Ce LOAD classicexample.aal
+; uncomment next line if you just want to see the pretty pattern
+	Ce LOAD "classicexample.aal"
 	Ce set loop, 1
 	Ce set endian, 0
 	Ce set ir, 0
@@ -20,9 +20,9 @@ push loop
 push gr4
 
 set loop, 0
-SCR binconv.aa
+SCR "binconv.aa"
 
-SCR ruleconv.aa
+SCR "ruleconv.aa"
 
 pop gr4 				; retrieving the registers this script needs
 pop loop

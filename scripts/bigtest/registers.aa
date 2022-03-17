@@ -27,12 +27,3 @@ sprint "ptime: "
 print ptime
 sprint "loop: "
 print loop
-
-sprint "qr1: "
-print qr1
-sprint "qr2: "
-print qr2
-sprint "qr3: "
-print qr3
-sprint "qr4: "
-print qr4

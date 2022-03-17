@@ -39,6 +39,7 @@ void freenumarray(int size, num_t* numarray){
 }
 
 void copynum(num_t* des, num_t* src, int keeplen){
+	if(des == src) return;
 	unsigned int len = src->len*(1-keeplen) + des->len*keeplen;
 	unsigned int otherlen = src->len*keeplen + des->len*(1-keeplen);
 	free(des->nump);

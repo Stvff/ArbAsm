@@ -54,15 +54,16 @@ For ease of reading, the rest of this document assumes the program is either in 
 
 `aasm` can take arguments from the shell:
 ```
-$ aasm <statement (without spaces)> <options>
+$ aasm <script> <options>
 ```
 Good replacements for spaces are dots (`.`) and underscores (`_`).
-|Option|Description|
-|------|-----------|
-|`-e`  |Exit immediately after executing the statement that was passed as argument.|
-|`-u <statefile>`|Load the designated statefile, and save to it again on exit.|
-|`-b`  |Sets the notation to big endian before doing anything else.|
-|`-h`  |Prints this table.|
+|Option          |Description|
+|----------------|-----------|
+|`-e`            |Exit immediately after executing the statement that was passed as argument.|
+|`-i <statement>`|Executes the designated statement. This statement can not contain spaces.|
+|`-l <statefile>`|Loads the designated statefile before interpreting any statements.|
+|`-b`            |Sets the notation to big endian before doing anything else.|
+|`-h`            |Prints this table.|
 
 
 ## Syntax, registers and instructions
@@ -98,6 +99,7 @@ Registers are effectively built-in variables.
 |Register|Length  |Can be changed (with effect)|Description|
 |--------|--------|----------------------------|-----------|
 |`gr1`, `gr2`, `gr3`, `gr4`|variable|yes|The general purpose registers, intended for storing and modifying numbers.|
+|`ans`   |variable|yes(-ish)|Contains the number/string that was returned by the previous statement. Does not work in scripting mode.|
 |`ir`    |variable|yes|The index register, intended for keeping track of continuously incremented (or decremented) numbers in loops.|
 |`inplen`|variable|yes|Holds the maximum length of user input.|
 |`endian`|1       |yes|Holds the endianness, 0 for little endian, 1 for big endian.|
@@ -105,7 +107,7 @@ Registers are effectively built-in variables.
 |`mstptr`|variable|no |Holds the main stack pointer. As the main stack grows, this number goes to zero.|
 |`rstptr`|variable|no |Holds the return stack pointer. As the return stack grows, this number goes to zero.|
 |`time`  |variable|no |Contains the amount of seconds the previous statement took to execute.|
-|`flag`  |1       |yes-(ish)|It contains the result of the comparison instructions `cmp` and `scmp`.|
+|`flag`  |1       |yes(-ish)|Contains the result of the comparison instructions `cmp` and `scmp`.|
 |`loop`  |1       |yes|Holds either a `1` or `0`. Scripts loop if the register is `1` at the end of the script.|
 
 ### Instruction mnemonics
