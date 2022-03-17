@@ -153,7 +153,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("Usage: aasm <script> <options>\n");
 					printf("Options:\n");
 					printf("  -e              Exit immediately after the given arguments have executed.\n");
-					printf("  -i <statement>  Executes the designated statement. Statement can not contain spaces\n");
+					printf("  -i <statement>  Executes the designated statement. This statement can not contain spaces.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before doing anything else.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
@@ -189,7 +189,8 @@ int dothing(GLOBAL* mainptrs){
 	{
 		entry = mainptrs->userInput[mainptrs->readhead];
 		if(mainptrs->debug == 'v') printf("entry: %c\n", entry);
-		if(entry != ' ' && entry != '\t'){
+
+		if(entry != ' ' && entry != '\t' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';'){
 //			functions
 			if(mainptrs->lookingMode == 'i'){
 

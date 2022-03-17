@@ -13,7 +13,7 @@ set gr3, 00111110 ; 0: 000, 1: 100, 2: 010, 3: 110, 4: 001, 5: 101, 6: 011, 7: 1
 dget gr3, gr1
 cmp gr3, 0
 	Cg sprint "# "
-	Ce sprint "  "
+	Ce sprint ". "
 dset gr4, ir, gr3
 
 inc ir
