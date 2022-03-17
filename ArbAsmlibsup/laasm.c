@@ -1,4 +1,3 @@
-//gcc test.c -lm -o test && ./test
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -120,6 +119,51 @@ int initLibFuncPtrs(){
 	freefuncs[1] = &free_std;
 	return 0;
 }
+
+int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
+	for(int i = 1; i < argc; i++){
+		if(argv[i][0] == '-'){
+			switch(argv[i][1]){
+				case 'E':
+				case 'e':
+					mainptrs->running = false;
+					break;
+				case 'B':
+				case 'b':
+					mainptrs->bigEndian = true;
+					break;
+				case 'I':
+				case 'i':
+					if(i+1 < argc){
+						i++;
+						sscanf(argv[i], "%s", mainptrs->userInput);
+						mainptrs->inputMode = 'w';
+					} else printf("Statement missing");
+					break;
+				case 'H':
+				case 'h':
+					printf("Usage: aasm <script> <options>\n");
+					printf("Options:\n");
+					printf("  -e              Exit immediately after the given arguments have executed.\n");
+					printf("  -i <statement>  Executes the designated statement. Statement can not contain spaces\n");
+					printf("  -b              Sets the notation to big endian before doing anything else.\n");
+					printf("  -h              Look ma! I'm on TV!\n");
+					mainptrs->inputMode = 'w';
+					mainptrs->running = false;
+					break;
+			}
+		} else {
+			mainptrs->flist[++mainptrs->fileNr].fp = fopen(argv[i], "r");
+			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
+				printf("Could not open script '%s'.\n", argv[i]);
+				mainptrs->fileNr--;
+			} else {
+				mainptrs->inputMode = 'f';
+			}
+		}
+	}
+	return 0;
+}
 //############################################### </Library declarations>
 
 //############################################### <Main operation>
@@ -145,7 +189,11 @@ int dothing(GLOBAL* mainptrs){
 				}
 
 				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
-					printf("Not a valid instruction. (line %d)\n", mainptrs->flist[mainptrs->fileNr].lineNr);
+					printf("Not a valid instruction on line %d", mainptrs->flist[mainptrs->fileNr].lineNr);
+					if(mainptrs->inputMode == 'f'){
+						printf(", in file %d:\n", mainptrs->fileNr);
+						printf("'%s'\n", mainptrs->userInput);
+					} else printf(".\n");
 					mainptrs->lookingMode = 'd';
 					mainptrs->inputMode -= 0x20;
 				}
@@ -176,7 +224,8 @@ int dothing(GLOBAL* mainptrs){
 
 int getuserInput(GLOBAL* mainptrs){
 	file_t* thefile = &mainptrs->flist[mainptrs->fileNr];
-	switch (mainptrs->inputMode) {
+	time_t end_time;
+	switch (mainptrs->inputMode){
 		case 'I':
 			mainptrs->inputMode = 'i';
 		case 'i':
@@ -194,12 +243,14 @@ int getuserInput(GLOBAL* mainptrs){
 			thefile->lineNr++;
 			if(fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp) == NULL){
 				thefile->lineNr = 0;
+				mainptrs->userInput[0] = '\0';
 				if(mainptrs->scriptLoops == 1){
 					fseek(thefile->fp, 0, SEEK_SET);
 				} else {
-					mainptrs->userInput[0] = '\0';
 					fclose(thefile->fp);
 					mainptrs->fileNr--;
+					end_time = time(&end_time);
+					inttonum(&regs[ptme], end_time - thefile->begin_time);
 					if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 				}
 			}
@@ -214,51 +265,6 @@ int getuserInput(GLOBAL* mainptrs){
 	return 0;
 }
 //############################################### </Main operation>
-int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
-	for(int i = 1; i < argc; i++){
-		if(argv[i][0] == '-'){
-			switch(argv[i][1]){
-				case 'E':
-				case 'e':
-					mainptrs->running = false;
-					break;
-				case 'B':
-				case 'b':
-					mainptrs->bigEndian = true;
-					break;
-				case 'I':
-				case 'i':
-					if(i+1 < argc){
-						i++;
-						sscanf(argv[i], "%s", mainptrs->userInput);
-						mainptrs->inputMode = 'w';
-					} else printf("Statement missing");
-					break;
-				case 'H':
-				case 'h':
-					printf("Usage: aasm <script> <options>\n");
-					printf("Options:\n");
-					printf("  -e              Exit immediately after executing the statement that was passed as argument.\n");
-					printf("  -u <statefile>  Load the designated statefile, and save to it again on exit.\n");
-					printf("  -i <statement>  Executes the designated statement. Statement can not contain spaces\n");
-					printf("  -b              Sets the notation to big endian before doing anything else.\n");
-					printf("  -h              Look ma! I'm on TV!\n");
-					mainptrs->inputMode = 'w';
-					mainptrs->running = false;
-					break;
-			}
-		} else {
-			mainptrs->flist[++mainptrs->fileNr].fp = fopen(argv[i], "r");
-			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
-				printf("Could not open script '%s'.\n", argv[i]);
-				mainptrs->fileNr--;
-			} else {
-				mainptrs->inputMode = 'f';
-			}
-		}
-	}
-	return 0;
-}
 
 int main(int argc, char* argv[]){
 	GLOBAL mainitems;
@@ -276,7 +282,7 @@ int main(int argc, char* argv[]){
 			updatefuncs[i](&mainitems);
 
 		if(mainitems.debug == 'v') printf("end of main while loop\n");
-	} while(mainitems.running);
+	} while(mainitems.running || mainitems.inputMode == 'f');
 
 	for(int i = 0; i < libAmount; i++)
 		freefuncs[i](&mainitems);

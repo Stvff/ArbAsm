@@ -1,6 +1,5 @@
-cmp gr1, 3
-set gr1, 3
-print gr1
-print "test succesful?\n"
+print "Test"
 
-		Cs SCR "test.aa"
+cmp loop, 1
+	Cs set loop, 1
+	Ce set loop, 0

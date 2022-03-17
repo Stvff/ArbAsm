@@ -427,6 +427,7 @@ int executehandler_std(GLOBAL* mainptrs){
 				mainptrs->inputMode = 'f';
 				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
 				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
+				mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 			}
 			doprint = false;
 			break;
