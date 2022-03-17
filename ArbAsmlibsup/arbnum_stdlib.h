@@ -8,8 +8,7 @@
 
 //############################################### </Std globals>
 enum CompiletimeConstantsStdlib {
-	initialstackSize = 20,
-	regAmount = 14
+	initialstackSize = 20
 };
 
 int stackSize = initialstackSize;
@@ -22,13 +21,13 @@ num_t* args[maxArgumentAmount];
 num_t tmps[maxArgumentAmount];
 enum typesstd { Number, String };
 
-num_t regs[regAmount];
 enum registers {
-	gr1, gr2, gr3, gr4, ir, flag,
+	gr1, gr2, gr3, gr4, ans, ir, flag,
 	inplen, endian, stacsz, mstptr,
 	rstptr, tme, ptme, loop,
-	registerend
+	regAmount
 };
+num_t regs[regAmount];
 
 enum instructsstdlib {
 	set, dset, dget, rev, sel, cton, ntoc,
@@ -37,12 +36,11 @@ enum instructsstdlib {
 	print, sprint, nprint, draw,
 	firead, fiwrite, input, sinput,
 	push, pop, peek, flip, ret,
-	SCR, SAVE, LOAD, Ce, Cg, Cs,
-	instructend
+	SCR, SAVE, LOAD, Ce, Cg, Cs
 };
 
 char registerstring[][maxKeywordLen] = { 
-	"gr1", "gr2", "gr3", "gr4", "ir",
+	"gr1", "gr2", "gr3", "gr4", "ans", "ir",
 	"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
 	"time", "ptime", "loop",
 	"\0end"
@@ -150,7 +148,7 @@ int init_std(GLOBAL* mainptrs){
 	inttonum(&regs[stacsz], stackSize);
 	inttonum(&regs[mstptr], stackSize);
 	inttonum(&regs[rstptr], stackSize);
-	
+
 	time_t thetime = time(&thetime);
 	inttonum(&regs[tme], (int32_t) thetime);
 
@@ -425,19 +423,24 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 	}
 
-	if(doprint) switch (rettype){
-		case Number:
-			printnum(printptr, mainptrs->bigEndian);
-			break;
-		case String:
-			printstrnum(printptr);
-			printf("\n");
-			break;
-	};
+	if(doprint){
+		switch (rettype){
+			case Number:
+				printnum(printptr, mainptrs->bigEndian);
+				break;
+			case String:
+				printstrnum(printptr);
+				printf("\n");
+				break;
+		}
+		copynum(&regs[ans], printptr, 0);
+	}
+	free(dummy.nump);
 
-	if(mainptrs->debug == 'v') printf("stdlib executed\n");
 	time_t end_time = time(&end_time);
 	inttonum(&regs[ptme], end_time - begin_time);
+
+	if(mainptrs->debug == 'v') printf("stdlib executed\n");
 	return 0;
 }
 //############################################### </Std surroundings>

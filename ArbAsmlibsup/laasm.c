@@ -178,22 +178,60 @@ int getuserInput(GLOBAL* mainptrs){
 	switch (mainptrs->inputMode) {
 		case 'i':
 			printf("\\\\\\ ");
-		case 'f':
-		case 'F':
 			fgets(mainptrs->userInput, mainptrs->userInputLen, mainptrs->flist[mainptrs->fileNr].fp);
+			break;
+		case 'F':
+		case 'f':
+			
+			fgets(mainptrs->userInput, mainptrs->userInputLen, mainptrs->flist[mainptrs->fileNr].fp);
+			break;
+		case 'c':
+			mainptrs->inputMode = 'i';
 			break;
 	}
 	if(mainptrs->debug == 'v') printf("userInput gotten\n");
 	return 0;
 }
 //############################################### </Main operation>
+int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
+	for(int i = 1; i < argc; i++){
+		if(argv[i][0] == '-'){
+			switch(argv[i][1]){
+				case 'E':
+				case 'e':
+					mainptrs->running = false;
+					break;
+				case 'B':
+				case 'b':
+					mainptrs->bigEndian = true;
+					break;
+				case 'H':
+				case 'h':
+					printf("Usage: aasm <statement (without spaces)> <options>\n");
+					printf("Options:\n");
+					printf("  -e              Exit immediately after executing the statement that was passed as argument.\n");
+					printf("  -u <statefile>  Load the designated statefile, and save to it again on exit.\n");
+					printf("  -b              Sets the notation to big endian before doing anything else.\n");
+					printf("  -h              Look ma! I'm on TV!\n");
+					mainptrs->inputMode = 'c';
+					mainptrs->running = false;
+					break;
+			}
+		} else {
+			sscanf(argv[i], "%s", mainptrs->userInput);
+			mainptrs->inputMode = 'c';
+		}
+	}
+	return 0;
+}
 
-int main(){
+int main(int argc, char* argv[]){
 	GLOBAL mainitems;
 	initLibFuncPtrs();
 
 	for(int i = 0; i < libAmount; i++)
 		initfuncs[i](&mainitems);
+	handlecommandlineargs(argc, argv, &mainitems);
 
 	do {
 		getuserInput(&mainitems);
