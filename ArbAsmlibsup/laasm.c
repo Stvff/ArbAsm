@@ -132,13 +132,20 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'b':
 					mainptrs->bigEndian = true;
 					break;
+				case 'L':
+				case 'l':
+					if(i+1 < argc){
+						i++;
+						saveload(argv[i], 'l', mainptrs);
+					} else printf("Statefile missing\n");
+					break;
 				case 'I':
 				case 'i':
 					if(i+1 < argc){
 						i++;
 						sscanf(argv[i], "%s", mainptrs->userInput);
 						mainptrs->inputMode = 'w';
-					} else printf("Statement missing");
+					} else printf("Statement missing\n");
 					break;
 				case 'H':
 				case 'h':
@@ -146,6 +153,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("Options:\n");
 					printf("  -e              Exit immediately after the given arguments have executed.\n");
 					printf("  -i <statement>  Executes the designated statement. Statement can not contain spaces\n");
+					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before doing anything else.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
 					mainptrs->inputMode = 'w';
@@ -273,6 +281,9 @@ int main(int argc, char* argv[]){
 	for(int i = 0; i < libAmount; i++)
 		initfuncs[i](&mainitems);
 	handlecommandlineargs(argc, argv, &mainitems);
+
+	if(mainitems.inputMode == 'i')
+		printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
 
 	do {
 		getuserInput(&mainitems);

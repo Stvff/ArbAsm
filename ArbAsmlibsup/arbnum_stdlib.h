@@ -130,6 +130,50 @@ bool reteronie(){
 	retstackptr++;
 	return true;
 }
+int saveload(char path[], char saveorload, GLOBAL* mainptrs){
+	FILE* fp;
+	if(saveorload == 's'){
+		fp = fopen(path, "wb+");
+		if(fp == NULL){
+			printf("Could not open file to save to: '%s'.\n", path);
+			return 1;
+		}
+		for(int i = 0; i < regAmount; i++)
+			savenum(fp, &regs[i]);
+		for(int i = stackSize-1; i >= stackptr; i--)
+			savenum(fp, &stack[i]);
+		for(int i = stackSize-1; i >= retstackptr; i--)
+			savenum(fp, &retstack[i]);
+
+		if(mainptrs->inputMode == 'i') printf("Saved state to '%s'.\n", path);
+	} else {
+		fp = fopen(path, "rb");
+		if(fp == NULL){
+			printf("Could not open file to load from: '%s'.\n", path);
+			return 1;
+		}
+		for(int i = 0; i < regAmount; i++)
+			loadnum(fp, &regs[i]);
+
+		freestacks();
+		stackSize = numtoint(&regs[stacsz], false);
+		stack = (num_t*) malloc(stackSize * sizeof(num_t));
+		retstack = (num_t*) malloc(stackSize * sizeof(num_t));
+		stackptr = numtoint(&regs[mstptr], false);
+		retstackptr = numtoint(&regs[rstptr], false);
+
+		for(int i = stackSize-1; i >= stackptr; i--){
+			initnum(&stack[i], 1, 0, 0);
+			loadnum(fp, &stack[i]);}
+		for(int i = stackSize-1; i >= retstackptr; i--){
+			initnum(&retstack[i], 1, 0, 0);
+			loadnum(fp, &retstack[i]);}
+
+		if(mainptrs->inputMode == 'i') printf("Loaded state from '%s'.\n", path);
+	}
+	fclose(fp);
+	return 0;
+}
 //############################################### </Std internal functions>
 
 //############################################### <Std surroundings>
@@ -411,11 +455,11 @@ int executehandler_std(GLOBAL* mainptrs){
 			printptr = args[1];
 			break;
 		case SAVE:
-			printf("SAVE not implemented yet\n");
+			saveload((char*)args[0]->nump, 's', mainptrs);
 			doprint = false;
 			break;
 		case LOAD:
-			printf("LOAD not implemented yet\n");
+			saveload((char*)args[0]->nump, 'l', mainptrs);
 			doprint = false;
 			break;
 		case SCR:
