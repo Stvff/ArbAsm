@@ -21,10 +21,11 @@ uint8_t* initnum(num_t* number, uint64_t length, int sign, int dim){
 	number->sign = sign;
 	number->dim = dim;
 	number->len = length;
-	number->nump = (uint8_t*) malloc(number->len*sizeof(uint8_t));
+	number->nump = (uint8_t*) malloc((1 + number->len)*sizeof(uint8_t));
 	if(number->nump == NULL){
 		printf("Malloc error on initnum.\n");
 	}
+	number->nump[number->len] = 0;
 	return number->nump;
 }
 
@@ -122,8 +123,9 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	}
 	free(number->nump);
 	number->len = j;
-	number->nump = (uint8_t*) malloc(j*sizeof(uint8_t));
+	number->nump = (uint8_t*) malloc((1 + j)*sizeof(uint8_t));
 	if(number->nump == NULL) printf("There is a malloc problem on inpstrtonum.\n");
+	number->nump[j] = 0;
 
 	int signage = 0;
 	switch(str[i]){
@@ -162,16 +164,21 @@ int strtostrnum(num_t* number, char str[], int offset){
 	int i = offset;
 	int j = 0;
 	int escapes = 0;
-	bool prevescaped = false;
 	while(str[i] != '"' && str[i] != '\0'){
-		if(str[i] == '\\' && !prevescaped){ escapes++; prevescaped = true;}
-		else{ j++; prevescaped = false;}
-		i++;
+		if(str[i] == '\\'){
+			i += 2;
+			j += 1;
+			escapes++;
+		} else {
+			i += 1;
+			j += 1;
+		}
 	}
 	free(number->nump);
 	number->len = j;
-	number->nump = (uint8_t*) malloc(j*sizeof(uint8_t));
+	number->nump = (uint8_t*) malloc((1 + j)*sizeof(uint8_t));
 	if(number->nump == NULL) printf("There is a malloc problem on strtostrnum.\n");
+	number->nump[j] = 0;
 
 	number->sign = 0;
 	number->dim = 0;

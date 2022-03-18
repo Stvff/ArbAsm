@@ -1,0 +1,6 @@
+set endian, 1
+set gr1, 2
+shf gr1, 9
+set gr2, ""
+shf gr2, gr1
+print "done"
