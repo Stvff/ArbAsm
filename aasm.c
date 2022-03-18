@@ -85,6 +85,7 @@ int executehandler_main(GLOBAL* mainptrs){
 int update_main(GLOBAL* mainptrs){
 	free(mainptrs->userInput);
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + maxKeywordLen)*sizeof(char));
+	mainptrs->userInput[0] = '\0';
 
 	if(mainptrs->debug == 'v') printf("main updated\n");
 	return 1;
@@ -182,7 +183,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("  -i <statement>  Executes the designated statement. This statement can not contain spaces.\n");
 					printf("  -e              Exit immediately after executing the statement that was passed as an argument of -i.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
-					printf("  -b              Sets the notation to big endian before doing anything else.\n");
+					printf("  -b              Sets the notation to big endian before interpreting any statements.\n");
 					printf("  -v              Displays the name, version and libraries.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
 					mainptrs->inputMode = 'w';
@@ -220,7 +221,7 @@ int dothing(GLOBAL* mainptrs){
 	while (mainptrs->lookingMode != 'd' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';')
 	{
 		entry = mainptrs->userInput[mainptrs->readhead];
-		if(mainptrs->debug == 'v') printf("entry: %c\n", entry);
+		if(mainptrs->debug == 'v') printf("On position %d, entry: %c\n", mainptrs->readhead, entry);
 
 		if(entry != ' ' && entry != '\t' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';'){
 //			functions
@@ -256,6 +257,15 @@ int dothing(GLOBAL* mainptrs){
 			}
 		}
 		mainptrs->readhead++;
+		if(mainptrs->readhead >= mainptrs->userInputLen){
+			printf("The statement on line %d ", mainptrs->flist[mainptrs->fileNr].lineNr);
+			if(mainptrs->inputMode == 'f'){
+				printf("in file %d ", mainptrs->fileNr);
+			}
+			printf("is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", mainptrs->userInputLen);
+			mainptrs->lookingMode = 'd';
+			mainptrs->inputMode = 'W';
+		}
 	}
 
 	if(mainptrs->lookingMode != 'd') executehandlers[mainptrs->libNr](mainptrs);
@@ -273,6 +283,7 @@ int getuserInput(GLOBAL* mainptrs){
 		case 'i':
 			printf("\\\\\\ ");
 			fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp);
+			mainptrs->userInput[mainptrs->userInputLen] = '\0';
 			break;
 
 		case 'F':
@@ -296,9 +307,12 @@ int getuserInput(GLOBAL* mainptrs){
 					if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 				}
 			}
+			mainptrs->userInput[mainptrs->userInputLen] = '\0';
 			break;
 
 		case 'W':
+			fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp);
+			mainptrs->userInput[0] = '\0';
 		case 'w':
 			mainptrs->inputMode = 'i';
 			break;

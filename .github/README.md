@@ -63,7 +63,7 @@ $ aasm <script> <options>
 |`-i <statement>`|Executes the designated statement. This statement can not contain spaces.|
 |`-e`            |Exit immediately after executing the statement that was passed as argument of -i.|
 |`-l <statefile>`|Loads the designated statefile before interpreting any statements.|
-|`-b`            |Sets the notation to big endian before doing anything else.|
+|`-b`            |Sets the notation to big endian before interpreting any statements.|
 |`-v`            |Displays the name, version and libraries.|
 |`-h`            |Prints this table.|
 |`**************`||
