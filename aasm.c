@@ -20,6 +20,7 @@ fun freefuncs[libAmount];
 int init_main(GLOBAL* mainptrs){
 	mainptrs->userInputLen = initialuserInputLen;
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + 10)*sizeof(char));
+	mainptrs->userInput[0] = '\0';
 	mainptrs->readhead = 0;
 
 	mainptrs->lookingMode = 'i';
