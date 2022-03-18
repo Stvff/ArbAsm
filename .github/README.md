@@ -65,6 +65,7 @@ $ aasm <script> <options>
 |`-b`            |Sets the notation to big endian before doing anything else.|
 |`-v`            |Displays the name, version and libraries.|
 |`-h`            |Prints this table.|
+
 Regarding `-i`, should one need them, good replacements for spaces are dots (`.`), underscores (`_`) or colons (`:`).
 
 ## Syntax, registers and instructions
