@@ -129,6 +129,10 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'e':
 					mainptrs->running = false;
 					break;
+				case 'C':
+				case 'c':
+					mainptrs->running = !mainptrs->running;
+					break;
 				case 'D':
 				case 'd':
 					mainptrs->debug = 'v';
@@ -137,11 +141,11 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'V':
 				case 'v':
 					printf("\n");
-					printf("        Arbitrary Assembly Vea     \n");
+					printf("       Arbitrary Assembly pVea     \n");
 					printf("              x-------x            \n");
 					printf("              | A r b |            \n");
 					printf("              | A s m |            \n");
-					printf("              | V e a |            \n");
+					printf("              |pV e a |            \n");
 					printf("              x-------x            \n");
 					printf("   github.com/StevenClifford/ArbAsm\n\n");
 					printf("   Libraries:\n");
@@ -173,9 +177,10 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'h':
 					printf("Usage: aasm <script> <options>\n");
 					printf("Options:\n");
+					printf("  -c              Enter command line after the script has stopped running.\n");
 					printf("  -i <statement>  Executes the designated statement. This statement can not contain spaces.\n");
+					printf("  -e              Exit immediately after executing the statement that was passed as an argument of -i.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
-					printf("  -e              Exit immediately after the given arguments have executed.\n");
 					printf("  -b              Sets the notation to big endian before doing anything else.\n");
 					printf("  -v              Displays the name, version and libraries.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
@@ -193,6 +198,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
 				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
 				mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
+				mainptrs->running = !mainptrs->running;
 			}
 		}
 	}

@@ -18,10 +18,10 @@ jobs:
       run: make
       
     - name: Test Linux executable
-      run: cd scripts/bigtest/ && ./../../aasm main.aa -e && cd ../../
+      run: cd scripts/bigtest/ && ./../../aasm main.aa && cd ../../
 
     - name: Make Mandelbrot
-      run: cd scripts/mandelbrot/ && ./../../aasm main.aa -e && cd ../../
+      run: cd scripts/mandelbrot/ && ./../../aasm main.aa && cd ../../
       
     - name: Install mingw-gcc
       run: sudo apt install gcc-mingw-w64-x86-64 -y

@@ -56,15 +56,16 @@ For ease of reading, the rest of this document assumes the program is either in 
 ```
 $ aasm <script> <options>
 ```
-Good replacements for spaces are dots (`.`) and underscores (`_`).
 |Option          |Description|
 |----------------|-----------|
-|`-e`            |Exit immediately after executing the statement that was passed as argument.|
+|`-c`            |Enter command line after the script has stopped running.|
 |`-i <statement>`|Executes the designated statement. This statement can not contain spaces.|
+|`-e`            |Exit immediately after executing the statement that was passed as argument of -i.|
 |`-l <statefile>`|Loads the designated statefile before interpreting any statements.|
 |`-b`            |Sets the notation to big endian before doing anything else.|
+|`-v`            |Displays the name, version and libraries.|
 |`-h`            |Prints this table.|
-
+Regarding `-i`, should one need them, good replacements for spaces are dots (`.`), underscores (`_`) or colons (`:`).
 
 ## Syntax, registers and instructions
 Every statement is of the form:
