@@ -8,6 +8,7 @@ Very work in progress.
 ## Table of contents
 * [Compilation (feat. GNU make)](#compilation-feat-gnu-make)
 * [Running the program](#running-the-program)
+* [Scripting and the CLI](#scripting-and-the-cli)
 * [Syntax, registers and instructions](#syntax-registers-and-instructions)
   * [Numbers](#numbers)
   * [Strings](#strings)
@@ -18,7 +19,7 @@ Very work in progress.
     * [IO](#io)
     * [Logic and Conditional statements](#logic-and-conditional-statements)
     * [Stack control](#stack-control)
-  * [Scripts and files](#scripts-and-files)
+    * [Statefiles](#statefiles)
 
 ## Compilation (feat. GNU make)
 To compile it, enter
@@ -65,8 +66,20 @@ $ aasm <script> <options>
 |`-b`            |Sets the notation to big endian before doing anything else.|
 |`-v`            |Displays the name, version and libraries.|
 |`-h`            |Prints this table.|
+|`**************`||
 
 Regarding `-i`, should one need them, good replacements for spaces are dots (`.`), underscores (`_`) or colons (`:`).
+
+## Scripting and the CLI
+A script is a simple text file with the `.aa` (arbitrary assembly) extension. One line can not contain more than one instruction. comments start at a semicolon (';') and end at the end of the line. The interpreter executes the script line by line, looping at the end depending on the `loop` register. If the register is `0`, the script will not loop, and exit the script. If `loop` is `1`, the script will loop until `loop` is `0` again.\
+A script runs in the instance it is called in.\
+Running a script can be run from the shell with `aasm`, and in the arbasm CLI with\
+`SCR <string or register containing a string>`,\
+which runs the script the path of which is given by the string.\
+It is possible to run a script from a script, but the maximum 'recursion' depth is currently set at 10, so that means:\
+A script in a script in a script in a script in a script in a script in a script in a script in a script in a script.
+
+If `aasm` is run without any arguments, or with the appropriate options, the program enters the command line interface. Here it will prompt the user with three backslashes (`\\\ `), and statements can be entered. After a statement has been executed, the result it returns is printed to the console.\
 
 ## Syntax, registers and instructions
 Every statement is of the form:
@@ -74,7 +87,6 @@ Every statement is of the form:
 <instruction mnemonic(s)> <arguments seperated by commas>
 ```
 Arguments are either registers or numbers.\
-In the command line interface, when an instruction is executed, the number it returns is printed to the screen.\
 The notation of both inputs and outputs is little-endian by default, opposite of what is standard in english. Should one desire it any different, endianness can be changed (see the `set` mnemonic and `endian` register).
 
 ### Numbers
@@ -84,17 +96,19 @@ Some examples:\
 `310771-`, `00003 -`,\
 `000 000 1`\
 Once again, the notation is little-endian by default, so `00003` is thirty thousand. The place of the sign does not change in the different endiannesses, so in big endian notation mode, `-177013` will not be recognized and should be `177013-`.\
-The `+` character is for quaternions, but those are currently work in process.
+The `+` character is for quaternions, but those are currently work in process.\
+When a number is printed to the console, it has spaces between the digits.
 
 ### Strings
-A string is internally the same as a number, so it is possible to save them to registers and such. However, instead of 0-9, every digit is ASCII encoded, so arithmetic operations preform what C devs would call 'Undefined Behaviour'.\
+A string is internally the same as a number, so it is possible to save them to registers and such. However, instead of 0-9, every digit is ASCII encoded, so arithmetic operations preform on strings what C devs would call 'Undefined Behaviour'.\
 Inputting a string is done by starting with a double quote character (`"`), then typing the desired string, and closing it again with a double quote character.\
 These are the supported escaped characters:\
-`\0`, `\r`, `\n`, `\\`\
+`\0`, `\r`, `\n`, `\\`,  `\"`\
 Some examples of strings:\
 `"Hello world!\n"`,\
 `"I am using a DOS system...\r\n"`,\
-`"I am a null-terminated string.\0"`
+`"This is a null-terminated string.\0"`\
+`"A popular quote:\n\"Awawawaw\""`
 
 ### Registers
 Registers are effectively built-in variables.
@@ -178,23 +192,9 @@ There are two stacks: The main stack and the return stack. The main stack is mea
 |`flip`  |       |Flip. Pops the number on top of the main stack and pushes it onto the return stack.|The number that was popped and pushed|
 |`ret`   |       |Return. Pops the number on top of the return stack and pushes (returns) it onto the main stack.|The number that was popped and pushed|
 
-### Scripts and statefiles
-A script is a simple text file with the `.aa` (arbitrary assembly) extension, containing multiple instructions on seperate lines. Scripts can be executed with `SCR`:
-```
-SCR <path relative to the current working directory>
-```
-The interpreter will execute the script line by line, where now numbers only get printed if the `print` mnemonic is used. The script loops depending on the `loop` register. If the register is `0`, the script will not loop, and return to the normal command prompt. If `loop` is `1`, the script will loop until `loop` is `0` again.\
-A script runs in the instance it is called in.\
-It is possible to run a script from a script, but the maximum 'recursion' depth is currently set at 10, so that means:\
-A script in a script in a script in a script in a script in a script in a script in a script in a script in a script.
-
-It is possible to save the state of the registers and stacks to a file, to later retrieve it again, or for debugging purposes. As convention, statefiles get the extension `.aal`.\
-Saving:
-```
-SAVE <path relative to the current working directory>
-```
-Loading:
-```
-LOAD <path relative to the current working directory>
-```
-These also work in scripts.
+#### Statefiles
+A statefile has the `.aal` extension, and is a binary file that contains the state of the registers and stacks at the time it was made.
+|Mnemonic|Syntax |Name and description|Returns|
+|--------|-------|--------------------|-------|
+|`SAVE`  |`<s>`  |Save. Saves the state of the registers and stacks to the file of which the path is given by the first argument. Creates the file if it does not exist, and overwrites it if the file does exist||
+|`LOAD`  |`<s>`  |Load. Loads the state of the registers and stacks from the file of which the path is given by the first argument, overwriting the curren state of the registers and stacks.||
