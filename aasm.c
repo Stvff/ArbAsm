@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
-#include "arbnum_global.h"
+#include "aasm_global.h"
 #include "arbnum_stdlib.h"
 
 fun initfuncs[libAmount];
