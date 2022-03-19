@@ -79,7 +79,7 @@ which runs the script the path of which is given by the string.\
 It is possible to run a script from a script, but the maximum 'recursion' depth is currently set at 10, so that means:\
 A script in a script in a script in a script in a script in a script in a script in a script in a script in a script.
 
-If `aasm` is run without any arguments, or with the appropriate options, the program enters the command line interface. Here it will prompt the user with three backslashes (`\\\ `), and statements can be entered. After a statement has been executed, the result it returns is printed to the console.\
+If `aasm` is run without any arguments, or with the appropriate options, the program enters the command line interface. Here it will prompt the user with three backslashes (`\\\ `), and statements can be entered. After a statement has been executed, the result it returns is printed to the console.
 
 ## Syntax, registers and instructions
 Every statement is of the form:
