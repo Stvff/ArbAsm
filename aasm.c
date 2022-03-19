@@ -143,11 +143,11 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'V':
 				case 'v':
 					printf("\n");
-					printf("       Arbitrary Assembly pVea     \n");
+					printf("        Arbitrary Assembly Vea      \n");
 					printf("              x-------x            \n");
 					printf("              | A r b |            \n");
 					printf("              | A s m |            \n");
-					printf("              |pV e a |            \n");
+					printf("              | V e a |            \n");
 					printf("              x-------x            \n");
 					printf("   github.com/StevenClifford/ArbAsm\n\n");
 					printf("   Libraries:\n");
