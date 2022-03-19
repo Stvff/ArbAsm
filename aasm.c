@@ -5,6 +5,7 @@
 #include <time.h>
 #include "aasm_global.h"
 #include "arbnum_stdlib.h"
+#include "arbquats_quatlib.h"
 
 fun initfuncs[libAmount];
 
@@ -105,21 +106,27 @@ int free_main(GLOBAL* mainptrs){
 int initLibFuncPtrs(){	
 	initfuncs[0] = &init_main;
 	initfuncs[1] = &init_std;
+	initfuncs[2] = &init_quats;
 
 	instructhandlers[0] = &instructhandler_main;
 	instructhandlers[1] = &instructhandler_std;
+	instructhandlers[2] = &instructhandler_quats;
 
 	argumenthandlers[0] = &argumenthandler_main;
 	argumenthandlers[1] = &argumenthandler_std;
+	argumenthandlers[2] = &argumenthandler_quats;
 
 	executehandlers[0] = &executehandler_main;
 	executehandlers[1] = &executehandler_std;
+	executehandlers[2] = &executehandler_quats;
 
 	updatefuncs[0] = &update_main;
 	updatefuncs[1] = &update_std;
+	updatefuncs[2] = &update_quats;
 
 	freefuncs[0] = &free_main;
 	freefuncs[1] = &free_std;
+	freefuncs[2] = &free_quats;
 	return 0;
 }
 
@@ -152,6 +159,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("   github.com/StevenClifford/ArbAsm\n\n");
 					printf("   Libraries:\n");
 					printf("             arbnum_stdlib\n");
+					printf("             arbquat_quatlib\n");
 					printf("\n");
 					mainptrs->inputMode = 'w';
 					mainptrs->running = false;

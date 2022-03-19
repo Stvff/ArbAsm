@@ -7,7 +7,7 @@
 
 #define maxKeywordLen 10
 #define maxArgumentAmount 4
-#define libAmount 2
+#define libAmount 3
 #define recursionDepth 16
 #define initialuserInputLen 256
 
