@@ -25,8 +25,9 @@ qua_t quatregs[quatregAmount];
 
 enum instructquatlib {
 	qset, qprint, qdset, qdget,
-	qadd, qsub, qmul, qdiv, qmod,
-	conj, normsq, qcmp, qsq,
+	qadd, qsub, scmul, scdiv, scmod,
+	qmul, qdiv, qmod,
+	conj, pysq, qcmp, qsq,
 	qpush, qpop, qflip, qret
 };
 
@@ -37,8 +38,9 @@ char quatregisterstring[][maxKeywordLen] = {
 
 char quatinstructstring[][maxKeywordLen] = {
 	"qset", "qprint", "qdset", "qdget",
-	"qadd", "qsub", "qmul", "qdiv", "qmod",
-	"conj", "normsq", "qcmp",
+	"qadd", "qsub", "scmul", "scdiv", "scmod",
+	"qmul", "qdiv", "qmod",
+	"conj", "pysq",
 	"qpush", "qpop", "qflip", "qret",
 	"\0end"
 };
@@ -142,29 +144,30 @@ int executehandler_quats(GLOBAL* mainptrs){
 		case qsub:
 			sumquat(quargs[0], quargs[0], quargs[1], true);
 			break;
+		case scmul:
+			scalarmultquat(quargs[0], quargs[0], args[1]);
+			break;
+		case scdiv:
+			scalardivquat(quargs[0], quargs[2], quargs[0], args[1]);
+			break;
+		case scmod:
+			scalardivquat(quargs[2], quargs[0], quargs[0], args[1]);
+			break;
 		case qmul:
 			multquat(quargs[0], quargs[0], quargs[1]);
 			break;
 		case qdiv:
-			printf("qdiv not yet implemented\n");
-			doprint = false;
+			divquat(quargs[0], quargs[2], quargs[0], quargs[1]);
 			break;
 		case qmod:
-			printf("qmod not yet implemented\n");
-			doprint = false;
+			divquat(quargs[2], quargs[0], quargs[0], quargs[1]);
 			break;
 		case conj:
-			quargs[0]->q[1].sign = (quargs[0]->q[1].sign + 1) % 2;
-			quargs[0]->q[2].sign = (quargs[0]->q[2].sign + 1) % 2;
-			quargs[0]->q[3].sign = (quargs[0]->q[3].sign + 1) % 2;
+			conjugate(quargs[0]);
 			break;
-		case normsq:
-			printf("normsq not yet implemented\n");
-			doprint = false;			
-			break;
-		case qcmp:
-			printf("qcmp not yet implemented\n");
-			doprint = false;
+		case pysq:
+			pythsquared(args[0], quargs[1]);
+			rettype = Number;
 			break;
 		case qpush:
 			if(!pushtomst(&quargs[0]->q[3])){ doprint = false; break;}

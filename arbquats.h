@@ -59,6 +59,12 @@ void printquat(qua_t* quat, int isbigend){
 	printf("\n");
 }
 
+void conjugate(qua_t* quat){
+	for(int p = 0; p < 4; p++)
+		if(quat->q[p].dim > 0) 
+			quat->q[p].sign = (quat->q[p].sign + 1) % 2;
+}
+
 void sumquat(qua_t* res, qua_t* arg1, qua_t* arg2, bool subtract){
 	qua_t dummy;
 	initquat(&dummy);
@@ -69,6 +75,16 @@ void sumquat(qua_t* res, qua_t* arg1, qua_t* arg2, bool subtract){
 
 	copyquat(res, &dummy, false);
 	freequat(&dummy);
+}
+
+void scalarmultquat(qua_t* res, qua_t* quat, num_t* num){
+	for(int p = 0; p < 4; p++)
+		multnum(&res->q[p], &quat->q[p], num);
+}
+
+void scalardivquat(qua_t* res, qua_t* mod, qua_t* quat, num_t* den){
+	for(int p = 0; p < 4; p++)
+		divnum(&res->q[p], &mod->q[p], &quat->q[p], den);
 }
 
 void multquat(qua_t* res, qua_t* arg1, qua_t* arg2){
@@ -88,9 +104,35 @@ void multquat(qua_t* res, qua_t* arg1, qua_t* arg2){
 	freequat(&dummy2);
 }
 
-/*void divquat(qua_t* res, qua_t* mod, qua_t* num, num_t* den){
+void pythsquared(num_t* res, qua_t* src){
+	num_t dummy;
+	initnum(&dummy, 1, 0, 0);
+	free(res->nump);
+	initnum(res, 1, 0, 0);
+	res->nump[0] = 0;
+	for(int p = 0; p < 4; p++){
+		multnum(&dummy, &src->q[p], &src->q[p]);
+		dummy.sign = 0;
+		dummy.dim = 0;
+		sumnum(res, res, &dummy, false);
+	}
+	free(dummy.nump);
+}
 
+void divquat(qua_t* res, qua_t* mod, qua_t* num, qua_t* den){
+	qua_t dummy;
+	initquat(&dummy);
+	num_t dumny;
+	initnum(&dumny, 1, 0, 0);
 
-}*/
+	copyquat(&dummy, den, 0);
+	conjugate(&dummy);
+	multquat(&dummy, num, &dummy);
+	pythsquared(&dumny, &dummy);
+	scalardivquat(res, mod, &dummy, &dumny);
+
+	freequat(&dummy);
+	free(dumny.nump);
+}
 
 #endif
