@@ -27,7 +27,7 @@ enum instructquatlib {
 	qset, qprint, qdset, qdget,
 	qadd, qsub, scmul, scdiv, scmod,
 	qmul, qdiv, qmod,
-	conj, pysq, qcmp, qsq,
+	conj, pysq,
 	qpush, qpop, qflip, qret
 };
 
@@ -107,7 +107,7 @@ int argumenthandler_quats(GLOBAL* mainptrs){
 			copynum(&quargs[mainptrs->argumentNr]->q[dimNr % 4], args[mainptrs->argumentNr], 0);
 		} else {
 			mainptrs->readhead = customreadhead;
-			quargs[dimNr] = &quatregs[qregisterNr];
+			quargs[mainptrs->argumentNr] = &quatregs[qregisterNr];
 		}
 	}
 
@@ -186,12 +186,14 @@ int executehandler_quats(GLOBAL* mainptrs){
 			if(!fliperonie()){ doprint = false; break;}
 			if(!fliperonie()){ doprint = false; break;}
 			if(!fliperonie())  doprint = false;
+			doprint = false;
 			break;
 		case qret:
 			if(!reteronie()){ doprint = false; break;}
 			if(!reteronie()){ doprint = false; break;}
 			if(!reteronie()){ doprint = false; break;}
 			if(!reteronie())  doprint = false;
+			doprint = false;
 			break;
 	}
 
