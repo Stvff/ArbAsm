@@ -1,3 +1,6 @@
 aasm
 aasm.exe
 scripts/game_of_life/*
+
+diff.txt
+scripts/bigtest/output.txt

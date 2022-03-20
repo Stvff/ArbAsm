@@ -24,6 +24,17 @@ clean: FORCE
 
 FORCE:
 
+test: $(OUTPUT)
+	cd scripts/bigtest/ && ./../../aasm main.aa > output.txt
+	@diff scripts/bigtest/expectedoutput.txt scripts/bigtest/output.txt --ignore-trailing-space --side-by-side --suppress-common-lines | tee diff.txt
+	@if [ `wc -l < diff.txt` -gt 1 ]; then \
+		echo -e "$(RED)Differences were found!$(NC)"; \
+		exit 2; \
+	else \
+		echo "No differences were found!"; \
+	fi
+	@rm scripts/bigtest/output.txt diff.txt
+
 formicro: $(OUTPUT)
 	mkdir -p $(MICRO_TARGET)
 	cp .github/arbasm.yaml $(MICRO_TARGET)
