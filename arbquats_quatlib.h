@@ -1,5 +1,5 @@
 #ifndef QUATLIB
-#define QUATLIB
+#define QUATLIB 2
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -212,6 +212,17 @@ int executehandler_quats(GLOBAL* mainptrs){
 	inttonum(&regs[ptme], (int64_t) end_time - begin_time);
 
 	if(mainptrs->debug == 'v') printf("quats executed\n");
+	return 0;
+}
+
+int initLibFuncPtrs_2(){
+	initfuncs[QUATLIB] = &init_quats;
+	instructhandlers[QUATLIB] = &instructhandler_quats;
+	argumenthandlers[QUATLIB] = &argumenthandler_quats;
+	executehandlers[QUATLIB] = &executehandler_quats;
+	updatefuncs[QUATLIB] = &update_quats;
+	freefuncs[QUATLIB] = &free_quats;
+
 	return 0;
 }
 //############################################### </Quats surroundings>

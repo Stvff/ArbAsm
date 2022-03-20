@@ -1,3 +1,5 @@
+#ifndef AASM_MAIN
+#define AASM_MAIN 0
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,18 +9,9 @@
 #include "arbnum_stdlib.h"
 #include "arbquats_quatlib.h"
 
-fun initfuncs[libAmount];
-
-fun instructhandlers[libAmount];
-fun argumenthandlers[libAmount];
-
-fun executehandlers[libAmount];
-
-fun updatefuncs[libAmount];
-fun freefuncs[libAmount];
-
 //############################################### <Main surroundings>
-int init_main(GLOBAL* mainptrs){
+int init_main(GLOBAL* mainptrs) {
+
 	mainptrs->userInputLen = initialuserInputLen;
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + 10)*sizeof(char));
 	mainptrs->userInput[0] = '\0';
@@ -89,7 +82,7 @@ int update_main(GLOBAL* mainptrs){
 	mainptrs->userInput[0] = '\0';
 
 	if(mainptrs->debug == 'v') printf("main updated\n");
-	return 1;
+	return 0;
 }
 
 int free_main(GLOBAL* mainptrs){
@@ -98,38 +91,46 @@ int free_main(GLOBAL* mainptrs){
 	free(mainptrs->flist);
 
 	if(mainptrs->debug == 'v') printf("main freed\n");
-	return 1;
+	return 0;
+}
+
+int initLibFuncPtrs_0(){
+	initfuncs[AASM_MAIN] = &init_main;
+	instructhandlers[AASM_MAIN] = &instructhandler_main;
+	argumenthandlers[AASM_MAIN] = &argumenthandler_main;
+	executehandlers[AASM_MAIN] = &executehandler_main;
+	updatefuncs[AASM_MAIN] = &update_main;
+	freefuncs[AASM_MAIN] = &free_main;
+
+	return 0;
 }
 //############################################### </Main surroundings>
 
 //############################################### <Library declarations>
-int initLibFuncPtrs(){	
-	initfuncs[0] = &init_main;
-	initfuncs[1] = &init_std;
-	initfuncs[2] = &init_quats;
+int initLibFuncPtrs(){
+	int libNr = 0;
+	if(libNr < libAmount) initLibFuncPtrs_0();
+	libNr++;
+	if(libNr < libAmount) initLibFuncPtrs_1();
+	libNr++;	
+	if(libNr < libAmount) initLibFuncPtrs_2();
+	libNr++;
+	if(libNr < libAmount) initLibFuncPtrs_3();
+	libNr++;
+	if(libNr < libAmount) initLibFuncPtrs_4();
+	libNr++;
+	if(libNr < libAmount) initLibFuncPtrs_5();
+	libNr++;
+	if(libNr < libAmount) initLibFuncPtrs_6();
+	libNr++;
+	if(libNr < libAmount) initLibFuncPtrs_7();
+	libNr++;
 
-	instructhandlers[0] = &instructhandler_main;
-	instructhandlers[1] = &instructhandler_std;
-	instructhandlers[2] = &instructhandler_quats;
-
-	argumenthandlers[0] = &argumenthandler_main;
-	argumenthandlers[1] = &argumenthandler_std;
-	argumenthandlers[2] = &argumenthandler_quats;
-
-	executehandlers[0] = &executehandler_main;
-	executehandlers[1] = &executehandler_std;
-	executehandlers[2] = &executehandler_quats;
-
-	updatefuncs[0] = &update_main;
-	updatefuncs[1] = &update_std;
-	updatefuncs[2] = &update_quats;
-
-	freefuncs[0] = &free_main;
-	freefuncs[1] = &free_std;
-	freefuncs[2] = &free_quats;
 	return 0;
 }
+//############################################### </Library declarations>
 
+//############################################### <Main operation>
 int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 	for(int i = 1; i < argc; i++){
 		if(argv[i][0] == '-'){
@@ -149,18 +150,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					break;
 				case 'V':
 				case 'v':
-					printf("\n");
-					printf("        Arbitrary Assembly Vea     \n");
-					printf("              x-------x            \n");
-					printf("              | A r b |            \n");
-					printf("              | A s m |            \n");
-					printf("              | V e a |            \n");
-					printf("              x-------x            \n");
-					printf("   github.com/StevenClifford/ArbAsm\n\n");
-					printf("   Libraries:\n");
-					printf("             arbnum_stdlib\n");
-					printf("             arbquat_quatlib\n");
-					printf("\n");
+					printversion();
 					mainptrs->inputMode = 'w';
 					mainptrs->running = false;
 					break;
@@ -203,6 +193,8 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
 				printf("Could not open script '%s'.\n", argv[i]);
 				mainptrs->fileNr--;
+				mainptrs->inputMode = 'w';
+				mainptrs->running = !mainptrs->running;
 			} else {
 				mainptrs->inputMode = 'f';
 				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
@@ -214,9 +206,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 	}
 	return 0;
 }
-//############################################### </Library declarations>
 
-//############################################### <Main operation>
 int dothing(GLOBAL* mainptrs){
 	mainptrs->libNr = 0;
 	mainptrs->instructNr = -1;
@@ -355,3 +345,5 @@ int main(int argc, char* argv[]){
 		freefuncs[i](&mainitems);
 	return 0;
 }
+
+#endif

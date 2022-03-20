@@ -52,6 +52,40 @@ typedef struct __global__ {
 
 typedef int (*fun)(GLOBAL*);
 
+fun initfuncs[libAmount];
+
+fun instructhandlers[libAmount];
+fun argumenthandlers[libAmount];
+
+fun executehandlers[libAmount];
+
+fun updatefuncs[libAmount];
+fun freefuncs[libAmount];
+
+void printversion(){
+	printf("\n");
+	printf("      Arbitrary Assembly pVfa.aa     \n");
+	printf("              x-------x            \n");
+	printf("              | A r b |            \n");
+	printf("              | A s m |            \n");
+	printf("              |pVfa.aa|            \n");
+	printf("              x-------x            \n");
+	printf("   github.com/StevenClifford/ArbAsm\n\n");
+	printf("   Libraries:\n");
+	printf("             arbnum_stdlib\n");
+	printf("             arbquat_quatlib\n");
+	printf("\n");
+}
+
+//int initLibFuncPtrs_0(); Reserved for Main
+//int initLibFuncPtrs_1(); Reserved for Stdlib
+//int initLibFuncPtrs_2(); Reserved for Quatlib
+int initLibFuncPtrs_3(){ return 0;} //available
+int initLibFuncPtrs_4(){ return 0;} //available
+int initLibFuncPtrs_5(){ return 0;} //available
+int initLibFuncPtrs_6(){ return 0;} //available
+int initLibFuncPtrs_7(){ return 0;} //available
+
 int strlook(char string[], char source[][maxKeywordLen], int* readhead){
 	int item = 0;
 	int j;

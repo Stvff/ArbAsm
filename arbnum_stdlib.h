@@ -1,5 +1,5 @@
 #ifndef ARBNUM_STDLIB
-#define ARBNUM_STDLIB
+#define ARBNUM_STDLIB 1
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -130,6 +130,7 @@ bool reteronie(){
 	retstackptr++;
 	return true;
 }
+
 int saveload(char path[], char saveorload, GLOBAL* mainptrs){
 	FILE* fp;
 	if(saveorload == 's'){
@@ -499,6 +500,17 @@ int executehandler_std(GLOBAL* mainptrs){
 	inttonum(&regs[ptme], (int64_t) end_time - begin_time);
 
 	if(mainptrs->debug == 'v') printf("stdlib executed\n");
+	return 0;
+}
+
+int initLibFuncPtrs_1(){
+	initfuncs[ARBNUM_STDLIB] = &init_std;
+	instructhandlers[ARBNUM_STDLIB] = &instructhandler_std;
+	argumenthandlers[ARBNUM_STDLIB] = &argumenthandler_std;
+	executehandlers[ARBNUM_STDLIB] = &executehandler_std;
+	updatefuncs[ARBNUM_STDLIB] = &update_std;
+	freefuncs[ARBNUM_STDLIB] = &free_std;
+
 	return 0;
 }
 //############################################### </Std surroundings>
