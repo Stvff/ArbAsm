@@ -15,15 +15,19 @@ qua_t* quargs[maxArgumentAmount];
 qua_t quatmps[maxArgumentAmount];
 int dimNr;
 int prevargNr;
+enum typesquats { stdType = String, Quater };
 
 enum quatregisters {
-	qr1, qr2, qr3, qr4, qans,
+	qr1, qr2, qr3, qr4, qns,
 	quatregAmount
 };
 qua_t quatregs[quatregAmount];
 
 enum instructquatlib {
-	qset, qprint, qadd, qsub, qmul, qdiv
+	qset, qprint, qdset, qdget,
+	qadd, qsub, qmul, qdiv, qmod,
+	conj, normsq, qcmp, qsq,
+	qpush, qpop, qflip, qret
 };
 
 char quatregisterstring[][maxKeywordLen] = {
@@ -32,7 +36,10 @@ char quatregisterstring[][maxKeywordLen] = {
 };
 
 char quatinstructstring[][maxKeywordLen] = {
-	"qset", "qprint", "qadd", "qsub", "qmul", "qdiv",
+	"qset", "qprint", "qdset", "qdget",
+	"qadd", "qsub", "qmul", "qdiv", "qmod",
+	"conj", "normsq", "qcmp",
+	"qpush", "qpop", "qflip", "qret",
 	"\0end"
 };
 //############################################### </Quats globals>
@@ -110,7 +117,9 @@ int executehandler_quats(GLOBAL* mainptrs){
 	time_t begin_time = time(&begin_time);
 	bool doprint = true;
 	if(mainptrs->inputMode != 'i') doprint = false;
-	qua_t* printptr = quargs[0];
+	qua_t* printqptr = quargs[0];
+	num_t* printnptr = args[0];
+	int rettype = Quater;
 
 	switch(mainptrs->instructNr){
 		case qset:
@@ -118,6 +127,14 @@ int executehandler_quats(GLOBAL* mainptrs){
 			break;
 		case qprint:
 			doprint = true;
+			break;
+		case qdset:
+			copynum(&quargs[0]->q[numtoint(args[1], 0) % 4], args[2], 0);
+			break;
+		case qdget:
+			copynum(args[2], &quargs[0]->q[numtoint(args[1], 0) % 4], 0);
+			printnptr = args[2];
+			rettype = Number;
 			break;
 		case qadd:
 			sumquat(quargs[0], quargs[0], quargs[1], false);
@@ -129,15 +146,62 @@ int executehandler_quats(GLOBAL* mainptrs){
 			multquat(quargs[0], quargs[0], quargs[1]);
 			break;
 		case qdiv:
-			printf("qdiv not yet implented\n");
+			printf("qdiv not yet implemented\n");
 			doprint = false;
+			break;
+		case qmod:
+			printf("qmod not yet implemented\n");
+			doprint = false;
+			break;
+		case conj:
+			quargs[0]->q[1].sign = (quargs[0]->q[1].sign + 1) % 2;
+			quargs[0]->q[2].sign = (quargs[0]->q[2].sign + 1) % 2;
+			quargs[0]->q[3].sign = (quargs[0]->q[3].sign + 1) % 2;
+			break;
+		case normsq:
+			printf("normsq not yet implemented\n");
+			doprint = false;			
+			break;
+		case qcmp:
+			printf("qcmp not yet implemented\n");
+			doprint = false;
+			break;
+		case qpush:
+			if(!pushtomst(&quargs[0]->q[3])){ doprint = false; break;}
+			if(!pushtomst(&quargs[0]->q[2])){ doprint = false; break;}
+			if(!pushtomst(&quargs[0]->q[1])){ doprint = false; break;}
+			if(!pushtomst(&quargs[0]->q[0]))  doprint = false;
+			break;
+		case qpop:
+			if(!popfrommst(&quargs[0]->q[0])){ doprint = false; break;}
+			if(!popfrommst(&quargs[0]->q[1])){ doprint = false; break;}
+			if(!popfrommst(&quargs[0]->q[2])){ doprint = false; break;}
+			if(!popfrommst(&quargs[0]->q[3]))  doprint = false;
+			break;
+		case qflip:
+			if(!fliperonie()){ doprint = false; break;}
+			if(!fliperonie()){ doprint = false; break;}
+			if(!fliperonie()){ doprint = false; break;}
+			if(!fliperonie())  doprint = false;
+			break;
+		case qret:
+			if(!reteronie()){ doprint = false; break;}
+			if(!reteronie()){ doprint = false; break;}
+			if(!reteronie()){ doprint = false; break;}
+			if(!reteronie())  doprint = false;
 			break;
 	}
 
-	if(doprint){
-		printquat(printptr, mainptrs->bigEndian);
-		copyquat(&quatregs[qans], printptr, 0);
-	}
+	if(doprint) switch(rettype){
+		case Quater:
+			printquat(printqptr, mainptrs->bigEndian);
+			copyquat(&quatregs[qns], printqptr, 0);
+			break;
+		case Number:
+			printnum(printnptr, mainptrs->bigEndian);
+			copynum(&regs[ans], printnptr, 0);
+			break;
+	};
 
 	time_t end_time = time(&end_time);
 	inttonum(&regs[ptme], (int64_t) end_time - begin_time);
