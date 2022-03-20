@@ -4,7 +4,6 @@
 CC=gcc
 
 C_FILES = aasm.c
-H_FILES = aasm_global.h arbnum.h arbnum_stdlib.h arbquats.h arbquats_quatlib.h
 OUTPUT = aasm
 
 MICRO_TARGET=~/.config/micro/syntax/
@@ -12,10 +11,22 @@ MICRO_TARGET=~/.config/micro/syntax/
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-$(OUTPUT): $(C_FILES) $(H_FILES)
+$(OUTPUT): FORCE
 	$(CC) -o $@ $(C_FILES) -lm
 
 build: $(OUTPUT)
+
+run: $(OUTPUT)
+	./$^
+
+clean: FORCE
+	rm $(OUTPUT)
+
+FORCE:
+
+formicro: $(OUTPUT)
+	mkdir -p $(MICRO_TARGET)
+	cp .github/arbasm.yaml $(MICRO_TARGET)
 
 forwindows:
 	@if x86_64-w64-mingw32-gcc -o $(OUTPUT).exe $(C_FILES); then \
@@ -31,17 +42,12 @@ forwindows:
 		fi \
 	fi
 
-formicro: $(OUTPUT)
-	mkdir -p $(MICRO_TARGET)
-	cp .github/arbasm.yaml $(MICRO_TARGET)
-
-run: $(OUTPUT)
-	./$^
-
 help:
 	@echo "All make commands that you can run:"
 	@echo " make             | Compiles the program for your current platform (Tested on Linux & Windows (Using MSYS2))"
+	@echo " make aasm        | Does the same"
 	@echo " make build       | Does the same"
-	@echo " make forwindows  | Compiles the program for Windows using mingw. (Linux only)"
-	@echo " make formicro    | Compiles and sets up some files to add support for ArbAsm in the Micro editor"
 	@echo " make run         | Compiles and runs the program"
+	@echo " make clean       | Cleans up the build targets"
+	@echo " make formicro    | Compiles and sets up some files to add support for ArbAsm in the Micro editor"
+	@echo " make forwindows  | Compiles the program for Windows using mingw. (Linux only)"
