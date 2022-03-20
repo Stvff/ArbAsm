@@ -150,7 +150,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'V':
 				case 'v':
 					printf("\n");
-					printf("        Arbitrary Assembly Vea      \n");
+					printf("        Arbitrary Assembly Vea     \n");
 					printf("              x-------x            \n");
 					printf("              | A r b |            \n");
 					printf("              | A s m |            \n");
