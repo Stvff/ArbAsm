@@ -33,7 +33,7 @@ enum instructsstdlib {
 	set, dset, dget, rev, sel, cton, ntoc,
 	inc, dec, add, sub, mul, divi, modu,
 	cmp, ucmp, rot, shf, app, len, 
-	print, sprint, nprint, draw,
+	print, sprint, nprint,
 	firead, fiwrite, input, sinput,
 	push, pop, peek, flip, ret,
 	SCR, SAVE, LOAD, Ce, Cg, Cs
@@ -50,7 +50,7 @@ char instructstring[][maxKeywordLen] = {
 	"set", "dset", "dget", "rev", "sel", "cton", "ntoc",
 	"inc", "dec", "add", "sub", "mul", "div", "mod",
 	"cmp", "ucmp", "rot", "shf", "app", "len",
-	"print", "sprint", "nprint", "draw",
+	"print", "sprint", "nprint",
 	"fread", "fwrite", "input", "sinput",
 	"push", "pop", "peek", "flip", "ret", 
 	"SCR", "SAVE", "LOAD", "Ce", "Cg", "Cs",
@@ -209,8 +209,14 @@ int init_std(GLOBAL* mainptrs){
 
 int update_std(GLOBAL* mainptrs){
 	mainptrs->userInputLen = numtoint(&regs[inplen], false);
-	mainptrs->bigEndian = numtoint(&regs[endian], false);
-	mainptrs->scriptLoops = numtoint(&regs[loop], false);
+
+	if(regs[endian].nump[0] != 1 || regs[endian].nump[0] == 0) mainptrs->bigEndian = 0;
+	else mainptrs->bigEndian = 1;
+	inttonum(&regs[endian], mainptrs->bigEndian);
+
+	if(regs[loop].nump[0] != 1 || regs[loop].nump[0] == 0) mainptrs->scriptLoops = 0;
+	else mainptrs->scriptLoops = 1;
+	inttonum(&regs[loop], mainptrs->scriptLoops);
 
 	if(stackSize != numtoint(&regs[stacsz], false)){
 		freestacks();
@@ -312,9 +318,10 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case dget:
 			free(dummy.nump);
-			initnum(&dummy, 1, args[0]->sign, args[1]->dim);
+			initnum(&dummy, 1, args[0]->sign, args[0]->dim);
 			dummy.nump[0] = args[0]->nump[numtoint(args[1], false) % args[0]->len];
-			copynum(args[0], &dummy, 0);
+			copynum(args[2], &dummy, 0);
+			printptr = args[2];
 			break;
 		case rev:
 			reversenum(args[0]);
@@ -449,7 +456,8 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case ret:
 			if(!reteronie()) doprint = false;
-			else printptr = &stack[stackptr];
+			else{ printptr = &stack[stackptr];
+			copynum(&regs[ans], printptr, 0);}
 			break;
 		case len:
 			inttonum(args[1], args[0]->len);

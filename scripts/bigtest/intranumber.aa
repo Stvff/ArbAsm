@@ -26,20 +26,20 @@ print "\ndget\n"
 print "The following all on 123 456 789"
 print "4 by 3:"
 set gr1, 123 456 789
-dget gr1, 3
+dget gr1, 3, gr1
 print gr1
 
 print "4 by 3-:"
 set gr1, 123 456 789
-dget gr1, 3-
+dget gr1, 3-, gr1
 print gr1
 
 print "6 by 23:"
 set gr1, 123 456 789
-dget gr1, 23
+dget gr1, 23, gr1
 print gr1
 
 print "6 by 23-:"
 set gr1, 123 456 789
-dget gr1, 23-
+dget gr1, 23-, gr1
 print gr1

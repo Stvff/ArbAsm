@@ -64,11 +64,13 @@ fun freefuncs[libAmount];
 
 void printversion(){
 	printf("\n");
-	printf("      Arbitrary Assembly pVfa.aa     \n");
+//	printf("        Arbitrary Assembly pVfa    \n");
+	printf("      Arbitrary Assembly pVfa.ba   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
-	printf("              |pVfa.aa|            \n");
+//	printf("              | V f a |            \n");
+	printf("              |pVfa.ba|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");
