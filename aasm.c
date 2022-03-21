@@ -6,8 +6,16 @@
 #include <stdint.h>
 #include <time.h>
 #include "aasm_global.h"
-#include "arbnum_stdlib.h"
-#include "arbquats_quatlib.h"
+#include "aasm_stdlib.h"
+#include "aasm_quatlib.h"
+
+int libFuncPtrs_AASM_MAIN();
+
+int (*libFuncPtrs[libAmount])() = {
+	libFuncPtrs_AASM_MAIN,
+	libFuncPtrs_AASM_STDLIB,
+	libFuncPtrs_AASM_QUATLIB
+};
 
 //############################################### <Main surroundings>
 int init_main(GLOBAL* mainptrs) {
@@ -94,7 +102,7 @@ int free_main(GLOBAL* mainptrs){
 	return 0;
 }
 
-int initLibFuncPtrs_0(){
+int libFuncPtrs_AASM_MAIN(){
 	initfuncs[AASM_MAIN] = &init_main;
 	instructhandlers[AASM_MAIN] = &instructhandler_main;
 	argumenthandlers[AASM_MAIN] = &argumenthandler_main;
@@ -108,24 +116,9 @@ int initLibFuncPtrs_0(){
 
 //############################################### <Library declarations>
 int initLibFuncPtrs(){
-	int libNr = 0;
-	if(libNr < libAmount) initLibFuncPtrs_0();
-	libNr++;
-	if(libNr < libAmount) initLibFuncPtrs_1();
-	libNr++;	
-	if(libNr < libAmount) initLibFuncPtrs_2();
-	libNr++;
-	if(libNr < libAmount) initLibFuncPtrs_3();
-	libNr++;
-	if(libNr < libAmount) initLibFuncPtrs_4();
-	libNr++;
-	if(libNr < libAmount) initLibFuncPtrs_5();
-	libNr++;
-	if(libNr < libAmount) initLibFuncPtrs_6();
-	libNr++;
-	if(libNr < libAmount) initLibFuncPtrs_7();
-	libNr++;
-
+	for(int libNr = 0; libNr < libAmount; libNr++){
+		libFuncPtrs[libNr]();
+	}
 	return 0;
 }
 //############################################### </Library declarations>

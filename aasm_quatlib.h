@@ -1,5 +1,5 @@
-#ifndef QUATLIB
-#define QUATLIB 2
+#ifndef AASM_QUATLIB
+#define AASM_QUATLIB 2
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,7 +7,7 @@
 #include <time.h>
 #include "aasm_global.h"
 #include "arbnum.h"
-#include "arbnum_stdlib.h"
+#include "aasm_stdlib.h"
 #include "arbquats.h"
 
 //############################################### <Quats globals>
@@ -215,13 +215,13 @@ int executehandler_quats(GLOBAL* mainptrs){
 	return 0;
 }
 
-int initLibFuncPtrs_2(){
-	initfuncs[QUATLIB] = &init_quats;
-	instructhandlers[QUATLIB] = &instructhandler_quats;
-	argumenthandlers[QUATLIB] = &argumenthandler_quats;
-	executehandlers[QUATLIB] = &executehandler_quats;
-	updatefuncs[QUATLIB] = &update_quats;
-	freefuncs[QUATLIB] = &free_quats;
+int libFuncPtrs_AASM_QUATLIB(){
+	initfuncs[AASM_QUATLIB] = &init_quats;
+	instructhandlers[AASM_QUATLIB] = &instructhandler_quats;
+	argumenthandlers[AASM_QUATLIB] = &argumenthandler_quats;
+	executehandlers[AASM_QUATLIB] = &executehandler_quats;
+	updatefuncs[AASM_QUATLIB] = &update_quats;
+	freefuncs[AASM_QUATLIB] = &free_quats;
 
 	return 0;
 }

@@ -14,29 +14,19 @@
 void printversion(){
 	printf("\n");
 //	printf("        Arbitrary Assembly pVfa    \n");
-	printf("      Arbitrary Assembly pVfa.ca   \n");
+	printf("      Arbitrary Assembly pVfa.da   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
 //	printf("              | V f a |            \n");
-	printf("              |pVfa.ca|            \n");
+	printf("              |pVfa.da|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");
-	printf("             arbnum_stdlib\n");
-	printf("             arbquat_quatlib\n");
+	printf("             stdlib\n");
+	printf("             quatlib\n");
 	printf("\n");
 }
-
-//int initLibFuncPtrs_0(){ return 0;} //Reserved for Main
-//int initLibFuncPtrs_1(){ return 0;} //Reserved for Stdlib
-//int initLibFuncPtrs_2(){ return 0;} //Reserved for Quatlib
-int initLibFuncPtrs_3(){ return 0;} //available
-int initLibFuncPtrs_4(){ return 0;} //available
-int initLibFuncPtrs_5(){ return 0;} //available
-int initLibFuncPtrs_6(){ return 0;} //available
-int initLibFuncPtrs_7(){ return 0;} //available
-
 
 typedef struct FileInfo {
 	FILE* fp;

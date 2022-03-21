@@ -1,5 +1,5 @@
-#ifndef ARBNUM_STDLIB
-#define ARBNUM_STDLIB 1
+#ifndef AASM_STDLIB
+#define AASM_STDLIB 1
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -511,13 +511,13 @@ int executehandler_std(GLOBAL* mainptrs){
 	return 0;
 }
 
-int initLibFuncPtrs_1(){
-	initfuncs[ARBNUM_STDLIB] = &init_std;
-	instructhandlers[ARBNUM_STDLIB] = &instructhandler_std;
-	argumenthandlers[ARBNUM_STDLIB] = &argumenthandler_std;
-	executehandlers[ARBNUM_STDLIB] = &executehandler_std;
-	updatefuncs[ARBNUM_STDLIB] = &update_std;
-	freefuncs[ARBNUM_STDLIB] = &free_std;
+int libFuncPtrs_AASM_STDLIB(){
+	initfuncs[AASM_STDLIB] = &init_std;
+	instructhandlers[AASM_STDLIB] = &instructhandler_std;
+	argumenthandlers[AASM_STDLIB] = &argumenthandler_std;
+	executehandlers[AASM_STDLIB] = &executehandler_std;
+	updatefuncs[AASM_STDLIB] = &update_std;
+	freefuncs[AASM_STDLIB] = &free_std;
 
 	return 0;
 }
