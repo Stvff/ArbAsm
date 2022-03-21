@@ -5,11 +5,7 @@ Ce set gr1, 0
 Ce set gr2, 0
 Ce set loop, 1
 
-inc gr1
-print gr1
-dec gr2
-print gr2
-print 88888888
+print "Body of the loop"
 
 push gr2 		; mst ( i -- i gr2 )
 flip 			; mst ( i gr2 -- i ) rst ( n -- n gr2 )

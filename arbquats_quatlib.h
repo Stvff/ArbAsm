@@ -182,18 +182,18 @@ int executehandler_quats(GLOBAL* mainptrs){
 			if(!popfrommst(&quargs[0]->q[3]))  doprint = false;
 			break;
 		case qflip:
-			if(!fliperonie()){ doprint = false; break;}
-			if(!fliperonie()){ doprint = false; break;}
-			if(!fliperonie()){ doprint = false; break;}
-			if(!fliperonie())  doprint = false;
-			doprint = false;
+			for(int p = 0; p < 4; p++){
+				if(!fliperonie()){ doprint = false; break;}
+				if(doprint) copynum(&quatregs[qns].q[p], &retstack[retstackptr], 0);
+			}
+			printqptr = &quatregs[qns];
 			break;
 		case qret:
-			if(!reteronie()){ doprint = false; break;}
-			if(!reteronie()){ doprint = false; break;}
-			if(!reteronie()){ doprint = false; break;}
-			if(!reteronie())  doprint = false;
-			doprint = false;
+			for(int p = 0; p < 4; p++){
+				if(!reteronie()){doprint = false; break;}
+				copynum(&quatregs[qns].q[3 - p], &stack[stackptr], 0);
+			}
+			printqptr = &quatregs[qns];
 			break;
 	}
 

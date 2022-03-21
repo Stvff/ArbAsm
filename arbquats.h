@@ -127,8 +127,8 @@ void divquat(qua_t* res, qua_t* mod, qua_t* num, qua_t* den){
 
 	copyquat(&dummy, den, 0);
 	conjugate(&dummy);
-	multquat(&dummy, num, &dummy);
 	pythsquared(&dumny, &dummy);
+	multquat(&dummy, num, &dummy);
 	scalardivquat(res, mod, &dummy, &dumny);
 
 	freequat(&dummy);

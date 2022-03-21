@@ -1,8 +1,7 @@
 cmp loop, 0
 Ce set ir, 0
 
-add gr1, 2
-print gr1
+print "body of the loop"
 
 push gr1
 ret
