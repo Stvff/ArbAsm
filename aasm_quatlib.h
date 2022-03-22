@@ -27,7 +27,7 @@ enum instructquatlib {
 	qset, qprint, qdset, qdget,
 	qadd, qsub, scmul, scdiv, scmod,
 	qmul, qdiv, qmod,
-	conj, pysq,
+	conj, pysq, vshf,
 	qpush, qpop, qflip, qret
 };
 
@@ -40,7 +40,7 @@ char quatinstructstring[][maxKeywordLen] = {
 	"qset", "qprint", "qdset", "qdget",
 	"qadd", "qsub", "scmul", "scdiv", "scmod",
 	"qmul", "qdiv", "qmod",
-	"conj", "pysq",
+	"conj", "pysq", "vshf",
 	"qpush", "qpop", "qflip", "qret",
 	"\0end"
 };
@@ -168,6 +168,12 @@ int executehandler_quats(GLOBAL* mainptrs){
 		case pysq:
 			pythsquared(args[0], quargs[1]);
 			rettype = Number;
+			break;
+		case vshf:
+			shiftnum(&quargs[0]->q[0], numtoint(&quargs[1]->q[0], true));
+			shiftnum(&quargs[0]->q[1], numtoint(&quargs[1]->q[1], true));
+			shiftnum(&quargs[0]->q[2], numtoint(&quargs[1]->q[2], true));
+			shiftnum(&quargs[0]->q[3], numtoint(&quargs[1]->q[3], true));
 			break;
 		case qpush:
 			if(!pushtomst(&quargs[0]->q[3])){ doprint = false; break;}
