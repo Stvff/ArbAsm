@@ -13,13 +13,13 @@
 
 void printversion(){
 	printf("\n");
-//	printf("        Arbitrary Assembly pVfa    \n");
-	printf("      Arbitrary Assembly pVfa.ea   \n");
+	printf("        Arbitrary Assembly pVfa    \n");
+//	printf("      Arbitrary Assembly pVfa.fa   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
-//	printf("              | V f a |            \n");
-	printf("              |pVfa.ea|            \n");
+	printf("              | V f a |            \n");
+//	printf("              |pVfa.fa|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");

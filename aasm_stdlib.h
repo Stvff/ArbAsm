@@ -6,7 +6,7 @@
 #include "aasm_global.h"
 #include "arbnum.h"
 
-//############################################### </Std globals>
+//############################################### <Std globals>
 enum CompiletimeConstantsStdlib {
 	initialstackSize = 64
 };
