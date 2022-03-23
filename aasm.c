@@ -12,9 +12,9 @@
 int libFuncPtrs_AASM_MAIN();
 
 int (*libFuncPtrs[libAmount])() = {
-	libFuncPtrs_AASM_MAIN,
-	libFuncPtrs_AASM_STDLIB,
-	libFuncPtrs_AASM_QUATLIB
+	libFuncPtrs_AASM_MAIN
+	,libFuncPtrs_AASM_STDLIB
+	,libFuncPtrs_AASM_QUATLIB
 };
 
 //############################################### <Main surroundings>
