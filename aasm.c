@@ -150,6 +150,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 				case 'B':
 				case 'b':
 					mainptrs->bigEndian = true;
+					inttonum(&regs[endian], 1);
 					break;
 				case 'L':
 				case 'l':
