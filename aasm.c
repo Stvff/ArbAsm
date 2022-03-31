@@ -17,7 +17,7 @@ int (*libFuncPtrs[libAmount])() = {
 	,libFuncPtrs_AASM_QUATLIB
 };
 
-//############################################### <Main surroundings>
+//############################################### <Main essentials>
 int init_main(GLOBAL* mainptrs) {
 
 	mainptrs->userInputLen = initialuserInputLen;
@@ -63,6 +63,7 @@ int instructhandler_main(GLOBAL* mainptrs){
 			printf("To change notation from little endian (the default) to big endian, enter `set endian, 1`\n");
 			printf("To change maximum line length, set the register `inplen` to the desired value.\n\n");
 			printf("Enter `\\` to close the program.\n\n");
+			printf("More information can be found on https://www.github.com/StevenClifford/ArbAsm/wiki\n\n");
 			printf("(P.S. Did you know that the actual plural of \"comma\" is \"commata\"?)\n");
 			mainptrs->lookingMode = 'd';
 			break;
@@ -112,7 +113,7 @@ int libFuncPtrs_AASM_MAIN(){
 
 	return 0;
 }
-//############################################### </Main surroundings>
+//############################################### </Main essentials>
 
 //############################################### <Library declarations>
 int initLibFuncPtrs(){

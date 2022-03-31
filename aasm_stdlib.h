@@ -17,6 +17,8 @@ int stackptr;
 num_t* retstack;
 int retstackptr;
 
+int64_t decimalpoint;
+
 num_t* args[maxArgumentAmount];
 num_t tmps[maxArgumentAmount];
 enum typesstd { UnDef, Number, String };
@@ -24,7 +26,7 @@ enum typesstd { UnDef, Number, String };
 enum registers {
 	gr1, gr2, gr3, gr4, ans, ir, flag,
 	inplen, endian, stacsz, mstptr,
-	rstptr, tme, ptme, loop,
+	rstptr, tme, ptme, loop, decip,
 	regAmount
 };
 num_t regs[regAmount];
@@ -32,6 +34,7 @@ num_t regs[regAmount];
 enum instructsstdlib {
 	set, dset, dget, rev, sel, cton, ntoc,
 	inc, dec, add, sub, mul, divi, modu,
+	rnd, root,
 	cmp, ucmp, rot, shf, app, len, 
 	print, sprint, nprint,
 	firead, fiwrite, input, sinput,
@@ -42,13 +45,14 @@ enum instructsstdlib {
 char registerstring[][maxKeywordLen] = { 
 	"gr1", "gr2", "gr3", "gr4", "ans", "ir",
 	"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
-	"time", "ptime", "loop",
+	"time", "ptime", "loop", "decip",
 	"\0end"
 };
 
 char instructstring[][maxKeywordLen] = {
 	"set", "dset", "dget", "rev", "sel", "cton", "ntoc",
 	"inc", "dec", "add", "sub", "mul", "div", "mod",
+	"rand", "root",
 	"cmp", "ucmp", "rot", "shf", "app", "len",
 	"print", "sprint", "nprint",
 	"fread", "fwrite", "input", "sinput",
@@ -177,14 +181,18 @@ int saveload(char path[], char saveorload, GLOBAL* mainptrs){
 }
 //############################################### </Std internal functions>
 
-//############################################### <Std surroundings>
+//############################################### <Std essentials>
 int init_std(GLOBAL* mainptrs){
 	initnumarray(regAmount, regs, 7, 0, 0);
+
+	decimalpoint = 0;
 
 	stackptr = stackSize;
 	stack = (num_t*) malloc(stackSize * sizeof(num_t));
 	retstackptr = stackSize;
 	retstack = (num_t*) malloc(stackSize * sizeof(num_t));
+
+	inttonum(&regs[decip], decimalpoint);
 
 	inttonum(&regs[inplen], mainptrs->userInputLen);
 	inttonum(&regs[endian], mainptrs->bigEndian);
@@ -209,6 +217,8 @@ int init_std(GLOBAL* mainptrs){
 
 int update_std(GLOBAL* mainptrs){
 	mainptrs->userInputLen = numtoint(&regs[inplen], false);
+
+	decimalpoint = numtoint(&regs[decip], true);
 
 	if(regs[endian].nump[0] != 1 || regs[endian].nump[0] == 0) mainptrs->bigEndian = 0;
 	else mainptrs->bigEndian = 1;
@@ -355,12 +365,21 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case mul:
 			multnum(args[0], args[0], args[1]);
+			if(decimalpoint != 0){
+				shiftnum(printptr, -1*decimalpoint);
+			}
 			break;
 		case divi:
 			divnum(args[0], args[2], args[0], args[1]);
 			break;
 		case modu:
 			divnum(args[2], args[0], args[0], args[1]);
+			break;
+		case rnd:
+			printf("`rand` not yet implemented.\n"); //TODO rand
+			break;
+		case root:
+			printf("`root` not yet implemented.\n"); //TODO root
 			break;
 		case cmp:
 			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
@@ -521,6 +540,6 @@ int libFuncPtrs_AASM_STDLIB(){
 
 	return 0;
 }
-//############################################### </Std surroundings>
+//############################################### </Std essentials>
 
 #endif

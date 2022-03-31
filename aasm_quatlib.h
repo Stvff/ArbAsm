@@ -46,7 +46,7 @@ char quatinstructstring[][maxKeywordLen] = {
 };
 //############################################### </Quats globals>
 
-//############################################### <Quats surroundings>
+//############################################### <Quats essentials>
 int init_quats(GLOBAL* mainptrs){
 	dimNr = 0;
 	prevargNr = 0;
@@ -231,6 +231,6 @@ int libFuncPtrs_AASM_QUATLIB(){
 
 	return 0;
 }
-//############################################### </Quats surroundings>
+//############################################### </Quats essentials>
 
 #endif

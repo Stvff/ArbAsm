@@ -14,12 +14,12 @@
 void printversion(){
 	printf("\n");
 //	printf("        Arbitrary Assembly Vga    \n");
-	printf("      Arbitrary Assembly pVga.aa   \n");
+	printf("      Arbitrary Assembly pVga.ba   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
 //	printf("              | V g a |            \n");
-	printf("              |pVga.aa|            \n");
+	printf("              |pVga.ba|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");
@@ -55,7 +55,7 @@ typedef struct __global__ {
 	// 'i' is from stdin
 	// 'f' is from file
 	// 'w' is there already was a command
-	// if they are capitized there was an error
+	// if they are capitalized there was an error
 
 	int bigEndian;
 	

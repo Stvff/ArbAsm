@@ -1,60 +1,60 @@
 // This is the template for everything a library needs
-#ifndef AASM_EXALIB
-#define AASM_EXALIB 3
+#ifndef AASM_TEMPLATELIB
+#define AASM_TEMPLATELIB 3
 #include <stdio.h>
 #include "aasm_global.h"
 
-//############################################### <example globals>
-//############################################### </example globals>
-//############################################### <example internal functions>
-//############################################### </example internal functions>
-//############################################### <example surroundings>
-int init_example(GLOBAL* mainptrs){
+//############################################### <template globals>
+//############################################### </template globals>
+//############################################### <template internal functions>
+//############################################### </template internal functions>
+//############################################### <template essentials>
+int init_template(GLOBAL* mainptrs){
 
-	if(mainptrs->debug == 'v') printf("exalib initted\n");
+	if(mainptrs->debug == 'v') printf("templatelib initted\n");
 	return 0;
 }
 
-int update_example(GLOBAL* mainptrs){
+int update_template(GLOBAL* mainptrs){
 
-	if(mainptrs->debug == 'v') printf("exalib updated\n");
+	if(mainptrs->debug == 'v') printf("templatelib updated\n");
 	return 0;
 }
 
-int free_example(GLOBAL* mainptrs){
+int free_template(GLOBAL* mainptrs){
 
-	if(mainptrs->debug == 'v') printf("exalib freed\n");
+	if(mainptrs->debug == 'v') printf("templatelib freed\n");
 	return 0;
 }
 
-int instructhandler_example(GLOBAL* mainptrs){
+int instructhandler_template(GLOBAL* mainptrs){
 
-	if(mainptrs->debug == 'v') printf("exalib instructed\n");
+	if(mainptrs->debug == 'v') printf("templatelib instructed\n");
 	return 0;
 }
 
-int argumenthandler_example(GLOBAL* mainptrs){
+int argumenthandler_template(GLOBAL* mainptrs){
 
-	if(mainptrs->debug == 'v') printf("exalib argumented\n");
+	if(mainptrs->debug == 'v') printf("templatelib argumented\n");
 	return 0;
 }
 
-int executehandler_example(GLOBAL* mainptrs){
+int executehandler_template(GLOBAL* mainptrs){
 
-	if(mainptrs->debug == 'v') printf("exalib executed\n");
+	if(mainptrs->debug == 'v') printf("templatelib executed\n");
 	return 0;
 }
 
-int libFuncPtrs_AASM_EXALIB(){
-	initfuncs[AASM_EXALIB] = &init_example;
-	instructhandlers[AASM_EXALIB] = &instructhandler_example;
-	argumenthandlers[AASM_EXALIB] = &argumenthandler_example;
-	executehandlers[AASM_EXALIB] = &executehandler_example;
-	updatefuncs[AASM_EXALIB] = &update_example;
-	freefuncs[AASM_EXALIB] = &free_example;
+int libFuncPtrs_AASM_TEMPLATELIB(){
+	initfuncs[AASM_TEMPLATELIB] = &init_template;
+	instructhandlers[AASM_TEMPLATELIB] = &instructhandler_template;
+	argumenthandlers[AASM_TEMPLATELIB] = &argumenthandler_template;
+	executehandlers[AASM_TEMPLATELIB] = &executehandler_template;
+	updatefuncs[AASM_TEMPLATELIB] = &update_template;
+	freefuncs[AASM_TEMPLATELIB] = &free_template;
 
 	return 0;
 }
-//############################################### </example surroundings>
+//############################################### </example essentials>
 
 #endif
