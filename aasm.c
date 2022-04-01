@@ -153,6 +153,14 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					mainptrs->bigEndian = true;
 					inttonum(&regs[endian], 1);
 					break;
+				case 'P':
+				case 'p':
+					if(i+1 < argc){
+						i++;
+						inpstrtonum(&regs[decip], argv[i], 0, mainptrs->bigEndian);
+						decimalpoint = numtoint(&regs[decip], true);
+					} else printf("Number missing\n");
+					break;
 				case 'L':
 				case 'l':
 					if(i+1 < argc){

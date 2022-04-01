@@ -366,13 +366,19 @@ int executehandler_std(GLOBAL* mainptrs){
 		case mul:
 			multnum(args[0], args[0], args[1]);
 			if(decimalpoint != 0){
-				shiftnum(printptr, -1*decimalpoint);
+				shiftnum(args[0], -1*decimalpoint);
 			}
 			break;
 		case divi:
+			if(decimalpoint != 0){
+				shiftnum(args[0], decimalpoint);
+			}
 			divnum(args[0], args[2], args[0], args[1]);
 			break;
 		case modu:
+			if(decimalpoint != 0){
+				shiftnum(args[0], decimalpoint);
+			}
 			divnum(args[2], args[0], args[0], args[1]);
 			break;
 		case rnd:
@@ -470,13 +476,21 @@ int executehandler_std(GLOBAL* mainptrs){
 			copynum(args[0], &stack[stackptr], 0);
 			break;
 		case flip:
-			if(!fliperonie()) doprint = false;
-			else printptr = &retstack[retstackptr];
+			if(isnumzero(args[0])) args[0]->nump[0] = (uint8_t) 1;
+			for(int i = numtoint(args[0], false); i > 0; i--){
+				if(!fliperonie()){ doprint = false; break;}
+				if(i == 1) printptr = &retstack[retstackptr];
+			}
 			break;
 		case ret:
-			if(!reteronie()) doprint = false;
-			else{ printptr = &stack[stackptr];
-			copynum(&regs[ans], printptr, 0);}
+			if(isnumzero(args[0])) args[0]->nump[0] = (uint8_t) 1;
+			for(int i = numtoint(args[0], false); i > 0; i--){
+				if(!reteronie()){ doprint = false; break;}
+				if(i == 1) {
+					printptr = &stack[stackptr];
+					copynum(&regs[ans], printptr, 0);
+				}
+			}
 			break;
 		case len:
 			inttonum(args[1], args[0]->len);
