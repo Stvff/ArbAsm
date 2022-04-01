@@ -1,17 +1,8 @@
-sprint "Test nprint (1) or sprint (2)?\n> "
-input gr2
 
-set loop, 0
-set endian, 0
-cmp gr2, 2
-	Cs set gr1, ""
-	Cs shf gr1, 000 000 001
-	Cs print gr1
-	Cs print ptime
+print 2
 
-	Ce sprint "path?\n> "
-	Ce sinput gr2
-	Ce set gr1, 000 000 000 1
-	Ce fread gr1, gr2, 0
-	Ce sprint gr1
-	Ce print ptime
+SCR "test2.aa"
+
+>
+
+print 4

@@ -25,6 +25,7 @@ rules:
 
       ## Other
     - statement: "\\b(?i)(SCR|SAVE|LOAD)(?-i)\\b"
+    - statement: "([>])"
     - statement: "\\b(?i)(Ce|Cg|Cs)(?-i)\\b"
 
     - constant.string:

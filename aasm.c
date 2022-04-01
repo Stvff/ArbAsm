@@ -46,8 +46,10 @@ int init_main(GLOBAL* mainptrs) {
 }
 
 int instructhandler_main(GLOBAL* mainptrs){
-	char instructstringmain[][maxKeywordLen] = {"\\", "h", "\0end"};
-	enum instructsmain { slash, help };
+	char instructstringmain[][maxKeywordLen] = {"\\", "h", ">", "\0end"};
+	enum instructsmain { slash, help, early };
+	time_t end_time;
+	file_t* thefile = &mainptrs->flist[mainptrs->fileNr];
 
 	mainptrs->instructNr = strlook(mainptrs->userInput, instructstringmain, &mainptrs->readhead);
 
@@ -66,6 +68,15 @@ int instructhandler_main(GLOBAL* mainptrs){
 			printf("More information can be found on https://www.github.com/StevenClifford/ArbAsm/wiki\n\n");
 			printf("(P.S. Did you know that the actual plural of \"comma\" is \"commata\"?)\n");
 			mainptrs->lookingMode = 'd';
+			break;
+		case early:
+			thefile->lineNr = 0;
+			mainptrs->userInput[0] = '\0';
+			fclose(thefile->fp);
+			mainptrs->fileNr--;
+			end_time = time(&end_time);
+			inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
+			if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 			break;
 	}
 
@@ -159,14 +170,14 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 						i++;
 						inpstrtonum(&regs[decip], argv[i], 0, mainptrs->bigEndian);
 						decimalpoint = numtoint(&regs[decip], true);
-					} else printf("Number missing\n");
+					} else printf("Number missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'L':
 				case 'l':
 					if(i+1 < argc){
 						i++;
 						saveload(argv[i], 'l', mainptrs);
-					} else printf("Statefile missing\n");
+					} else printf("Statefile missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'I':
 				case 'i':
@@ -174,7 +185,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 						i++;
 						sscanf(argv[i], "%s", mainptrs->userInput);
 						mainptrs->inputMode = 'w';
-					} else printf("Statement missing\n");
+					} else printf("Statement missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'H':
 				case 'h':
@@ -185,6 +196,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("  -e              Exit immediately after executing the statement that was passed as an argument of -i.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before interpreting any statements.\n");
+					printf("  -p <number>     Sets the virtual decimal point to the number that was passed as an argument of -p.\n");
 					printf("  -v              Displays the name, version and libraries.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
 					mainptrs->inputMode = 'w';
