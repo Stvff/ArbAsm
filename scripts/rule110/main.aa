@@ -3,7 +3,8 @@
 ; return stack summary: ( tape(0) n -- tape(n) )
 cmp loop, 0
 ; uncomment next line if you just want to see the pretty pattern
-	Ce LOAD "classicexample.aal"
+; Actually, don't, I broke it
+;	Ce LOAD "classicexample.aal"
 	Ce set loop, 1
 	Ce set endian, 0
 	Ce set ir, 0
@@ -20,9 +21,9 @@ push loop
 push gr4
 
 set loop, 0
-SCR "binconv.aa"
+run "binconv.aa"
 
-SCR "ruleconv.aa"
+run "ruleconv.aa"
 
 pop gr4 				; retrieving the registers this script needs
 pop loop

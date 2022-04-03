@@ -64,7 +64,7 @@ Regarding `-i`, should one need them, good replacements for spaces are dots (`.`
 A script is a simple text file with the `.aa` (arbitrary assembly) extension. One line can not contain more than one instruction. comments start at a semicolon (';') and end at the end of the line. The interpreter executes the script line by line, looping at the end depending on the `loop` register. If the register is `0`, the script will not loop, and exit the script. If `loop` is `1`, the script will loop until `loop` is `0` again.\
 A script runs in the instance it is called in.\
 Running a script can be run from the shell with `aasm`, and in the arbasm CLI with (the standard library instruction)\
-`SCR <string or register containing a string>`,\
+`run <string or register containing a string>`,\
 which runs the script the path of which is given by the string.\
 It is possible to run a script from a script, but the maximum 'recursion' depth is currently set at 16.\
 

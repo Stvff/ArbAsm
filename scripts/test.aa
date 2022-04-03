@@ -1,7 +1,7 @@
 
 print 2
 
-SCR "test2.aa"
+run "test2.aa"
 
 >
 

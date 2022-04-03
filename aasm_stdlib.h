@@ -39,7 +39,7 @@ enum instructsstdlib {
 	print, sprint, nprint,
 	firead, fiwrite, input, sinput,
 	push, pop, peek, flip, ret,
-	SCR, SAVE, LOAD, Ce, Cg, Cs
+	run, SAVE, LOAD, Ce, Cg, Cs
 };
 
 char registerstring[][maxKeywordLen] = { 
@@ -57,7 +57,7 @@ char instructstring[][maxKeywordLen] = {
 	"print", "sprint", "nprint",
 	"fread", "fwrite", "input", "sinput",
 	"push", "pop", "peek", "flip", "ret", 
-	"SCR", "SAVE", "LOAD", "Ce", "Cg", "Cs",
+	"run", "SAVE", "LOAD", "Ce", "Cg", "Cs",
 	"\0end"
 };
 //############################################### </Std globals>
@@ -508,7 +508,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			saveload((char*)args[0]->nump, 'l', mainptrs);
 			doprint = false;
 			break;
-		case SCR:
+		case run:
 			mainptrs->flist[++mainptrs->fileNr].fp = fopen((char*)args[0]->nump, "r");
 			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
 				printf("Could not open script '%s'.\n", args[0]->nump);

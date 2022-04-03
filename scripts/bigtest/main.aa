@@ -1,9 +1,9 @@
 ; These are tests, its rigorousness is dubious, but
 ; I'm just throwing stuff at it to see how it'll handle
 print "\n################## REGISTERS\n"
-SCR "registers.aa"
+run "registers.aa"
 print "\n################## INPUTS\n"
-SCR "inputs.aa"
+run "inputs.aa"
 print "\n################## INTRA-NUMBER\n"
-SCR "intranumber.aa"
+run "intranumber.aa"
 print "\n################## END OF TEST\n"
