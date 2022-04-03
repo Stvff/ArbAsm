@@ -35,7 +35,7 @@ enum instructsstdlib {
 	set, dset, dget, rev, sel, cton, ntoc,
 	inc, dec, add, sub, mul, divi, modu,
 	rnd, root,
-	cmp, ucmp, rot, shf, app, len, 
+	cmp, ucmp, rot, shf, app, len, trun,
 	print, sprint, nprint,
 	firead, fiwrite, input, sinput,
 	push, pop, peek, flip, ret,
@@ -53,7 +53,7 @@ char instructstring[][maxKeywordLen] = {
 	"set", "dset", "dget", "rev", "sel", "cton", "ntoc",
 	"inc", "dec", "add", "sub", "mul", "div", "mod",
 	"rand", "root",
-	"cmp", "ucmp", "rot", "shf", "app", "len",
+	"cmp", "ucmp", "rot", "shf", "app", "len", "trun",
 	"print", "sprint", "nprint",
 	"fread", "fwrite", "input", "sinput",
 	"push", "pop", "peek", "flip", "ret", 
@@ -404,6 +404,9 @@ int executehandler_std(GLOBAL* mainptrs){
 		case app:
 			appendnum(args[0], args[1]);
 			break;
+		case trun:
+			truncatenum(args[0]);
+			break;
 		case print:
 			doprint = true;
 			if(args[0]->nump[0] > 9) rettype = String;
@@ -455,10 +458,11 @@ int executehandler_std(GLOBAL* mainptrs){
 		case sinput:
 			fgets(mainptrs->userInput, mainptrs->userInputLen, stdin);
 			free(args[0]->nump);
-			for(int i = 0; mainptrs->userInput[i] != '\n'; i++)
-				if(mainptrs->userInput[i + 1] == '\n') initnum(args[0], i + 1, 0, 0);
+			for(int i = 0; mainptrs->userInput[i] != '\0'; i++)
+				if(mainptrs->userInput[i] == '\n') initnum(args[0], i, 0, 0);
 			for(uint64_t i = 0; i < args[0]->len; i++)
-				args[0]->nump[i] = mainptrs->userInput[i];
+				if(mainptrs->userInput[i] != '\n') args[0]->nump[i] = mainptrs->userInput[i];
+				else args[0]->nump[i] = '\0';
 			rettype = String;
 			break;
 		case push:

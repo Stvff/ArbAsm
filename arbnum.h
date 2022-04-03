@@ -14,7 +14,7 @@ typedef struct Number {
 } num_t;
 
 int64_t psi(int64_t g,int64_t h,int64_t n){
-	return (n % (int64_t)pow((float)g, (float)(h+1)))/(int64_t)pow(g,h);
+	return (n % (int64_t)pow((float)g, (float)(h+1)))/(int64_t)pow((float)g,(float)h);
 }
 
 uint8_t* initnum(num_t* number, uint64_t length, int sign, int dim){
@@ -303,6 +303,17 @@ void appendnum(num_t* des, num_t* appendage){
 	free(dummy.nump);
 }
 
+void truncatenum(num_t* num){
+	uint64_t lenohne0 = num->len;
+	for(uint64_t i = 0; i < num->len; i++)
+		if(num->nump[i] != 0) lenohne0 = i + 1;
+	num_t dummy; initnum(&dummy, lenohne0, num->sign, num->dim);
+	for(uint64_t i = 0; i < dummy.len; i++)
+		dummy.nump[i] = num->nump[i];
+	copynum(num, &dummy, false);
+	free(dummy.nump);
+}
+
 void reversenum(num_t* num){
 	num_t dummy; initnum(&dummy, num->len, num->sign, num->dim);
 	for(uint64_t i = 0; i < dummy.len; i++)
@@ -429,8 +440,7 @@ void divnum(num_t* res, num_t* mod, num_t* num, num_t* den){
 	if(den->dim > 0) sign = 1 - sign;
 	dim /= 2;
 	if(cmpnum(num, den, false) == 2){
-		copynum(mod, res, 0);
-		copynum(res, num, 0);
+		copynum(mod, num, 0);
 		shiftnum(res, -1*(int)res->len);
 		mod->dim = dim; mod->sign = sign;
 		res->dim = dim; res->sign = sign;

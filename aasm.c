@@ -70,13 +70,15 @@ int instructhandler_main(GLOBAL* mainptrs){
 			mainptrs->lookingMode = 'd';
 			break;
 		case early:
-			thefile->lineNr = 0;
-			mainptrs->userInput[0] = '\0';
-			fclose(thefile->fp);
-			mainptrs->fileNr--;
-			end_time = time(&end_time);
-			inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
-			if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
+			if(mainptrs->fileNr > 0){
+				thefile->lineNr = 0;
+				mainptrs->userInput[0] = '\0';
+				fclose(thefile->fp);
+				mainptrs->fileNr--;
+				end_time = time(&end_time);
+				inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
+				if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
+			} else printf("This instruction only works in a script.\n");
 			break;
 	}
 
