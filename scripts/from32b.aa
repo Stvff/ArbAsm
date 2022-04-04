@@ -1,0 +1,27 @@
+; mst summary ( 32b -- num )
+set endian, 1
+peek gr1 
+cton gr1, 0
+set gr2, gr1
+set gr3, 256
+
+peek gr1
+cton gr1, 1
+mul gr1, gr3
+mul gr3, 256
+add gr2, gr1
+
+peek gr1
+cton gr1, 2
+mul gr1, gr3
+mul gr3, 256
+add gr2, gr1
+
+peek gr1
+cton gr1, 3
+mul gr1, gr3
+add gr2, gr1
+
+pop
+trun gr2
+push gr2

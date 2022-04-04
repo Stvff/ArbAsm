@@ -1,0 +1,30 @@
+; mst summary ( base pos num -- dig_as_num ) ; (num % base*(base^pos))/base^pos
+set loop, 0
+flip 2
+peek gr4
+cmp gr4, 2
+	Cs print "psi.aa: Base can not be smaller than 2"
+	Cs ret 2
+	Cs >
+ret 1
+push gr4
+flip
+
+; mst: ( base pos ) rst: ( num base )
+run "pow.aa"
+; mst: ( base^pos ) rst: ( num base )
+
+peek gr1
+ret
+pop gr4
+mul gr1, gr4
+
+ret
+pop gr2
+mod gr2, gr1
+
+pop gr1
+div gr2, gr1
+trun gr2
+
+push gr2

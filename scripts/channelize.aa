@@ -1,0 +1,37 @@
+; mst: ( imagedata width height -- imagedata width height )
+; ret: ( mask -- ) three digit mask
+cmp loop, 0
+	Ce set loop, 1
+	Ce ret
+	Ce pop gr1
+	Ce flip 2
+	Ce push gr1
+	Ce flip
+	Ce pop gr1
+	Ce set gr4, ""
+	Ce len gr1, gr2
+	Ce shf gr4, gr2
+	Ce shf gr4
+	Ce set ir, 0
+	; mst: ( imagedata ) rst: ( height width mask )
+
+ret
+flip
+
+dget gr1, ir, gr2
+
+dget ans, ir, gr3
+cmp gr3, 1
+	Ce dset gr4, ir, gr2
+	Cs dset gr4, ir, 0
+
+inc ir
+;print ir
+len gr1, gr2
+
+cmp ir, gr2
+	Ce set loop, 0
+	Ce push gr4
+	Ce ret
+	Ce pop
+	Ce ret 2

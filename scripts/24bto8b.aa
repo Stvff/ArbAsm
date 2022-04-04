@@ -1,0 +1,24 @@
+; mst: (3_bytes -- 1_bytes)
+set loop, 0
+set endian, 1
+
+run "from32b.aa"
+
+set gr1, ""
+set gr2, 255
+ntoc gr2
+app gr1, gr2
+app gr1, gr2
+app gr1, gr2
+
+pop gr2
+
+mul gr2, 255
+div gr2, gr1
+
+push 256
+push 0
+push gr2
+run "psi.aa"
+pop gr1
+ntoc gr1

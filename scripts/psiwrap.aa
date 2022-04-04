@@ -1,0 +1,28 @@
+print "psi, endian is big"
+set endian, 1
+set loop, 0
+
+sprint "g?> "
+input gr1
+push gr1
+
+sprint "h?> "
+input gr1
+push gr1
+
+sprint "n?> "
+input gr1
+push gr1
+
+run "psi.aa"
+
+pop gr1
+sprint "res: "
+print gr1
+
+sprint "Continue? (Y/n) - "
+sinput gr1
+
+set loop, 1
+cmp gr1, "n"
+	Ce set loop, 0

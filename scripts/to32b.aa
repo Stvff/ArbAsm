@@ -1,0 +1,31 @@
+; mst summary: ( num -- 32b )
+cmp loop, 0
+	Ce set endian, 1
+	Ce set loop, 1
+	Ce set gr1, ""
+	Ce set ir, 0
+
+peek gr2
+
+ push gr1
+ push ir
+ push loop
+
+push 256
+push ir
+push gr2
+run "psi.aa"
+pop gr2
+ntoc gr2
+
+ pop loop
+ pop ir
+ pop gr1
+
+app gr1, gr2
+
+inc ir
+cmp ir, 4
+	Ce set loop, 0
+	Ce pop
+	Ce push gr1

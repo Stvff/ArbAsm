@@ -104,6 +104,7 @@ uint8_t numtouint8(num_t* num){
 		cum += dummy.nump[i]*pow;
 		pow *= 10;
 	}
+	free(dummy.nump);
 	return cum;
 }
 
@@ -334,6 +335,11 @@ void selectsectionnum(num_t* section, num_t* source, int64_t start, int64_t end)
 	initnum(section, end - start + 1, source->sign, source->dim);
 	for(int64_t i = start; i <= end; i++)
 		section->nump[i - start] = source->nump[i % source->len];
+}
+
+void insertnum(num_t* des, num_t* src, uint64_t pos){
+	for(uint64_t i = 0; i < src->len; i++)
+		des->nump[(i + pos) % des->len] = src->nump[i];
 }
 
 uint8_t cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2

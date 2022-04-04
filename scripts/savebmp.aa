@@ -1,0 +1,120 @@
+; mst summary: ( imagedata width height -- )
+; rst summary: ( path -- path )
+set endian, 1
+set loop, 0
+
+set gr1, ""
+app gr1, "BM"
+
+push gr1 ; ########################
+; file size
+flip 3
+peek gr2
+ret 3
+len gr2, gr2
+add gr2, 54
+push gr2
+run "to32b.aa"
+pop gr2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+; reserved spot
+app gr1, 0000
+
+push gr1 ; ########################
+; header size
+push 54
+run "to32b.aa"
+pop gr2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+push gr1 ; ########################
+; DIB header size
+push 40
+run "to32b.aa"
+pop gr2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+push gr1 ; ########################
+; width and height
+flip 2
+run "to32b.aa"
+pop gr2
+ret 2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+push gr1 ; ########################
+; height
+flip
+run "to32b.aa"
+pop gr2
+ret
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+push gr1 ; ########################
+; amount of planes
+push 1
+run "to32b.aa"
+pop gr2
+rev gr2
+shf gr2, 2-
+rev gr2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+push gr1 ; ########################
+; bits per pixel
+push 24
+run "to32b.aa"
+pop gr2
+rev gr2
+shf gr2, 2-
+rev gr2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+; compression
+app gr1, 0000
+
+push gr1 ; ########################
+; image size
+flip
+peek gr2
+ret
+len gr2, gr2
+push gr2
+run "to32b.aa"
+pop gr2
+
+pop gr1 ; -------------------------
+app gr1, gr2
+
+; rest of the header
+len gr1, gr2
+set gr3, 54
+sub gr3, gr2
+set gr2, ""
+shf gr2, gr3
+app gr1, gr2
+
+; the image data
+pop gr2
+app gr1, gr2
+
+; writing the file
+ret
+peek gr2
+fwrite gr1, gr2, 0-
+flip

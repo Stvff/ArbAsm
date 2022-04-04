@@ -1,0 +1,18 @@
+; mst summary: ( base exponent -- result )
+cmp loop, 0
+	Ce set loop, 1
+	Ce set ir, 0
+	Ce pop gr2
+	Ce pop gr3
+	Ce set gr1, 1
+	Ce cmp gr2, 0
+		Ce set loop, 0
+		Ce push 1
+		Ce >
+
+mul gr1, gr3
+inc ir
+
+cmp ir, gr2
+	Ce set loop, 0
+	Ce push gr1

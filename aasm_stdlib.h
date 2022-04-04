@@ -32,7 +32,7 @@ enum registers {
 num_t regs[regAmount];
 
 enum instructsstdlib {
-	set, dset, dget, rev, sel, cton, ntoc,
+	set, dset, dget, rev, sel, ins, cton, ntoc,
 	inc, dec, add, sub, mul, divi, modu,
 	rnd, root,
 	cmp, ucmp, rot, shf, app, len, trun,
@@ -50,7 +50,7 @@ char registerstring[][maxKeywordLen] = {
 };
 
 char instructstring[][maxKeywordLen] = {
-	"set", "dset", "dget", "rev", "sel", "cton", "ntoc",
+	"set", "dset", "dget", "rev", "sel", "ins", "cton", "ntoc",
 	"inc", "dec", "add", "sub", "mul", "div", "mod",
 	"rand", "root",
 	"cmp", "ucmp", "rot", "shf", "app", "len", "trun",
@@ -339,6 +339,9 @@ int executehandler_std(GLOBAL* mainptrs){
 		case sel:
 			selectsectionnum(&dummy, args[0], numtoint(args[1], false), numtoint(args[2], false));
 			copynum(args[0], &dummy, 0);
+			break;
+		case ins:
+			insertnum(args[0], args[1], numtoint(args[2], false));
 			break;
 		case cton:
 			uint8tonum(args[0], args[0]->nump[numtoint(args[1], false) % (int64_t)args[0]->len]);

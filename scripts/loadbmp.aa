@@ -1,0 +1,58 @@
+; mst summary: ( -- imagedata width height)
+; rst summary: ( path -- path )
+set endian, 1
+set loop, 0
+
+print "Offset to pixels:"
+ret
+peek gr3
+flip
+set gr1, 4
+fread gr1, gr3, 10
+push gr1
+run "from32b.aa"
+peek gr1
+print gr1
+
+print "Size of block:"
+ret
+peek gr3
+flip
+set gr1, 4
+fread gr1, gr3, 34
+push gr1
+run "from32b.aa"
+peek gr1
+print gr1
+
+; This is where the imagedata is read
+pop gr1
+pop gr2
+ret
+peek gr3
+flip
+fread gr1, gr3, gr2
+push gr1
+; </imagedatareading>
+
+print "Width:"
+ret
+peek gr3
+flip
+set gr1, 4
+fread gr1, gr3, 18
+push gr1
+run "from32b.aa"
+peek gr1
+print gr1
+
+print "Height:"
+ret
+peek gr3
+flip
+set gr1, 4
+fread gr1, gr3, 22
+push gr1
+run "from32b.aa"
+peek gr1
+print gr1
