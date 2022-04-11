@@ -22,6 +22,7 @@ uint8_t* initnum(num_t* number, uint64_t length, int sign, int dim){
 	number->dim = dim;
 	number->len = length;
 	number->nump = (uint8_t*) malloc((1 + number->len)*sizeof(uint8_t));
+	number->nump[length] = 0;
 	if(number->nump == NULL){
 		printf("Malloc error on initnum.\n");
 	}
@@ -294,14 +295,12 @@ void shiftnum(num_t* num, int64_t amount){
 }
 
 void appendnum(num_t* des, num_t* appendage){
-	num_t dummy;
-	initnum(&dummy, des->len + appendage->len, des->sign, des->dim);
-	copynum(&dummy, des, 1);
-	for(uint64_t i = des->len; i < dummy.len; i++){
-		dummy.nump[i] = appendage->nump[i - des->len];
-	}
-	copynum(des, &dummy, 0);
-	free(dummy.nump);
+	des->nump = (uint8_t*) realloc(des->nump, (des->len + appendage->len + 1)*sizeof(uint8_t));
+	if(des->nump == NULL) printf("realloc error on appendnum!\n");
+	for(uint64_t i = 0; i < appendage->len; i++)
+		des->nump[i + des->len] = appendage->nump[i];
+	des->len = des->len + appendage->len;
+	des->nump[des->len] = 0;
 }
 
 void truncatenum(num_t* num){
@@ -323,18 +322,18 @@ void reversenum(num_t* num){
 	free(dummy.nump);
 }
 
-void selectsectionnum(num_t* section, num_t* source, int64_t start, int64_t end){
-	free(section->nump);
-	if(start == end){
-		initnum(section, 1, source->sign, source->dim);
-		source->nump[0] = 0;
-		return;		
+void selectsectionnum(num_t* section, num_t* source, uint64_t start, uint64_t end){
+	if(section == source){
+		printf("Selectsectionnum was used inappropriately\n");
+		return;
 	}
-	int64_t tempformax = start;
+	free(section->nump);
+	uint64_t tempformax = start;
 	if(start > end){ start = end; end = tempformax;}
-	initnum(section, end - start + 1, source->sign, source->dim);
-	for(int64_t i = start; i <= end; i++)
-		section->nump[i - start] = source->nump[i % source->len];
+
+	initnum(section, end - start, source->sign, source->dim);
+	for(uint64_t i = 0; i < section->len; i++)
+		section->nump[i] = source->nump[(start + i) % source->len];
 }
 
 void insertnum(num_t* des, num_t* src, uint64_t pos){
