@@ -390,7 +390,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			divnum(args[2], args[0], args[0], args[1]);
 			break;
 		case rnd:
-			printf("`rand` not yet implemented.\n"); //TODO rand
+			randnum(args[0], numtoint(args[1], false));
 			break;
 		case root:
 			printf("`root` not yet implemented.\n"); //TODO root

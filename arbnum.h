@@ -276,10 +276,9 @@ void rotnum(num_t* num, int64_t amount){
 }
 
 void shiftnum(num_t* num, int64_t amount){
-	if(-1*amount >= (int64_t)num->len){
+	if(-1*amount > (int64_t)num->len){
 		free(num->nump);
-		initnum(num, 1, num->sign, num->dim);
-		num->nump[0] = 0;
+		initnum(num, 0, num->sign, num->dim);
 		return;
 	}
 	num_t dummy;
@@ -339,6 +338,13 @@ void selectsectionnum(num_t* section, num_t* source, uint64_t start, uint64_t en
 void insertnum(num_t* des, num_t* src, uint64_t pos){
 	for(uint64_t i = 0; i < src->len; i++)
 		des->nump[(i + pos) % des->len] = src->nump[i];
+}
+
+void randnum(num_t* num, uint64_t amount){
+	free(num->nump);
+	initnum(num, amount, num->sign, num->dim);
+	for(uint64_t i = 0; i < amount; i++)
+		num->nump[i] = (uint8_t)(rand() % 10);
 }
 
 uint8_t cmpnum(num_t* arg1, num_t* arg2, bool considersign){//returns 0 for arg1 = arg2, 1 for arg1 > arg2, 2 for arg1 < arg2
@@ -446,7 +452,8 @@ void divnum(num_t* res, num_t* mod, num_t* num, num_t* den){
 	dim /= 2;
 	if(cmpnum(num, den, false) == 2){
 		copynum(mod, num, 0);
-		shiftnum(res, -1*(int)res->len);
+		shiftnum(res, -1*(int)res->len + 1);
+		res->nump[0] = 0;
 		mod->dim = dim; mod->sign = sign;
 		res->dim = dim; res->sign = sign;
 		return;

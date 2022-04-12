@@ -7,7 +7,7 @@ rules:
     # This file is made for Arbitrary Assembly, it is adapted from the NASM assembly file from micro itself
 
     ## Instructions
-    - statement: "\\b(?i)(set|dset|dget|rev|sel|ins|cton|ntoc|inc|dec|add|sub|mul|div|mod|rand|root|cmp|ucmp|rot|shf|app|trun|print|nprint|sprint|fread|fwrite|input|sinput|len|dset|dget)(?-i)\\b"
+    - statement: "\\b(?i)(set|dset|dget|rev|sel|cut|ins|cton|ntoc|inc|dec|add|sub|mul|div|mod|rand|root|cmp|ucmp|rot|shf|app|trun|print|nprint|sprint|fread|fwrite|input|sinput|len|dset|dget)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
     - symbol.operator: "([,+]|)"
     ## Quaternion operations
