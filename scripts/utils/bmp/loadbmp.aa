@@ -1,16 +1,15 @@
-; mst summary: ( -- imagedata width height)
-; rst summary: ( path -- path )
+; mst summary: ( path -- imagedata width height path )
+
 set endian, 1
 set loop, 0
 
 print "Offset to pixels:"
-ret
 peek gr3
 flip
 set gr1, 4
 fread gr1, gr3, 10
 push gr1
-run "from32b.aa"
+run "./utils/bin/from32b.aa"
 peek gr1
 print gr1
 
@@ -21,7 +20,7 @@ flip
 set gr1, 4
 fread gr1, gr3, 34
 push gr1
-run "from32b.aa"
+run "./utils/bin/from32b.aa"
 peek gr1
 print gr1
 
@@ -42,7 +41,7 @@ flip
 set gr1, 4
 fread gr1, gr3, 18
 push gr1
-run "from32b.aa"
+run "./utils/bin/from32b.aa"
 peek gr1
 print gr1
 
@@ -53,6 +52,8 @@ flip
 set gr1, 4
 fread gr1, gr3, 22
 push gr1
-run "from32b.aa"
+run "./utils/bin/from32b.aa"
 peek gr1
 print gr1
+
+ret

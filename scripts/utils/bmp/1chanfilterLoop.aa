@@ -1,0 +1,12 @@
+dget gr1, ir, ans
+dset gr4, ir, ans
+add ir, 3
+set ans, ir
+mod ans, gr3
+cmp ans, gr2
+Ce peek ans
+Ce add ir, ans
+Ce print ir
+len gr1, ans
+cmp ir, ans
+Cg set loop, 0

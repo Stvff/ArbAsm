@@ -1,0 +1,150 @@
+; mst: ( imagedata width height shiftx shifty expanx expany -- imagedata width height )
+;---------------------------------------------------------------------------------- x stuff begins
+flip 5
+peek gr1 ; width
+ret 2
+peek gr3 ; shiftx
+ret 2
+peek gr2 ; expanx
+peek gr4
+ret
+mul gr4, 3
+push gr4
+sprint "Bexpanx: "
+print gr4
+
+add gr2, gr1
+add gr2, gr3
+mul gr2, 3
+mod gr2, 4
+sub gr2, 4
+mul gr2, 1- ; gr2 is nbsize
+mod gr2, 4
+sprint "nbsize: "
+print gr2
+
+mul gr1, 3
+set gr4, gr1
+mod gr1, 4
+sub gr1, 4
+mul gr1, 1- ; gr1 is bsize
+mod gr1, 4
+sprint "bsize: "
+print gr1
+
+add gr4, gr1 ; gr4 is Awidth
+sub gr2, gr1 ; gr1 is pbsize
+push gr2
+push gr4
+flip
+sprint "Awidth: "
+print gr4
+sprint "pbsize: "
+print gr2
+; mst: ( ... Bexpanx pbsize )
+; rst: ( Awidth )
+
+mul gr3, 3 ; gr3 is Bshiftx
+set gr4, ""
+shf gr4, gr3
+sprint "Bshiftx: "
+print gr3
+
+pop gr1
+pop gr2
+add gr1, gr2
+len gr4, gr2
+add gr1, gr2 ; gr1 is Bshiftx + Bexpanx + pbsize
+set gr3, ""
+shf gr3, gr1
+sprint "Bshiftx + Bexpanx + pbsize: "
+print gr1
+
+ret
+peek gr2
+add gr1, gr2 ; gr1 is nAwidth
+flip 5
+peek gr2 ; gr2 is height
+ret 4
+mul gr1, gr2
+push gr1
+ret
+sprint "nAsize: "
+print gr1
+
+flip 8
+peek gr1
+ret 8
+
+print "about to start loop"
+
+; mst: ( ... nAsize Awidth )
+set ir, 0
+set loop, 1
+run "./utils/bmp/translbmpLoop.aa"
+pop
+pop gr1
+cut gr4, 0, gr1
+;---------------------------------------------------------------------------------- x stuff ends, ystuff begins
+; mst: ( imagedata width height shiftx shifty expanx expany )
+; gr4 is preserved, contains image
+flip 5
+peek gr1
+ret 2
+peek gr2
+add gr1, gr2
+ret 2
+peek gr2
+add gr1, gr2
+ret
+
+mul gr1, 3
+set gr2, gr1
+mod gr1, 4
+sub gr1, 4
+mul gr1, 1-
+mod gr1, 4
+add gr1, gr2
+
+flip 2
+peek gr2
+ret 2
+
+mul gr2, gr1
+set gr3, ""
+shf gr3, gr2
+
+app gr4, gr3
+
+peek gr2
+mul gr2, gr1
+set gr3, ""
+shf gr3, gr2
+
+app gr3, gr4
+
+;---------------------------------------------------------------------------------- final
+; mst: ( imagedata width height shiftx shifty expanx expany )
+; gr3 is preserved, contains image
+flip 5
+pop gr1 ; width
+ret 2
+pop gr2 ; shiftx
+add gr1, gr2
+ret 2
+pop gr2 ; expanx
+add gr1, gr2
+ret
+; mst: ( imagedata height shifty expany )
+pop gr2
+pop gr4
+add gr2, gr4
+pop gr4
+add gr2, gr4
+pop
+
+push gr3
+push gr1
+push gr2
+; mst: ( imagedata width height )
+set loop, 0

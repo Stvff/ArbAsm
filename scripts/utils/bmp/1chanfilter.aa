@@ -1,0 +1,57 @@
+; mst: ( imagedata width height colour -- imagedata width height colour )
+; colour is "r", "g" or "b"
+peek gr1 	; setting colour
+cmp gr1, "g"
+	Cs set gr1, 0 	; b < g
+	Ce set gr1, 1 	; g = g
+	Cg set gr1, 2 	; r > g
+set ir, gr1
+sprint "colour: "
+print ir
+flip 2
+peek gr2
+flip
+
+mul gr2, 3
+set gr3, gr2
+mod gr2, 4
+sub gr2, 4
+mul gr2, 1-
+mod gr2, 4 		; bsize
+add gr3, gr2 	; Awidth
+sprint "bsize: "
+print gr2
+
+set gr1, gr2
+sub gr2, ir
+set gr4, gr3
+sub gr4, gr2
+mod gr4, gr3 	; endC
+
+sprint "skipval: "
+print gr1
+sprint "endC: "
+print gr4
+
+push gr4
+push gr1
+; mst: ( ... endC skipval )
+flip 2
+; rst: ( ... skipval endC )
+
+pop gr1
+len gr1, gr2
+set gr4, ""
+shf gr4, gr2
+
+ret
+; mst: ( endC )
+; rst: ( colour height width skipval )
+pop gr2
+ret
+set loop, 1
+run "./utils/bmp/1chanfilterLoop.aa"
+pop
+push gr4
+ret 3
+set gr1, 0

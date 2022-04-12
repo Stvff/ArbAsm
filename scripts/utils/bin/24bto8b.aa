@@ -2,7 +2,7 @@
 set loop, 0
 set endian, 1
 
-run "from32b.aa"
+run "./utils/bin/from32b.aa"
 
 set gr1, ""
 set gr2, 255
@@ -19,6 +19,6 @@ div gr2, gr1
 push 256
 push 0
 push gr2
-run "psi.aa"
+run "./utils/math/psi.aa"
 pop gr1
 ntoc gr1

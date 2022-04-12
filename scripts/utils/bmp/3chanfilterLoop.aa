@@ -1,0 +1,18 @@
+dget gr2, ir, gr3
+cmp gr3, 1
+	Ce dget gr1, ir, gr3
+	Ce dset gr4, ir, gr3
+set gr3, ir
+ret
+mod gr3, ans
+ret
+flip 2
+cmp gr3, ans
+	Ce peek gr3
+	Ce add ir, gr3
+	Ce rot gr2, gr3
+	Ce print ir
+inc ir
+len gr1, gr3
+cmp ir, gr3
+	Cg set loop, 0

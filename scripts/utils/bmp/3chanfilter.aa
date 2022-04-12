@@ -1,0 +1,63 @@
+; mst: ( imagedata width height -- imagedata width height )
+; rst: ( mask -- ) three digit mask
+ret
+pop gr4
+; calculating buffer stuff
+flip
+peek gr1 ; buffer size
+mul gr1, 3
+mod gr1, 4
+add gr1, 4-
+mul gr1, 1-
+mod gr1, 4
+sprint "buffer size: "
+print gr1
+
+peek gr2 ; Actual width (with buffer)
+mul gr2, 3
+add gr2, gr1
+sprint "Actual width (with buffer): "
+print gr2
+
+pop gr3 ; width in bytes (without buffer)
+mul gr3, 3
+sprint "width in bytes (without buffer): "
+print gr3
+
+push gr4
+push gr1
+push gr2
+push gr3
+; mst: ( imagedata mask bsize Awidth Bwidth )
+; rst: ( height )
+flip 4
+; mst: ( imagedata )
+; rst: ( height Bwidth Awidth bsize mask )
+; /calculating buffer stuff
+
+pop gr1
+set gr4, ""
+len gr1, gr2
+shf gr4, gr2
+shf gr4
+set ir, 0
+
+ret
+pop gr2
+ret
+; mst: ( bsize )
+; rst: ( height Bwidth Awidth )
+
+set loop, 1
+run "./utils/bmp/3chanfilterLoop.aa"
+pop
+ret
+pop
+ret
+pop gr1
+div gr1, 3
+push gr4
+push gr1
+ret
+
+print "end of channelize"

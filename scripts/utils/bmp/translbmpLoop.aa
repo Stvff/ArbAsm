@@ -1,0 +1,12 @@
+peek gr2
+sel gr2, gr1, ir
+app gr4, gr2
+app gr4, gr3
+peek gr2
+add ir, gr2
+len gr1, gr2
+;print ir
+cmp ir, gr2
+	Cg set flag, 0
+	Ce set loop, 0
+	Ce print ir

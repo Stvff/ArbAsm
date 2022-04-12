@@ -11,7 +11,7 @@ push gr4
 flip
 
 ; mst: ( base pos ) rst: ( num base )
-run "pow.aa"
+run "./utils/math/pow.aa"
 ; mst: ( base^pos ) rst: ( num base )
 
 peek gr1

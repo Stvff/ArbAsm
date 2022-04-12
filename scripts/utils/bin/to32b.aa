@@ -14,7 +14,7 @@ peek gr2
 push 256
 push ir
 push gr2
-run "psi.aa"
+run "./utils/math/psi.aa"
 pop gr2
 ntoc gr2
 
