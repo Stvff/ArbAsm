@@ -1,8 +1,0 @@
-
-print 2
-
-run "test2.aa"
-
->
-
-print 4

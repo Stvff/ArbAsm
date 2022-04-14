@@ -15,7 +15,7 @@ rules:
     - statement: "\\b(?i)(qpush|qpop|qflip|qret)(?-i)\\b"
 
       ## Registers
-    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ans|ir|flag|inplen|endian|stacsz|mstptr|rstptr|ptime|time|loop)(?-i)\\b"
+    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ans|ir|flag|inplen|endian|stacsz|mstptr|rstptr|ptime|time|path|loop)(?-i)\\b"
     - identifier: "\\b(?i)(qr1|qr2|qr3|qr4|qns)(?-i)\\b"
 
       ## Constants
@@ -24,7 +24,7 @@ rules:
     - constant.number: "([-]|)"
 
       ## Other
-    - statement: "\\b(?i)(run|SAVE|LOAD)(?-i)\\b"
+    - statement: "\\b(?i)(run|prun|SAVE|LOAD)(?-i)\\b"
     - statement: "([>])"
     - statement: "\\b(?i)(Ce|Cg|Cs)(?-i)\\b"
 

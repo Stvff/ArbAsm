@@ -25,7 +25,7 @@ clean: FORCE
 FORCE:
 
 test: $(OUTPUT)
-	cd scripts/bigtest/ && ./../../aasm main.aa > output.txt
+	./aasm -P scripts/bigtest/ scripts/bigtest/main.aa > scripts/bigtest/output.txt
 	@diff scripts/bigtest/expectedoutput.txt scripts/bigtest/output.txt --ignore-trailing-space --side-by-side --suppress-common-lines | tee diff.txt
 	@if [ `wc -l < diff.txt` -gt 1 ]; then \
 		echo -e "$(RED)Differences were found!$(NC)"; \

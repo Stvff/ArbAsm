@@ -167,6 +167,11 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					inttonum(&regs[endian], 1);
 					break;
 				case 'P':
+					if(i+1 < argc){
+						i++;
+						strtostrnum(&regs[path], argv[i], 0);		
+					} else printf("Path missing. Enter `aasm -h` for help.\n");
+					break;
 				case 'p':
 					if(i+1 < argc){
 						i++;
@@ -199,6 +204,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before interpreting any statements.\n");
 					printf("  -p <number>     Sets the virtual decimal point to the number that was passed as an argument of -p.\n");
+					printf("  -P <path>       Sets the path variable to the path that was passed as an argument of -P\n");
 					printf("  -v              Displays the name, version and libraries.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
 					mainptrs->inputMode = 'w';

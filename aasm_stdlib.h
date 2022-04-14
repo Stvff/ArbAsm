@@ -26,7 +26,7 @@ enum typesstd { UnDef, Number, String };
 enum registers {
 	gr1, gr2, gr3, gr4, ans, ir, flag,
 	inplen, endian, stacsz, mstptr,
-	rstptr, tme, ptme, loop, decip,
+	rstptr, tme, ptme, loop, decip, path,
 	regAmount
 };
 num_t regs[regAmount];
@@ -40,13 +40,14 @@ enum instructsstdlib {
 	print, sprint, nprint,
 	firead, fiwrite, input, sinput,
 	push, pop, peek, flip, ret,
-	run, SAVE, LOAD, Ce, Cg, Cs
+	run, prun,
+	SAVE, LOAD, Ce, Cg, Cs
 };
 
 char registerstring[][maxKeywordLen] = { 
 	"gr1", "gr2", "gr3", "gr4", "ans", "ir",
 	"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
-	"time", "ptime", "loop", "decip",
+	"time", "ptime", "loop", "decip", "path",
 	"\0end"
 };
 
@@ -59,7 +60,8 @@ char instructstring[][maxKeywordLen] = {
 	"print", "sprint", "nprint",
 	"fread", "fwrite", "input", "sinput",
 	"push", "pop", "peek", "flip", "ret", 
-	"run", "SAVE", "LOAD", "Ce", "Cg", "Cs",
+	"run", "prun",
+	"SAVE", "LOAD", "Ce", "Cg", "Cs",
 	"\0end"
 };
 //############################################### </Std globals>
@@ -203,6 +205,11 @@ int init_std(GLOBAL* mainptrs){
 	inttonum(&regs[stacsz], stackSize);
 	inttonum(&regs[mstptr], stackSize);
 	inttonum(&regs[rstptr], stackSize);
+
+	free(regs[path].nump);
+	initnum(&regs[path], 2, 0, 0);
+	regs[path].nump[0] = '.';
+	regs[path].nump[1] = '/';	
 
 	time_t thetime = time(&thetime);
 	inttonum(&regs[tme], (int64_t) thetime);
@@ -516,6 +523,10 @@ int executehandler_std(GLOBAL* mainptrs){
 			saveload((char*)args[0]->nump, 'l', mainptrs);
 			doprint = false;
 			break;
+		case prun:
+			copynum(&dummy, &regs[path], 0);
+			appendnum(&dummy, args[0]);
+			copynum(args[0], &dummy, 0);
 		case run:
 			mainptrs->flist[++mainptrs->fileNr].fp = fopen((char*)args[0]->nump, "r");
 			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
