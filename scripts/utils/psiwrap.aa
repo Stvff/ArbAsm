@@ -14,7 +14,7 @@ sprint "n?> "
 input gr1
 push gr1
 
-run "./utils/math/psi.aa"
+prun "utils/math/psi.aa"
 
 pop gr1
 sprint "res: "

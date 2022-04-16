@@ -21,9 +21,9 @@ push loop
 push gr4
 
 set loop, 0
-run "binconv.aa"
+prun "binconv.aa"
 
-run "ruleconv.aa"
+prun "ruleconv.aa"
 
 pop gr4 				; retrieving the registers this script needs
 pop loop

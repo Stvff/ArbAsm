@@ -81,7 +81,7 @@ print "about to start loop"
 ; mst: ( ... nAsize Awidth )
 set ir, 0
 set loop, 1
-run "./utils/bmp/translbmpLoop.aa"
+prun "utils/bmp/translbmpLoop.aa"
 pop
 pop gr1
 cut gr4, 0, gr1

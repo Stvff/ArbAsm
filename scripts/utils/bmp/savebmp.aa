@@ -15,7 +15,7 @@ ret 3
 len gr2, gr2
 add gr2, 54
 push gr2
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 
 pop gr1 ; -------------------------
@@ -27,7 +27,7 @@ app gr1, 0000
 push gr1 ; ########################
 ; header size
 push 54
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 
 pop gr1 ; -------------------------
@@ -36,7 +36,7 @@ app gr1, gr2
 push gr1 ; ########################
 ; DIB header size
 push 40
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 
 pop gr1 ; -------------------------
@@ -45,7 +45,7 @@ app gr1, gr2
 push gr1 ; ########################
 ; width and height
 flip 2
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 ret 2
 
@@ -55,7 +55,7 @@ app gr1, gr2
 push gr1 ; ########################
 ; height
 flip
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 ret
 
@@ -65,7 +65,7 @@ app gr1, gr2
 push gr1 ; ########################
 ; amount of planes
 push 1
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 rev gr2
 shf gr2, 2-
@@ -77,7 +77,7 @@ app gr1, gr2
 push gr1 ; ########################
 ; bits per pixel
 push 24
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 rev gr2
 shf gr2, 2-
@@ -96,7 +96,7 @@ peek gr2
 ret
 len gr2, gr2
 push gr2
-run "./utils/bin/to32b.aa"
+prun "utils/bin/to32b.aa"
 pop gr2
 
 pop gr1 ; -------------------------

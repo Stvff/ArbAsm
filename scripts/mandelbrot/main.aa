@@ -17,7 +17,7 @@ push gr1
 
 set ir, 0
 set loop, 1
-run "checkboundedness.aa"
+prun "checkboundedness.aa"
 pop gr1
 sprint gr1
 

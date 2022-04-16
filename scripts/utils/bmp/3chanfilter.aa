@@ -49,7 +49,7 @@ ret
 ; rst: ( height Bwidth Awidth )
 
 set loop, 1
-run "./utils/bmp/3chanfilterLoop.aa"
+prun "utils/bmp/3chanfilterLoop.aa"
 pop
 ret
 pop

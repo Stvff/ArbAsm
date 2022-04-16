@@ -50,7 +50,7 @@ ret
 pop gr2
 ret
 set loop, 1
-run "./utils/bmp/1chanfilterLoop.aa"
+prun "utils/bmp/1chanfilterLoop.aa"
 pop
 push gr4
 ret 3
