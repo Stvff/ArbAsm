@@ -198,14 +198,20 @@ int strtostrnum(num_t* number, char str[], int offset){
 				case 'b':
 					number->nump[j] = '\b';
 					break;
+				case 't':
+					number->nump[j] = '\t';
+					break;
 				case 'v':
 					number->nump[j] = '\v';
 					break;
-				case 'n':
-					number->nump[j] = '\n';
+				case 'f':
+					number->nump[j] = '\f';
 					break;
 				case 'r':
 					number->nump[j] = '\r';
+					break;
+				case 'n':
+					number->nump[j] = '\n';
 					break;
 				case '\\':
 					number->nump[j] = '\\';

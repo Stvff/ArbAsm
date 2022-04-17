@@ -24,44 +24,48 @@ num_t tmps[maxArgumentAmount];
 enum typesstd { UnDef, Number, String };
 
 enum registers {
-	gr1, gr2, gr3, gr4, ans, ir, flag,
-	inplen, endian, stacsz, mstptr,
-	rstptr, tme, ptme, loop, decip, path,
+	gr1, gr2, gr3, gr4, ans, ir,
+	inplen, endian, decip, path,
+	stacsz, mstptr, rstptr,
+	tme, ptme,
+	flag, loop,
 	regAmount
 };
 num_t regs[regAmount];
 
 enum instructsstdlib {
-	set, dset, dget, rev, sel, cut, ins,
-	cton, ntoc,
-	inc, dec, add, sub, mul, divi, modu,
-	rnd, root,
-	cmp, ucmp, rot, shf, app, len, trun,
-	print, sprint, nprint,
-	firead, fiwrite, input, sinput,
+	set, dget, dset, len, rot, shf, rev,
+	trun, app, sel, cut, ins,
+	inc, dec, add, sub, mul, divi, modu, root,
+	print, nprint, sprint, input,
+	sinput, firead, fiwrite,
+	cmp, ucmp, Ce, Cg, Cs,
 	push, pop, peek, flip, ret,
-	run, prun,
-	SAVE, LOAD, Ce, Cg, Cs
+	cton, ntoc,
+	run, prun, rnd,
+	SAVE, LOAD
 };
 
 char registerstring[][maxKeywordLen] = { 
 	"gr1", "gr2", "gr3", "gr4", "ans", "ir",
-	"flag", "inplen", "endian", "stacsz", "mstptr", "rstptr",
-	"time", "ptime", "loop", "decip", "path",
+	"inplen", "endian", "decip", "path",
+	"stacsz", "mstptr", "rstptr",
+	"time", "ptime",
+	"flag", "loop",
 	"\0end"
 };
 
 char instructstring[][maxKeywordLen] = {
-	"set", "dset", "dget", "rev", "sel", "cut", "ins",
+	"set", "dget", "dset", "len", "rot", "shf", "rev",
+	"trun", "app", "sel", "cut", "ins",
+	"inc", "dec", "add", "sub", "mul", "div", "mod", "root",
+	"print", "nprint", "sprint", "input",
+	"sinput", "fread", "fwrite",
+	"cmp", "ucmp", "Ce", "Cg", "Cs",
+	"push", "pop", "peek", "flip", "ret",
 	"cton", "ntoc",
-	"inc", "dec", "add", "sub", "mul", "div", "mod",
-	"rand", "root",
-	"cmp", "ucmp", "rot", "shf", "app", "len", "trun",
-	"print", "sprint", "nprint",
-	"fread", "fwrite", "input", "sinput",
-	"push", "pop", "peek", "flip", "ret", 
-	"run", "prun",
-	"SAVE", "LOAD", "Ce", "Cg", "Cs",
+	"run", "prun", "rand",
+	"SAVE", "LOAD",
 	"\0end"
 };
 //############################################### </Std globals>
@@ -332,9 +336,6 @@ int executehandler_std(GLOBAL* mainptrs){
 		case set:
 			copynum(args[0], args[1], 0);
 			break;
-		case dset:
-			args[0]->nump[numtoint(args[1], false) % args[0]->len] = args[2]->nump[0];
-			break;
 		case dget:
 			free(dummy.nump);
 			initnum(&dummy, 1, args[0]->sign, args[0]->dim);
@@ -342,8 +343,27 @@ int executehandler_std(GLOBAL* mainptrs){
 			copynum(args[2], &dummy, 0);
 			printptr = args[2];
 			break;
+		case dset:
+			args[0]->nump[numtoint(args[1], false) % args[0]->len] = args[2]->nump[0];
+			break;
+		case len:
+			inttonum(args[1], args[0]->len);
+			printptr = args[1];
+			break;
+		case rot:
+			rotnum(args[0], numtoint(args[1], true));
+			break;
+		case shf:
+			shiftnum(args[0], numtoint(args[1], true));
+			break;
 		case rev:
 			reversenum(args[0]);
+			break;
+		case trun:
+			truncatenum(args[0]);
+			break;
+		case app:
+			appendnum(args[0], args[1]);
 			break;
 		case sel:
 			selectsectionnum(args[0], args[1], numtoint(args[2], false), numtoint(args[0], false) + numtoint(args[2], false));
@@ -354,17 +374,6 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case ins:
 			insertnum(args[0], args[1], numtoint(args[2], false));
-			break;
-		case cton:
-			uint8tonum(args[0], args[0]->nump[numtoint(args[1], false) % (int64_t)args[0]->len]);
-			rettype = Number;
-			break;
-		case ntoc:
-			dummy.nump[0] = numtouint8(args[0]);
-			free(args[0]->nump);
-			initnum(args[0], 1, 0, 0);
-			args[0]->nump[0] = dummy.nump[0];
-			rettype = String;
 			break;
 		case inc:
 			incnum(args[0], false);
@@ -396,31 +405,8 @@ int executehandler_std(GLOBAL* mainptrs){
 			}
 			divnum(args[2], args[0], args[0], args[1]);
 			break;
-		case rnd:
-			randnum(args[0], numtoint(args[1], false));
-			break;
 		case root:
 			printf("`root` not yet implemented.\n"); //TODO root
-			break;
-		case cmp:
-			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
-			printptr = &regs[flag];
-			break;
-		case ucmp:
-			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
-			printptr = &regs[flag];
-			break;
-		case rot:
-			rotnum(args[0], numtoint(args[1], true));
-			break;
-		case shf:
-			shiftnum(args[0], numtoint(args[1], true));
-			break;
-		case app:
-			appendnum(args[0], args[1]);
-			break;
-		case trun:
-			truncatenum(args[0]);
 			break;
 		case print:
 			doprint = true;
@@ -435,6 +421,26 @@ int executehandler_std(GLOBAL* mainptrs){
 			doprint = false;
 			rettype = String;
 			printstrnum(args[0]);
+			break;
+		case input:
+			inputfailed:
+			fgets(mainptrs->userInput, mainptrs->userInputLen, stdin);
+			if(mainptrs->userInput[0] >= '0' && mainptrs->userInput[0] <= '9')
+				inpstrtonum(args[0], mainptrs->userInput, 0, mainptrs->bigEndian);
+			else if (mainptrs->userInput[0] == '"'){
+				strtostrnum(args[0], mainptrs->userInput, 1);
+				rettype = String;
+			} else {printf("\aInput must be a number or string\n"); goto inputfailed;}
+			break;
+		case sinput:
+			fgets(mainptrs->userInput, mainptrs->userInputLen, stdin);
+			free(args[0]->nump);
+			for(int i = 0; mainptrs->userInput[i] != '\0'; i++)
+				if(mainptrs->userInput[i] == '\n') initnum(args[0], i, 0, 0);
+			for(uint64_t i = 0; i < args[0]->len; i++)
+				if(mainptrs->userInput[i] != '\n') args[0]->nump[i] = mainptrs->userInput[i];
+				else args[0]->nump[i] = '\0';
+			rettype = String;
 			break;
 		case firead:
 			quicfptr = fopen((char*)(args[1]->nump), "rb");
@@ -460,25 +466,13 @@ int executehandler_std(GLOBAL* mainptrs){
 			fclose(quicfptr);
 			rettype = String;
 			break;
-		case input:
-			inputfailed:
-			fgets(mainptrs->userInput, mainptrs->userInputLen, stdin);
-			if(mainptrs->userInput[0] >= '0' && mainptrs->userInput[0] <= '9')
-				inpstrtonum(args[0], mainptrs->userInput, 0, mainptrs->bigEndian);
-			else if (mainptrs->userInput[0] == '"'){
-				strtostrnum(args[0], mainptrs->userInput, 1);
-				rettype = String;
-			} else {printf("\aInput must be a number or string\n"); goto inputfailed;}
+		case cmp:
+			inttonum(&regs[flag], cmpnum(args[0], args[1], true));
+			printptr = &regs[flag];
 			break;
-		case sinput:
-			fgets(mainptrs->userInput, mainptrs->userInputLen, stdin);
-			free(args[0]->nump);
-			for(int i = 0; mainptrs->userInput[i] != '\0'; i++)
-				if(mainptrs->userInput[i] == '\n') initnum(args[0], i, 0, 0);
-			for(uint64_t i = 0; i < args[0]->len; i++)
-				if(mainptrs->userInput[i] != '\n') args[0]->nump[i] = mainptrs->userInput[i];
-				else args[0]->nump[i] = '\0';
-			rettype = String;
+		case ucmp:
+			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
+			printptr = &regs[flag];
 			break;
 		case push:
 			if(!pushtomst(args[0])) doprint = false;
@@ -511,17 +505,16 @@ int executehandler_std(GLOBAL* mainptrs){
 				}
 			}
 			break;
-		case len:
-			inttonum(args[1], args[0]->len);
-			printptr = args[1];
+		case cton:
+			uint8tonum(args[0], args[0]->nump[numtoint(args[1], false) % (int64_t)args[0]->len]);
+			rettype = Number;
 			break;
-		case SAVE:
-			saveload((char*)args[0]->nump, 's', mainptrs);
-			doprint = false;
-			break;
-		case LOAD:
-			saveload((char*)args[0]->nump, 'l', mainptrs);
-			doprint = false;
+		case ntoc:
+			dummy.nump[0] = numtouint8(args[0]);
+			free(args[0]->nump);
+			initnum(args[0], 1, 0, 0);
+			args[0]->nump[0] = dummy.nump[0];
+			rettype = String;
 			break;
 		case prun:
 			copynum(&dummy, &regs[path], 0);
@@ -538,6 +531,17 @@ int executehandler_std(GLOBAL* mainptrs){
 				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
 				mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
 			}
+			doprint = false;
+			break;
+		case rnd:
+			randnum(args[0], numtoint(args[1], false));
+			break;
+		case SAVE:
+			saveload((char*)args[0]->nump, 's', mainptrs);
+			doprint = false;
+			break;
+		case LOAD:
+			saveload((char*)args[0]->nump, 'l', mainptrs);
 			doprint = false;
 			break;
 	}
