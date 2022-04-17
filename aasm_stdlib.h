@@ -79,7 +79,7 @@ void freestacks(){
 bool pushtomst(num_t* num){
 	stackptr--;
 	if(stackptr < 0){
-		printf("The bottom of the stack has been reached (it currently contains %d items)\n", stackSize);
+		printf("\aThe bottom of the stack has been reached (it currently contains %d items)\n", stackSize);
 		printf("It is possible to change the size of the stack by modifying the `stacsz` register, but this will clear the current stack.\n");
 		stackptr = 0;
 		return false;
@@ -90,7 +90,7 @@ bool pushtomst(num_t* num){
 }
 bool popfrommst(num_t* num){
 	if(stackptr >= stackSize){
-		printf("The top of the stack has been reached (there are no elements to be popped).\n");
+		printf("\aThe top of the stack has been reached (there are no elements to be popped).\n");
 		stackptr = stackSize;
 		return false;
 	}
@@ -102,13 +102,13 @@ bool popfrommst(num_t* num){
 
 bool fliperonie(){
 	if(stackptr >= stackSize){
-		printf("The top of the main stack has been reached (there are no elements to be flipped).\n");
+		printf("\aThe top of the main stack has been reached (there are no elements to be flipped).\n");
 		stackptr = stackSize;
 		return false;
 	}
 	retstackptr--;
 	if(retstackptr < 0){
-		printf("The bottom of the return stack has been reached (it currently contains %d items)\n", stackSize);
+		printf("\aThe bottom of the return stack has been reached (it currently contains %d items)\n", stackSize);
 		printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
 		retstackptr = 0;
 		return false;
@@ -121,13 +121,13 @@ bool fliperonie(){
 }
 bool reteronie(){
 	if(retstackptr >= stackSize){
-		printf("The top of the return stack has been reached (there are no elements to be returned).\n");
+		printf("\aThe top of the return stack has been reached (there are no elements to be returned).\n");
 		retstackptr = stackSize;
 		return false;
 	}
 	stackptr--;
 	if(stackptr < 0){
-		printf("The bottom of the main stack has been reached (it currently contains %d items)\n", stackSize);
+		printf("\aThe bottom of the main stack has been reached (it currently contains %d items)\n", stackSize);
 		printf("It is possible to change the size of both stacks by modifying the `stacsz` register, but this will clear the current state of both stacks.\n");
 		stackptr = 0;
 		return false;
@@ -144,7 +144,7 @@ int saveload(char path[], char saveorload, GLOBAL* mainptrs){
 	if(saveorload == 's'){
 		fp = fopen(path, "wb+");
 		if(fp == NULL){
-			printf("Could not open file to save to: '%s'.\n", path);
+			printf("\aCould not open file to save to: '%s'.\n", path);
 			return 1;
 		}
 		for(int i = 0; i < regAmount; i++)
@@ -158,7 +158,7 @@ int saveload(char path[], char saveorload, GLOBAL* mainptrs){
 	} else {
 		fp = fopen(path, "rb");
 		if(fp == NULL){
-			printf("Could not open file to load from: '%s'.\n", path);
+			printf("\aCould not open file to load from: '%s'.\n", path);
 			return 1;
 		}
 		for(int i = 0; i < regAmount; i++)
@@ -303,7 +303,7 @@ int argumenthandler_std(GLOBAL* mainptrs){
 	if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
 		registerNr = strlook(mainptrs->userInput, registerstring, &mainptrs->readhead);
 		if(registerNr == -1){
-			printf("Register at argument %d on line %d is not a register.\n", mainptrs->argumentNr + 1, mainptrs->flist[mainptrs->fileNr].lineNr);
+			printf("\aRegister at argument %d on line %d is not a register.\n", mainptrs->argumentNr + 1, mainptrs->flist[mainptrs->fileNr].lineNr);
 			mainptrs->lookingMode = 'd';
 		} else {
 			args[mainptrs->argumentNr] = &regs[registerNr];
@@ -438,7 +438,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case firead:
 			quicfptr = fopen((char*)(args[1]->nump), "rb");
-			if(quicfptr == NULL){ printf("Could not open file '%s'.\n", args[1]->nump); doprint = false; break;}
+			if(quicfptr == NULL){ printf("\aCould not open file '%s'.\n", args[1]->nump); doprint = false; break;}
 
 			args[0]->len = numtoint(args[0], false);
 			free(args[0]->nump);
@@ -453,7 +453,7 @@ int executehandler_std(GLOBAL* mainptrs){
 		case fiwrite:
 			if(args[2]->sign == 0) quicfptr = fopen((char*)(args[1]->nump), "wb");
 			else quicfptr = fopen((char*)(args[1]->nump), "wb+");
-			if(quicfptr == NULL){ printf("Could not open or create file '%s'.\n", args[1]->nump); doprint = false; break;}
+			if(quicfptr == NULL){ printf("\aCould not open or create file '%s'.\n", args[1]->nump); doprint = false; break;}
 			fseek(quicfptr, numtoint(args[2], false), SEEK_SET);
 			fwrite(args[0]->nump, 1, args[0]->len, quicfptr);
 
@@ -468,7 +468,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			else if (mainptrs->userInput[0] == '"'){
 				strtostrnum(args[0], mainptrs->userInput, 1);
 				rettype = String;
-			} else {printf("Input must be a number or string\n"); goto inputfailed;}
+			} else {printf("\aInput must be a number or string\n"); goto inputfailed;}
 			break;
 		case sinput:
 			fgets(mainptrs->userInput, mainptrs->userInputLen, stdin);
@@ -488,7 +488,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case peek:
 			if(stackptr == stackSize){
-				printf("There are no elements on the stack\n");
+				printf("\aThere are no elements on the stack\n");
 				doprint = false;
 				break;
 			}
@@ -530,7 +530,7 @@ int executehandler_std(GLOBAL* mainptrs){
 		case run:
 			mainptrs->flist[++mainptrs->fileNr].fp = fopen((char*)args[0]->nump, "r");
 			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
-				printf("Could not open script '%s'.\n", args[0]->nump);
+				printf("\aCould not open script '%s'.\n", args[0]->nump);
 				mainptrs->fileNr--;
 			} else {
 				mainptrs->inputMode = 'f';

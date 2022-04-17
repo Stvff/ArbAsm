@@ -24,7 +24,7 @@ uint8_t* initnum(num_t* number, uint64_t length, int sign, int dim){
 	number->nump = (uint8_t*) malloc((1 + number->len)*sizeof(uint8_t));
 	number->nump[length] = 0;
 	if(number->nump == NULL){
-		printf("Malloc error on initnum.\n");
+		printf("\aMalloc error on initnum.\n");
 	}
 	number->nump[number->len] = 0;
 	return number->nump;
@@ -126,7 +126,7 @@ int inpstrtonum(num_t* number, char str[], int offset, int isbigend){
 	free(number->nump);
 	number->len = j;
 	number->nump = (uint8_t*) malloc((1 + j)*sizeof(uint8_t));
-	if(number->nump == NULL) printf("There is a malloc problem on inpstrtonum.\n");
+	if(number->nump == NULL) printf("\aThere is a malloc problem on inpstrtonum.\n");
 	number->nump[j] = 0;
 
 	int signage = 0;
@@ -179,7 +179,7 @@ int strtostrnum(num_t* number, char str[], int offset){
 	free(number->nump);
 	number->len = j;
 	number->nump = (uint8_t*) malloc((1 + j)*sizeof(uint8_t));
-	if(number->nump == NULL) printf("There is a malloc problem on strtostrnum.\n");
+	if(number->nump == NULL) printf("\aThere is a malloc problem on strtostrnum.\n");
 	number->nump[j] = 0;
 
 	number->sign = 0;
@@ -197,6 +197,9 @@ int strtostrnum(num_t* number, char str[], int offset){
 					break;
 				case 'b':
 					number->nump[j] = '\b';
+					break;
+				case 'v':
+					number->nump[j] = '\v';
 					break;
 				case 'n':
 					number->nump[j] = '\n';
@@ -301,7 +304,7 @@ void shiftnum(num_t* num, int64_t amount){
 
 void appendnum(num_t* des, num_t* appendage){
 	des->nump = (uint8_t*) realloc(des->nump, (des->len + appendage->len + 1)*sizeof(uint8_t));
-	if(des->nump == NULL) printf("realloc error on appendnum!\n");
+	if(des->nump == NULL) printf("\aThere is a realloc error on appendnum.\n");
 	for(uint64_t i = 0; i < appendage->len; i++)
 		des->nump[i + des->len] = appendage->nump[i];
 	des->len = des->len + appendage->len;
@@ -329,7 +332,7 @@ void reversenum(num_t* num){
 
 void selectsectionnum(num_t* section, num_t* source, uint64_t start, uint64_t end){
 	if(section == source){
-		printf("Selectsectionnum was used inappropriately\n");
+		printf("\aSelectsectionnum was used inappropriately (section was equal to source).\n");
 		return;
 	}
 	free(section->nump);

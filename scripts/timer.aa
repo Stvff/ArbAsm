@@ -1,10 +1,14 @@
+
 set endian, 1
 cmp loop, 0
 	Ce set loop, 1
-	Ce sprint "How long?(seconds)\n> "
-	Ce input gr3
 	Ce set gr1, time
 	Ce set gr4, 0
+	Cg set flag, 2
+	Ce cmp stacsz, mstptr
+		Cg pop gr3
+		Ce sprint "How long?(seconds)\n> "
+		Ce input gr3
 
 set gr2, time
 sub gr2, gr1

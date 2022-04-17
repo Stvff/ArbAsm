@@ -46,7 +46,7 @@ int init_main(GLOBAL* mainptrs) {
 }
 
 int instructhandler_main(GLOBAL* mainptrs){
-	char instructstringmain[][maxKeywordLen] = {"\\", "h", ">", "\0end"};
+	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "\0end"};
 	enum instructsmain { slash, help, early };
 	time_t end_time;
 	file_t* thefile = &mainptrs->flist[mainptrs->fileNr];
@@ -78,7 +78,7 @@ int instructhandler_main(GLOBAL* mainptrs){
 				end_time = time(&end_time);
 				inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
 				if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
-			} else printf("This instruction only works in a script.\n");
+			} else printf("\aThis instruction only works in a script.\n");
 			break;
 	}
 
@@ -170,21 +170,21 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					if(i+1 < argc){
 						i++;
 						strtostrnum(&regs[path], argv[i], 0);		
-					} else printf("Path missing. Enter `aasm -h` for help.\n");
+					} else printf("\aPath missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'p':
 					if(i+1 < argc){
 						i++;
 						inpstrtonum(&regs[decip], argv[i], 0, mainptrs->bigEndian);
 						decimalpoint = numtoint(&regs[decip], true);
-					} else printf("Number missing. Enter `aasm -h` for help.\n");
+					} else printf("\aNumber missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'L':
 				case 'l':
 					if(i+1 < argc){
 						i++;
 						saveload(argv[i], 'l', mainptrs);
-					} else printf("Statefile missing. Enter `aasm -h` for help.\n");
+					} else printf("\aStatefile missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'I':
 				case 'i':
@@ -192,7 +192,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 						i++;
 						sscanf(argv[i], "%s", mainptrs->userInput);
 						mainptrs->inputMode = 'w';
-					} else printf("Statement missing. Enter `aasm -h` for help.\n");
+					} else printf("\aStatement missing. Enter `aasm -h` for help.\n");
 					break;
 				case 'H':
 				case 'h':
@@ -214,7 +214,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 		} else {
 			mainptrs->flist[++mainptrs->fileNr].fp = fopen(argv[i], "r");
 			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
-				printf("Could not open script '%s'.\n", argv[i]);
+				printf("\aCould not open script '%s'.\n", argv[i]);
 				mainptrs->fileNr--;
 				mainptrs->inputMode = 'w';
 				mainptrs->running = !mainptrs->running;
@@ -253,7 +253,7 @@ int dothing(GLOBAL* mainptrs){
 				}
 
 				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
-					printf("Invalid instruction on line %d", mainptrs->flist[mainptrs->fileNr].lineNr);
+					printf("\aInvalid instruction on line %d", mainptrs->flist[mainptrs->fileNr].lineNr);
 					if(mainptrs->inputMode == 'f'){
 						printf(", in file %d:\n", mainptrs->fileNr);
 						printf("'%s'\n", mainptrs->userInput);
@@ -279,7 +279,7 @@ int dothing(GLOBAL* mainptrs){
 		}
 		mainptrs->readhead++;
 		if(mainptrs->readhead >= mainptrs->userInputLen){
-			printf("The statement on line %d ", mainptrs->flist[mainptrs->fileNr].lineNr);
+			printf("\aThe statement on line %d ", mainptrs->flist[mainptrs->fileNr].lineNr);
 			if(mainptrs->inputMode == 'f'){
 				printf("in file %d ", mainptrs->fileNr);
 			}
@@ -352,7 +352,7 @@ int main(int argc, char* argv[]){
 	handlecommandlineargs(argc, argv, &mainitems);
 
 	if(mainitems.inputMode == 'i')
-		printf("Good to see you!\nEnter `h` for quick tips and `\\` to close the program.\n");
+		printf("Good to see you!\nEnter `help` for quick tips and `\\` to close the program.\n");
 
 	do {
 		getuserInput(&mainitems);
