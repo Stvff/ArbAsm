@@ -12,7 +12,7 @@ RED = \033[0;31m
 NC = \033[0m # No Color
 
 $(OUTPUT): FORCE
-	$(CC) -o $@ $(C_FILES) -lm
+	$(CC) -o $@ $(C_FILES) -lm -Os
 
 build: $(OUTPUT)
 
@@ -40,7 +40,7 @@ formicro: $(OUTPUT)
 	cp .github/arbasm.yaml $(MICRO_TARGET)
 
 forwindows:
-	@if x86_64-w64-mingw32-gcc -o $(OUTPUT).exe $(C_FILES); then \
+	@if x86_64-w64-mingw32-gcc -o $(OUTPUT).exe $(C_FILES) -Os; then \
 		echo "Compilation succeeded!"; \
 	else \
 		echo -e "$(RED)Could not use mingw to compile an executable for Windows.$(NC)"; \
