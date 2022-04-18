@@ -14,6 +14,7 @@ shf gr1, ir
 shf gr2, gr1
 div gr2, 3
 print ptime
+sprint "\a"
 
 inc ir
 
