@@ -14,7 +14,7 @@ rules:
     - statement: "\\b(?i)(set|dget|dset|len|rot|shf|rev)(?-i)\\b"
     - statement: "\\b(?i)(trun|app|sel|cut|ins)(?-i)\\b"
     - statement: "\\b(?i)(inc|dec|add|sub|mul|div|mod|root)(?-i)\\b"
-    - statement: "\\b(?i)(print|nprint|sprint|input|sinput|fread|fwrite)(?-i)\\b"
+    - statement: "\\b(?i)(print|nprint|sprint|input|sinput|fread|fwrite|flen)(?-i)\\b"
     - statement: "\\b(?i)(cmp|ucmp|Ce|Cg|Cs)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
     - statement: "\\b(?i)(cton|ntoc)(?-i)\\b"

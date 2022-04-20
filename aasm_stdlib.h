@@ -38,7 +38,7 @@ enum instructsstdlib {
 	trun, app, sel, cut, ins,
 	inc, dec, add, sub, mul, divi, modu, root,
 	print, nprint, sprint, input,
-	sinput, firead, fiwrite,
+	sinput, firead, fiwrite, flen,
 	cmp, ucmp, Ce, Cg, Cs,
 	push, pop, peek, flip, ret,
 	cton, ntoc,
@@ -60,7 +60,7 @@ char instructstring[][maxKeywordLen] = {
 	"trun", "app", "sel", "cut", "ins",
 	"inc", "dec", "add", "sub", "mul", "div", "mod", "root",
 	"print", "nprint", "sprint", "input",
-	"sinput", "fread", "fwrite",
+	"sinput", "fread", "fwrite", "flen",
 	"cmp", "ucmp", "Ce", "Cg", "Cs",
 	"push", "pop", "peek", "flip", "ret",
 	"cton", "ntoc",
@@ -465,6 +465,14 @@ int executehandler_std(GLOBAL* mainptrs){
 
 			fclose(quicfptr);
 			rettype = String;
+			break;
+		case flen:
+			quicfptr = fopen((char*)(args[0]->nump), "r");
+			if(quicfptr == NULL){ printf("\aCould not read the length of file '%s'.\n", args[0]->nump); doprint = false; break;}
+			fseek(quicfptr, 0, SEEK_END);
+			inttonum(args[1], ftell(quicfptr));
+			printptr = args[1];
+			fclose(quicfptr);
 			break;
 		case cmp:
 			inttonum(&regs[flag], cmpnum(args[0], args[1], true));

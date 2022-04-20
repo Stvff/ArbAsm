@@ -280,10 +280,10 @@ int dothing(GLOBAL* mainptrs){
 				}
 
 				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
-					printf("\aInvalid instruction on line %d", mainptrs->flist[mainptrs->fileNr]->lineNr);
+					printf("\aInvalid instruction");
 					if(mainptrs->inputMode == 'f'){
-						printf(", in file %d:\n", mainptrs->fileNr);
-						printf("'%s'\n", mainptrs->userInput);
+						printf(" in file %d:\n", mainptrs->fileNr);
+						printf("%d | %s", mainptrs->flist[mainptrs->fileNr]->lineNr, mainptrs->userInput);
 					} else printf(".\n");
 					mainptrs->lookingMode = 'd';
 					mainptrs->inputMode -= 0x20;
@@ -306,9 +306,9 @@ int dothing(GLOBAL* mainptrs){
 		}
 		mainptrs->readhead++;
 		if(mainptrs->readhead >= mainptrs->userInputLen){
-			printf("\aThe statement on line %d ", mainptrs->flist[mainptrs->fileNr]->lineNr);
+			printf("\aThe statement ");
 			if(mainptrs->inputMode == 'f'){
-				printf("in file %d ", mainptrs->fileNr);
+				printf("on line %d in file %d ", mainptrs->flist[mainptrs->fileNr]->lineNr, mainptrs->fileNr);
 			}
 			printf("is too long (maximum is %u characters).\nIt is possible to change the maximum by modifying the `inplen` register.\n", mainptrs->userInputLen);
 			mainptrs->lookingMode = 'd';
@@ -330,7 +330,10 @@ int getuserInput(GLOBAL* mainptrs){
 			mainptrs->inputMode = 'i';
 		case 'i':
 			printf("\\\\\\ ");
-			fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp);
+			if(fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp) == NULL){
+				mainptrs->running = false;
+				printf("\nGood day!\n");
+			}
 			mainptrs->userInput[mainptrs->userInputLen] = '\0';
 			break;
 
