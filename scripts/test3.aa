@@ -1,4 +1,8 @@
-print "test3 is here"
-jmp lbl3
-
-:lbl3
+set gr1, "Users"
+:loop
+sprint gr1
+print " :pensive:"
+app gr1, "."
+len gr1, gr2
+cmp gr2, 222
+  Cs jmp loop

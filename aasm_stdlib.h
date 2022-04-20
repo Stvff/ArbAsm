@@ -39,7 +39,7 @@ enum instructsstdlib {
 	inc, dec, add, sub, mul, divi, modu, root,
 	print, nprint, sprint, input,
 	sinput, firead, fiwrite, flen,
-	cmp, ucmp, Ce, Cg, Cs,
+	cmp, ucmp, Ce, Cn, Cg, Cs,
 	rjmp, rmr,
 	push, pop, peek, flip, ret,
 	cton, ntoc,
@@ -62,7 +62,7 @@ char instructstring[][maxKeywordLen] = {
 	"inc", "dec", "add", "sub", "mul", "div", "mod", "root",
 	"print", "nprint", "sprint", "input",
 	"sinput", "fread", "fwrite", "flen",
-	"cmp", "ucmp", "Ce", "Cg", "Cs",
+	"cmp", "ucmp", "Ce", "Cn", "Cg", "Cs",
 	"rjmp", "rmr",
 	"push", "pop", "peek", "flip", "ret",
 	"cton", "ntoc",
@@ -283,6 +283,10 @@ int instructhandler_std(GLOBAL* mainptrs){
 	switch(mainptrs->instructNr){
 		case Ce:
 			if(regs[flag].nump[0] == 0) mainptrs->lookingMode = 'i';
+			else mainptrs->lookingMode = 'd';
+			break;
+		case Cn:
+			if(regs[flag].nump[0] != 0) mainptrs->lookingMode = 'i';
 			else mainptrs->lookingMode = 'd';
 			break;
 		case Cg:
