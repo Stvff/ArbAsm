@@ -7,26 +7,39 @@ rules:
     # This file is made for Arbitrary Assembly, it is adapted from the NASM assembly file from micro itself
 
     ## Instructions
-    - statement: "\\b(?i)(set|dset|dget|rev|sel|cut|ins|cton|ntoc|inc|dec|add|sub|mul|div|mod|rand|root|cmp|ucmp|rot|shf|app|trun|print|nprint|sprint|fread|fwrite|input|sinput|len|dset|dget)(?-i)\\b"
+    ## aasm
+    - statement: "\\b(?i)(jmp|help)(?-i)\\b"
+    - statement: "([>])"
+    ## stdlib
+    - statement: "\\b(?i)(set|dget|dset|len|rot|shf|rev)(?-i)\\b"
+    - statement: "\\b(?i)(trun|app|sel|cut|ins)(?-i)\\b"
+    - statement: "\\b(?i)(inc|dec|add|sub|mul|div|mod|root)(?-i)\\b"
+    - statement: "\\b(?i)(print|nprint|sprint|input|sinput|fread|fwrite)(?-i)\\b"
+    - statement: "\\b(?i)(cmp|ucmp|Ce|Cg|Cs)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
+    - statement: "\\b(?i)(cton|ntoc)(?-i)\\b"
+    - statement: "\\b(?i)(run|prun|rand)(?-i)\\b"
+    - statement: "\\b(?i)(SAVE|LOAD)(?-i)\\b"
     - symbol.operator: "([,+]|)"
     ## Quaternion operations
     - statement: "\\b(?i)(qset|qprint|qdset|qdget|qadd|qsub|scmul|scdiv|scmod|qmul|qdiv|qmod|conj|pysq|vshf)(?-i)\\b"
     - statement: "\\b(?i)(qpush|qpop|qflip|qret)(?-i)\\b"
 
       ## Registers
-    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ans|ir|flag|inplen|endian|stacsz|mstptr|rstptr|ptime|time|path|loop)(?-i)\\b"
+    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ans|ir)(?-i)\\b"
+    - identifier: "\\b(?i)(inplen|endian|decip|path)(?-i)\\b"
+    - identifier: "\\b(?i)(stacsz|mstptr|rstptr)(?-i)\\b"
+    - identifier: "\\b(?i)(time|ptime)(?-i)\\b"
+    - identifier: "\\b(?i)(flag|loop)(?-i)\\b"
     - identifier: "\\b(?i)(qr1|qr2|qr3|qr4|qns)(?-i)\\b"
 
       ## Constants
       # Number - it works
     - constant.number: "\\b[0-9 \ ijk]+\\b"
     - constant.number: "([-]|)"
+    - identifier: ":+[a-z A-Z 0-9]+\\b"
 
       ## Other
-    - statement: "\\b(?i)(run|prun|SAVE|LOAD)(?-i)\\b"
-    - statement: "([>])"
-    - statement: "\\b(?i)(Ce|Cg|Cs)(?-i)\\b"
 
     - constant.string:
         start: "\""
