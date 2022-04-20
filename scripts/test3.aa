@@ -1,0 +1,4 @@
+print "test3 is here"
+jmp lbl3
+
+:lbl3

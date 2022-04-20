@@ -17,6 +17,9 @@ int (*libFuncPtrs[libAmount])() = {
 	,libFuncPtrs_AASM_QUATLIB
 };
 
+char* argument;
+int64_t dummyinteger;
+
 //############################################### <Main essentials>
 int init_main(GLOBAL* mainptrs) {
 
@@ -33,12 +36,15 @@ int init_main(GLOBAL* mainptrs) {
 
 	mainptrs->bigEndian = 0;
 
-	mainptrs->flist = (file_t*) malloc(recursionDepth*sizeof(file_t));
+	mainptrs->flist = malloc(sizeof(file_t*));
+	mainptrs->flist[0] = malloc(sizeof(file_t));
 	mainptrs->fileNr = 0;
-	mainptrs->flist[mainptrs->fileNr].fp = stdin;
-	mainptrs->flist[mainptrs->fileNr].rdpos = 0;
-	mainptrs->flist[mainptrs->fileNr].lineNr = 0;
-	mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
+	mainptrs->flist[mainptrs->fileNr]->fp = stdin;
+	mainptrs->flist[mainptrs->fileNr]->lineNr = 0;
+	mainptrs->flist[mainptrs->fileNr]->begin_time = time(&mainptrs->flist[mainptrs->fileNr]->begin_time);
+
+	argument = (char*) malloc(sizeof(char[initialuserInputLen]));
+	argument[0] = '\0';
 
 	mainptrs->debug = 's';
 	if(mainptrs->debug == 'v') printf("main initted\n");
@@ -46,10 +52,10 @@ int init_main(GLOBAL* mainptrs) {
 }
 
 int instructhandler_main(GLOBAL* mainptrs){
-	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "\0end"};
-	enum instructsmain { slash, help, early };
+	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "jmp", "\0end"};
+	enum instructsmain { slash, help, early, jmp };
 	time_t end_time;
-	file_t* thefile = &mainptrs->flist[mainptrs->fileNr];
+	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
 
 	mainptrs->instructNr = strlook(mainptrs->userInput, instructstringmain, &mainptrs->readhead);
 
@@ -71,14 +77,18 @@ int instructhandler_main(GLOBAL* mainptrs){
 			break;
 		case early:
 			if(mainptrs->fileNr > 0){
-				thefile->lineNr = 0;
-				mainptrs->userInput[0] = '\0';
-				fclose(thefile->fp);
-				mainptrs->fileNr--;
 				end_time = time(&end_time);
 				inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
-				if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
+				EndScript(mainptrs);
 			} else printf("\aThis instruction only works in a script.\n");
+			break;
+		case jmp:
+			if(mainptrs->fileNr > 0){
+				mainptrs->lookingMode = 'a';
+			} else {
+				printf("\aThis instruction only works in a script.\n");
+				mainptrs->lookingMode = 'd';
+			}
 			break;
 	}
 
@@ -87,13 +97,35 @@ int instructhandler_main(GLOBAL* mainptrs){
 }
 
 int argumenthandler_main(GLOBAL* mainptrs){
-
+	int j = 0;
+	char entry = mainptrs->userInput[mainptrs->readhead];
+	while(mainptrs->readhead < mainptrs->userInputLen && ((entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') || (entry >= '0' && entry <= '9')) ){
+		entry = mainptrs->userInput[mainptrs->readhead];
+		argument[j] = entry;
+		mainptrs->readhead++;j++;
+	}
+	argument[j] = '\0';
+	mainptrs->lookingMode = 'e';
 	if(mainptrs->debug == 'v') printf("main argumented\n");
 	return 0;
 }
 
 int executehandler_main(GLOBAL* mainptrs){
+	enum instructsmain { slash, help, early, jmp };
+	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
 
+	int dum = 0;
+	switch(mainptrs->instructNr){
+		case jmp:
+			dum = strlook(argument, thefile->labels, &dum);
+			if(dum == -1){
+				printf("\aLabel '%s' does not exist\n", argument);
+				break;
+			}
+//			printf("jmp to: %ld\n", thefile->labelposs[dum]);
+			fseek(thefile->fp, thefile->labelposs[dum], SEEK_SET);
+			break;
+	}
 	if(mainptrs->debug == 'v') printf("main executed\n");
 	return 0;
 }
@@ -103,14 +135,20 @@ int update_main(GLOBAL* mainptrs){
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + maxKeywordLen)*sizeof(char));
 	mainptrs->userInput[0] = '\0';
 
+	free(argument);
+	argument = (char*) malloc(sizeof(char[initialuserInputLen]));
+	argument[0] = '\0';
+
 	if(mainptrs->debug == 'v') printf("main updated\n");
 	return 0;
 }
 
 int free_main(GLOBAL* mainptrs){
 	free(mainptrs->userInput);
-
+	free(mainptrs->flist[0]);
 	free(mainptrs->flist);
+
+	free(argument);
 
 	if(mainptrs->debug == 'v') printf("main freed\n");
 	return 0;
@@ -212,19 +250,8 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					break;
 			}
 		} else {
-			mainptrs->flist[++mainptrs->fileNr].fp = fopen(argv[i], "r");
-			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
-				printf("\aCould not open script '%s'.\n", argv[i]);
-				mainptrs->fileNr--;
-				mainptrs->inputMode = 'w';
-				mainptrs->running = !mainptrs->running;
-			} else {
-				mainptrs->inputMode = 'f';
-				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
-				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
-				mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
-				mainptrs->running = !mainptrs->running;
-			}
+			if(RunScript(mainptrs, argv[i]) == 1) mainptrs->inputMode = 'w';
+			mainptrs->running = !mainptrs->running;
 		}
 	}
 	return 0;
@@ -239,12 +266,12 @@ int dothing(GLOBAL* mainptrs){
 	char entry = mainptrs->userInput[mainptrs->readhead];
 
 //	main parsing loop
-	while (mainptrs->lookingMode != 'd' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';')
+	while (mainptrs->lookingMode != 'd' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';' && entry != ':')
 	{
 		entry = mainptrs->userInput[mainptrs->readhead];
 		if(mainptrs->debug == 'v') printf("On position %d, entry: %c\n", mainptrs->readhead, entry);
 
-		if(entry != ' ' && entry != '\t' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';'){
+		if(entry != ' ' && entry != '\t' && entry != '\0' && entry != '\n' && entry != '\r' && entry != ';' && entry != ':'){
 //			functions
 			if(mainptrs->lookingMode == 'i'){
 
@@ -253,7 +280,7 @@ int dothing(GLOBAL* mainptrs){
 				}
 
 				if(mainptrs->libNr == libAmount && mainptrs->instructNr == -1){
-					printf("\aInvalid instruction on line %d", mainptrs->flist[mainptrs->fileNr].lineNr);
+					printf("\aInvalid instruction on line %d", mainptrs->flist[mainptrs->fileNr]->lineNr);
 					if(mainptrs->inputMode == 'f'){
 						printf(", in file %d:\n", mainptrs->fileNr);
 						printf("'%s'\n", mainptrs->userInput);
@@ -279,7 +306,7 @@ int dothing(GLOBAL* mainptrs){
 		}
 		mainptrs->readhead++;
 		if(mainptrs->readhead >= mainptrs->userInputLen){
-			printf("\aThe statement on line %d ", mainptrs->flist[mainptrs->fileNr].lineNr);
+			printf("\aThe statement on line %d ", mainptrs->flist[mainptrs->fileNr]->lineNr);
 			if(mainptrs->inputMode == 'f'){
 				printf("in file %d ", mainptrs->fileNr);
 			}
@@ -296,7 +323,7 @@ int dothing(GLOBAL* mainptrs){
 }
 
 int getuserInput(GLOBAL* mainptrs){
-	file_t* thefile = &mainptrs->flist[mainptrs->fileNr];
+	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
 	time_t end_time;
 	switch (mainptrs->inputMode){
 		case 'I':
@@ -313,7 +340,7 @@ int getuserInput(GLOBAL* mainptrs){
 			mainptrs->fileNr--;
 			if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 			break;
-		case 'f':			
+		case 'f':
 			thefile->lineNr++;
 			if(fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp) == NULL){
 				thefile->lineNr = 0;
@@ -321,11 +348,9 @@ int getuserInput(GLOBAL* mainptrs){
 				if(mainptrs->scriptLoops == 1){
 					fseek(thefile->fp, 0, SEEK_SET);
 				} else {
-					fclose(thefile->fp);
-					mainptrs->fileNr--;
 					end_time = time(&end_time);
 					inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
-					if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
+					EndScript(mainptrs);
 				}
 			}
 			mainptrs->userInput[mainptrs->userInputLen] = '\0';

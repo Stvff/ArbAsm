@@ -1,0 +1,9 @@
+set endian, 1
+set loop, 0
+set gr1, 30
+set ir, 0
+:Start
+inc ir
+cmp ir, gr1
+Cs jmp Start
+print ir

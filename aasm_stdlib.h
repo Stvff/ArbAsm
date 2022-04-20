@@ -307,7 +307,7 @@ int argumenthandler_std(GLOBAL* mainptrs){
 	if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
 		registerNr = strlook(mainptrs->userInput, registerstring, &mainptrs->readhead);
 		if(registerNr == -1){
-			printf("\aRegister at argument %d on line %d is not a register.\n", mainptrs->argumentNr + 1, mainptrs->flist[mainptrs->fileNr].lineNr);
+			printf("\aRegister at argument %d on line %d is not a register.\n", mainptrs->argumentNr + 1, mainptrs->flist[mainptrs->fileNr]->lineNr);
 			mainptrs->lookingMode = 'd';
 		} else {
 			args[mainptrs->argumentNr] = &regs[registerNr];
@@ -521,16 +521,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			appendnum(&dummy, args[0]);
 			copynum(args[0], &dummy, 0);
 		case run:
-			mainptrs->flist[++mainptrs->fileNr].fp = fopen((char*)args[0]->nump, "r");
-			if(mainptrs->flist[mainptrs->fileNr].fp == NULL){
-				printf("\aCould not open script '%s'.\n", args[0]->nump);
-				mainptrs->fileNr--;
-			} else {
-				mainptrs->inputMode = 'f';
-				mainptrs->flist[mainptrs->fileNr].rdpos = 0;
-				mainptrs->flist[mainptrs->fileNr].lineNr = 0;
-				mainptrs->flist[mainptrs->fileNr].begin_time = time(&mainptrs->flist[mainptrs->fileNr].begin_time);
-			}
+			RunScript(mainptrs, (char*)args[0]->nump);
 			doprint = false;
 			break;
 		case rnd:
