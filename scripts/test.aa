@@ -9,6 +9,13 @@ print "skippable"
 print "eheh"
 : L 8
 
+set gr2, 0
+rmr gr1
+print gr1
+inc gr2
+cmp gr2, 3
+Cs rjmp gr1
+
 run "test2.aa"
 print "after test2"
 run "test2.aa"

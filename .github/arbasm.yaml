@@ -16,6 +16,7 @@ rules:
     - statement: "\\b(?i)(inc|dec|add|sub|mul|div|mod|root)(?-i)\\b"
     - statement: "\\b(?i)(print|nprint|sprint|input|sinput|fread|fwrite|flen)(?-i)\\b"
     - statement: "\\b(?i)(cmp|ucmp|Ce|Cg|Cs)(?-i)\\b"
+    - statement: "\\b(?i)(rjmp|rmr)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
     - statement: "\\b(?i)(cton|ntoc)(?-i)\\b"
     - statement: "\\b(?i)(run|prun|rand)(?-i)\\b"

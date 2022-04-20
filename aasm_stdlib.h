@@ -40,6 +40,7 @@ enum instructsstdlib {
 	print, nprint, sprint, input,
 	sinput, firead, fiwrite, flen,
 	cmp, ucmp, Ce, Cg, Cs,
+	rjmp, rmr,
 	push, pop, peek, flip, ret,
 	cton, ntoc,
 	run, prun, rnd,
@@ -62,6 +63,7 @@ char instructstring[][maxKeywordLen] = {
 	"print", "nprint", "sprint", "input",
 	"sinput", "fread", "fwrite", "flen",
 	"cmp", "ucmp", "Ce", "Cg", "Cs",
+	"rjmp", "rmr",
 	"push", "pop", "peek", "flip", "ret",
 	"cton", "ntoc",
 	"run", "prun", "rand",
@@ -481,6 +483,22 @@ int executehandler_std(GLOBAL* mainptrs){
 		case ucmp:
 			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
 			printptr = &regs[flag];
+			break;
+		case rjmp:
+			if(mainptrs->inputMode != 'f'){
+				printf("\aThis instruction only works in a script.\n");
+				doprint = false;
+				break;
+			}
+			fseek(mainptrs->flist[mainptrs->fileNr]->fp, numtoint(args[0], false) % mainptrs->flist[mainptrs->fileNr]->len, SEEK_SET);
+			break;
+		case rmr:
+			if(mainptrs->inputMode != 'f'){
+				printf("\aThis instruction only works in a script.\n");
+				doprint = false;
+				break;
+			}
+			inttonum(args[0], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
 			break;
 		case push:
 			if(!pushtomst(args[0])) doprint = false;
