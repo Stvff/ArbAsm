@@ -29,7 +29,7 @@ rules:
       ## Registers
     - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ans|ir)(?-i)\\b"
     - identifier: "\\b(?i)(inplen|endian|decip|path)(?-i)\\b"
-    - identifier: "\\b(?i)(stacsz|mstptr|rstptr)(?-i)\\b"
+    - identifier: "\\b(?i)(stacsz|mstptr|rstptr|offset)(?-i)\\b"
     - identifier: "\\b(?i)(time|ptime)(?-i)\\b"
     - identifier: "\\b(?i)(flag|loop)(?-i)\\b"
     - identifier: "\\b(?i)(qr1|qr2|qr3|qr4|qns)(?-i)\\b"
@@ -38,7 +38,8 @@ rules:
       # Number - it works
     - constant.number: "\\b[0-9 \ ijk]+\\b"
     - constant.number: "([-]|)"
-    - identifier: ":+[a-z A-Z 0-9]+\\b"
+    - constant.number: ":+[a-z A-Z 0-9]+\\b"
+    - identifier: "[$]"
 
       ## Other
 

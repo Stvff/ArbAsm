@@ -14,12 +14,12 @@
 void printversion(){
 	printf("\n");
 //	printf("        Arbitrary Assembly Vga    \n");
-	printf("      Arbitrary Assembly pVga.na   \n");
+	printf("      Arbitrary Assembly pVga.oa   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
 //	printf("              | V g a |            \n");
-	printf("              |pVga.na|            \n");
+	printf("              |pVga.oa|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");

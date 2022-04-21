@@ -26,7 +26,7 @@ enum typesstd { UnDef, Number, String };
 enum registers {
 	gr1, gr2, gr3, gr4, ans, ir,
 	inplen, endian, decip, path,
-	stacsz, mstptr, rstptr,
+	stacsz, mstptr, rstptr, offset,
 	tme, ptme,
 	flag, loop,
 	regAmount
@@ -41,7 +41,7 @@ enum instructsstdlib {
 	sinput, firead, fiwrite, flen,
 	cmp, ucmp, Ce, Cn, Cg, Cs,
 	rjmp, rmr,
-	push, pop, peek, flip, ret,
+	pusha, popa, push, pop, peek, flip, ret,
 	cton, ntoc,
 	run, prun, rnd,
 	SAVE, LOAD
@@ -50,7 +50,7 @@ enum instructsstdlib {
 char registerstring[][maxKeywordLen] = { 
 	"gr1", "gr2", "gr3", "gr4", "ans", "ir",
 	"inplen", "endian", "decip", "path",
-	"stacsz", "mstptr", "rstptr",
+	"stacsz", "mstptr", "rstptr", "offset",
 	"time", "ptime",
 	"flag", "loop",
 	"\0end"
@@ -64,7 +64,7 @@ char instructstring[][maxKeywordLen] = {
 	"sinput", "fread", "fwrite", "flen",
 	"cmp", "ucmp", "Ce", "Cn", "Cg", "Cs",
 	"rjmp", "rmr",
-	"push", "pop", "peek", "flip", "ret",
+	"pusha", "popa", "push", "pop", "peek", "flip", "ret",
 	"cton", "ntoc",
 	"run", "prun", "rand",
 	"SAVE", "LOAD",
@@ -211,6 +211,7 @@ int init_std(GLOBAL* mainptrs){
 	inttonum(&regs[stacsz], stackSize);
 	inttonum(&regs[mstptr], stackSize);
 	inttonum(&regs[rstptr], stackSize);
+	inttonum(&regs[offset], stackSize);
 
 	free(regs[path].nump);
 	initnum(&regs[path], 2, 0, 0);
@@ -248,6 +249,7 @@ int update_std(GLOBAL* mainptrs){
 		stackSize = numtoint(&regs[stacsz], false);
 		stackptr = stackSize;
 		retstackptr = stackSize;
+		inttonum(&regs[offset], stackSize);
 		stack = (num_t*) malloc(stackSize * sizeof(num_t));
 		retstack = (num_t*) malloc(stackSize * sizeof(num_t));
 	}
@@ -310,6 +312,12 @@ int argumenthandler_std(GLOBAL* mainptrs){
 	char entry = mainptrs->userInput[mainptrs->readhead];
 	int registerNr = -1;
 
+	bool stacref = false;
+	if( entry == '$' ){
+		entry = mainptrs->userInput[++mainptrs->readhead];
+		stacref = true;
+	}
+
 	if( (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z') ){
 		registerNr = strlook(mainptrs->userInput, registerstring, &mainptrs->readhead);
 		if(registerNr == -1){
@@ -322,6 +330,17 @@ int argumenthandler_std(GLOBAL* mainptrs){
 		mainptrs->readhead +=-1 + inpstrtonum(args[mainptrs->argumentNr], mainptrs->userInput, mainptrs->readhead, mainptrs->bigEndian);
 	} else if( entry == '\"' ) {
 		mainptrs->readhead += strtostrnum(args[mainptrs->argumentNr], mainptrs->userInput, 1 + mainptrs->readhead);
+	}
+
+	if(stacref){
+		int staent = numtoint(&regs[offset], false) - 1 - numtoint(args[mainptrs->argumentNr], true);
+		if(staent >= stackptr && staent < stackSize){
+			args[mainptrs->argumentNr] = &stack[staent];
+		} else {
+			printf("\aTried to access a non-existent element (entry %d) on the stack.\n", staent);
+			printf("offset: %d, mstptr: %d, stacsz: %d\n", (int)numtoint(&regs[offset], false), stackptr, stackSize);
+			mainptrs->lookingMode = 'd';
+		}
 	}
 
 	if(mainptrs->debug == 'v') printf("stdlib argumented\n");
@@ -503,6 +522,32 @@ int executehandler_std(GLOBAL* mainptrs){
 				break;
 			}
 			inttonum(args[0], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
+			break;
+		case pusha:
+			if(!pushtomst(&regs[gr1])){ doprint = false; break;}
+			if(!pushtomst(&regs[gr2])){ doprint = false; break;}
+			if(!pushtomst(&regs[gr3])){ doprint = false; break;}
+			if(!pushtomst(&regs[gr4])){ doprint = false; break;}
+			if(!pushtomst(&regs[ir])){ doprint = false; break;}
+			if(!pushtomst(&regs[endian])){ doprint = false; break;}
+			if(!pushtomst(&regs[decip])){ doprint = false; break;}
+			if(!pushtomst(&regs[path])){ doprint = false; break;}
+			if(!pushtomst(&regs[offset])){ doprint = false; break;}
+			if(!pushtomst(&regs[flag])){ doprint = false; break;}
+			if(!pushtomst(&regs[loop])){ doprint = false; break;}
+			break;
+		case popa:
+			if(!popfrommst(&regs[loop])){ doprint = false; break;}
+			if(!popfrommst(&regs[flag])){ doprint = false; break;}
+			if(!popfrommst(&regs[offset])){ doprint = false; break;}
+			if(!popfrommst(&regs[path])){ doprint = false; break;}
+			if(!popfrommst(&regs[decip])){ doprint = false; break;}
+			if(!popfrommst(&regs[endian])){ doprint = false; break;}
+			if(!popfrommst(&regs[ir])){ doprint = false; break;}
+			if(!popfrommst(&regs[gr4])){ doprint = false; break;}
+			if(!popfrommst(&regs[gr3])){ doprint = false; break;}
+			if(!popfrommst(&regs[gr2])){ doprint = false; break;}
+			if(!popfrommst(&regs[gr1])){ doprint = false; break;}
 			break;
 		case push:
 			if(!pushtomst(args[0])) doprint = false;

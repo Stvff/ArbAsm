@@ -1,0 +1,22 @@
+; mst: ( increment -- )
+set endian, 1
+
+set offset, mstptr
+inc offset
+
+set ir, 0
+set gr1, time
+
+:lbl
+	inc ir
+	cmp ir, $0
+	cmp ir, $gr1
+	Cs jmp lbl
+
+pop
+
+sub gr1, time
+mul gr1, 1-
+print gr1
+div gr1, 60
+print gr1
