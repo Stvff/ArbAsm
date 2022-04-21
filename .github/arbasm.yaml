@@ -8,7 +8,7 @@ rules:
 
     ## Instructions
     ## aasm
-    - statement: "\\b(?i)(jmp|help)(?-i)\\b"
+    - statement: "\\b(?i)(help)(?-i)\\b"
     - statement: "([>])"
     ## stdlib
     - statement: "\\b(?i)(set|dget|dset|len|rot|shf|rev)(?-i)\\b"
@@ -16,9 +16,9 @@ rules:
     - statement: "\\b(?i)(inc|dec|add|sub|mul|div|mod|root)(?-i)\\b"
     - statement: "\\b(?i)(print|nprint|sprint|input|sinput|fread|fwrite|flen)(?-i)\\b"
     - statement: "\\b(?i)(cmp|ucmp|Ce|Cn|Cg|Cs)(?-i)\\b"
-    - statement: "\\b(?i)(rjmp|rmr)(?-i)\\b"
+    - statement: "\\b(?i)(jmp|rjmp|rmr)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
-    - statement: "\\b(?i)(cton|ntoc)(?-i)\\b"
+    - statement: "\\b(?i)(cton|ntoc|ntos)(?-i)\\b"
     - statement: "\\b(?i)(run|prun|rand)(?-i)\\b"
     - statement: "\\b(?i)(SAVE|LOAD)(?-i)\\b"
     - symbol.operator: "([,+]|)"
@@ -27,7 +27,7 @@ rules:
     - statement: "\\b(?i)(qpush|qpop|qflip|qret)(?-i)\\b"
 
       ## Registers
-    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|ans|ir)(?-i)\\b"
+    - identifier: "\\b(?i)(gr1|gr2|gr3|gr4|gr5|gr6|ir|jr|ans)(?-i)\\b"
     - identifier: "\\b(?i)(inplen|endian|decip|path)(?-i)\\b"
     - identifier: "\\b(?i)(stacsz|mstptr|rstptr|offset)(?-i)\\b"
     - identifier: "\\b(?i)(time|ptime)(?-i)\\b"

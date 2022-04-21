@@ -2,7 +2,7 @@
 :L12
 print "dummy:dumm"
 :L22
-jmp L3	; jej
+jmp "L3"	; jej
 ; comment with : in it:
 print "skippable"
 :L3 	; commment

@@ -24,7 +24,8 @@ num_t tmps[maxArgumentAmount];
 enum typesstd { UnDef, Number, String };
 
 enum registers {
-	gr1, gr2, gr3, gr4, ans, ir,
+	gr1, gr2, gr3, gr4, gr5, gr6,
+	ir, jr, ans,
 	inplen, endian, decip, path,
 	stacsz, mstptr, rstptr, offset,
 	tme, ptme,
@@ -40,15 +41,16 @@ enum instructsstdlib {
 	print, nprint, sprint, input,
 	sinput, firead, fiwrite, flen,
 	cmp, ucmp, Ce, Cn, Cg, Cs,
-	rjmp, rmr,
-	pusha, popa, push, pop, peek, flip, ret,
-	cton, ntoc,
+	jmp, rjmp, rmr,
+	push, pop, peek, flip, ret,
+	cton, ntoc, ntos,
 	run, prun, rnd,
 	SAVE, LOAD
 };
 
 char registerstring[][maxKeywordLen] = { 
-	"gr1", "gr2", "gr3", "gr4", "ans", "ir",
+	"gr1", "gr2", "gr3", "gr4", "gr5", "gr6",
+	"ir", "jr", "ans",
 	"inplen", "endian", "decip", "path",
 	"stacsz", "mstptr", "rstptr", "offset",
 	"time", "ptime",
@@ -63,9 +65,9 @@ char instructstring[][maxKeywordLen] = {
 	"print", "nprint", "sprint", "input",
 	"sinput", "fread", "fwrite", "flen",
 	"cmp", "ucmp", "Ce", "Cn", "Cg", "Cs",
-	"rjmp", "rmr",
-	"pusha", "popa", "push", "pop", "peek", "flip", "ret",
-	"cton", "ntoc",
+	"jmp", "rjmp", "rmr",
+	"push", "pop", "peek", "flip", "ret",
+	"cton", "ntoc", "ntos",
 	"run", "prun", "rand",
 	"SAVE", "LOAD",
 	"\0end"
@@ -299,6 +301,16 @@ int instructhandler_std(GLOBAL* mainptrs){
 			if(regs[flag].nump[0] == 2) mainptrs->lookingMode = 'i';
 			else mainptrs->lookingMode = 'd';
 			break;
+		case jmp:
+		case rjmp:
+		case rmr:
+			if(mainptrs->inputMode != 'f'){
+				printf("\aThis instruction only works in a script.\n");
+				mainptrs->lookingMode = 'd';
+				break;
+			}
+			mainptrs->lookingMode = 'a';
+			break;
 		default:
 			mainptrs->lookingMode = 'a';
 			break;
@@ -356,6 +368,7 @@ int executehandler_std(GLOBAL* mainptrs){
 	FILE* quicfptr;
 
 	num_t dummy;
+	int d = 0;
 	initnum(&dummy, 15, 0, 0);
 	switch (mainptrs->instructNr){
 		case set:
@@ -507,47 +520,22 @@ int executehandler_std(GLOBAL* mainptrs){
 			inttonum(&regs[flag], cmpnum(args[0], args[1], false));
 			printptr = &regs[flag];
 			break;
-		case rjmp:
-			if(mainptrs->inputMode != 'f'){
-				printf("\aThis instruction only works in a script.\n");
-				doprint = false;
+		case jmp:
+			d = strlook((char*)args[0]->nump, mainptrs->flist[mainptrs->fileNr]->labels, &d);
+			if(d == -1){
+				printf("\aLabel '%s' does not exist\n", args[0]->nump);
 				break;
 			}
+//			printf("jmp to: %ld\n", thefile->labelposs[dum]);
+			inttonum(args[1], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
+			fseek(mainptrs->flist[mainptrs->fileNr]->fp, mainptrs->flist[mainptrs->fileNr]->labelposs[d], SEEK_SET);
+			break;
+		case rjmp:
+			inttonum(args[1], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
 			fseek(mainptrs->flist[mainptrs->fileNr]->fp, numtoint(args[0], false) % mainptrs->flist[mainptrs->fileNr]->len, SEEK_SET);
 			break;
 		case rmr:
-			if(mainptrs->inputMode != 'f'){
-				printf("\aThis instruction only works in a script.\n");
-				doprint = false;
-				break;
-			}
 			inttonum(args[0], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
-			break;
-		case pusha:
-			if(!pushtomst(&regs[gr1])){ doprint = false; break;}
-			if(!pushtomst(&regs[gr2])){ doprint = false; break;}
-			if(!pushtomst(&regs[gr3])){ doprint = false; break;}
-			if(!pushtomst(&regs[gr4])){ doprint = false; break;}
-			if(!pushtomst(&regs[ir])){ doprint = false; break;}
-			if(!pushtomst(&regs[endian])){ doprint = false; break;}
-			if(!pushtomst(&regs[decip])){ doprint = false; break;}
-			if(!pushtomst(&regs[path])){ doprint = false; break;}
-			if(!pushtomst(&regs[offset])){ doprint = false; break;}
-			if(!pushtomst(&regs[flag])){ doprint = false; break;}
-			if(!pushtomst(&regs[loop])){ doprint = false; break;}
-			break;
-		case popa:
-			if(!popfrommst(&regs[loop])){ doprint = false; break;}
-			if(!popfrommst(&regs[flag])){ doprint = false; break;}
-			if(!popfrommst(&regs[offset])){ doprint = false; break;}
-			if(!popfrommst(&regs[path])){ doprint = false; break;}
-			if(!popfrommst(&regs[decip])){ doprint = false; break;}
-			if(!popfrommst(&regs[endian])){ doprint = false; break;}
-			if(!popfrommst(&regs[ir])){ doprint = false; break;}
-			if(!popfrommst(&regs[gr4])){ doprint = false; break;}
-			if(!popfrommst(&regs[gr3])){ doprint = false; break;}
-			if(!popfrommst(&regs[gr2])){ doprint = false; break;}
-			if(!popfrommst(&regs[gr1])){ doprint = false; break;}
 			break;
 		case push:
 			if(!pushtomst(args[0])) doprint = false;
@@ -589,6 +577,10 @@ int executehandler_std(GLOBAL* mainptrs){
 			free(args[0]->nump);
 			initnum(args[0], 1, 0, 0);
 			args[0]->nump[0] = dummy.nump[0];
+			rettype = String;
+			break;
+		case ntos:
+			numasstr(args[0], mainptrs->bigEndian, (bool)numtoint(args[1], false));
 			rettype = String;
 			break;
 		case prun:

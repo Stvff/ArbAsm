@@ -3,6 +3,6 @@ set gr1, "Users"
 app gr1, "."
 len gr1, gr2
 cmp gr2, 111
-  Cs jmp loop
+  Cs jmp "loop"
 sprint gr1
 print " :pensive:"

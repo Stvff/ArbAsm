@@ -10,13 +10,13 @@ set gr1, time
 :lbl
 	inc ir
 	cmp ir, $0
-	cmp ir, $gr1
-	Cs jmp lbl
+	Cs jmp "lbl"
 
 pop
 
 sub gr1, time
 mul gr1, 1-
+trun gr1
 print gr1
 div gr1, 60
 print gr1

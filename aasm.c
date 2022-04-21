@@ -43,8 +43,8 @@ int init_main(GLOBAL* mainptrs) {
 	mainptrs->flist[mainptrs->fileNr]->lineNr = 0;
 	mainptrs->flist[mainptrs->fileNr]->begin_time = time(&mainptrs->flist[mainptrs->fileNr]->begin_time);
 
-	argument = (char*) malloc(sizeof(char[initialuserInputLen]));
-	argument[0] = '\0';
+//	argument = (char*) malloc(sizeof(char[initialuserInputLen]));
+//	argument[0] = '\0';
 
 	mainptrs->debug = 's';
 	if(mainptrs->debug == 'v') printf("main initted\n");
@@ -52,8 +52,8 @@ int init_main(GLOBAL* mainptrs) {
 }
 
 int instructhandler_main(GLOBAL* mainptrs){
-	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "jmp", "\0end"};
-	enum instructsmain { slash, help, early, jmp };
+	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "\0end"};
+	enum instructsmain { slash, help, early };
 	time_t end_time;
 	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
 
@@ -82,14 +82,6 @@ int instructhandler_main(GLOBAL* mainptrs){
 				EndScript(mainptrs);
 			} else printf("\aThis instruction only works in a script.\n");
 			break;
-		case jmp:
-			if(mainptrs->fileNr > 0){
-				mainptrs->lookingMode = 'a';
-			} else {
-				printf("\aThis instruction only works in a script.\n");
-				mainptrs->lookingMode = 'd';
-			}
-			break;
 	}
 
 	if(mainptrs->debug == 'v') printf("main instructed\n");
@@ -111,21 +103,12 @@ int argumenthandler_main(GLOBAL* mainptrs){
 }
 
 int executehandler_main(GLOBAL* mainptrs){
-	enum instructsmain { slash, help, early, jmp };
+/*	enum instructsmain { slash, help, early };
 	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
 
 	int dum = 0;
 	switch(mainptrs->instructNr){
-		case jmp:
-			dum = strlook(argument, thefile->labels, &dum);
-			if(dum == -1){
-				printf("\aLabel '%s' does not exist\n", argument);
-				break;
-			}
-//			printf("jmp to: %ld\n", thefile->labelposs[dum]);
-			fseek(thefile->fp, thefile->labelposs[dum], SEEK_SET);
-			break;
-	}
+	}*/
 	if(mainptrs->debug == 'v') printf("main executed\n");
 	return 0;
 }
@@ -135,9 +118,9 @@ int update_main(GLOBAL* mainptrs){
 	mainptrs->userInput = (char*) malloc((mainptrs->userInputLen + maxKeywordLen)*sizeof(char));
 	mainptrs->userInput[0] = '\0';
 
-	free(argument);
-	argument = (char*) malloc(sizeof(char[initialuserInputLen]));
-	argument[0] = '\0';
+//	free(argument);
+//	argument = (char*) malloc(sizeof(char[initialuserInputLen]));
+//	argument[0] = '\0';
 
 	if(mainptrs->debug == 'v') printf("main updated\n");
 	return 0;
@@ -148,7 +131,7 @@ int free_main(GLOBAL* mainptrs){
 	free(mainptrs->flist[0]);
 	free(mainptrs->flist);
 
-	free(argument);
+//	free(argument);
 
 	if(mainptrs->debug == 'v') printf("main freed\n");
 	return 0;

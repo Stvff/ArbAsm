@@ -12,6 +12,6 @@ cmp gr2, 0
 mul gr1, gr3
 inc ir
 cmp ir, gr2
-	Cs jmp lbl
+	Cs jmp "lbl"
 
 push gr1

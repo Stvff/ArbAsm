@@ -77,6 +77,32 @@ void printnum(num_t* number, int isbigend){//add 2 to isbigend to make it not ne
 	free(buffer);
 }
 
+void numasstr(num_t* num, int isbigend, bool withspaces){
+	char* buffer;
+	if(withspaces) buffer = (char*) malloc((4 + num->len*2)*sizeof(char));
+	else buffer = (char*) malloc((3 + num->len)*sizeof(char));
+	int j = 0;
+	for(int64_t i = isbigend*((int64_t)num->len-1); i != (1-isbigend)*(int64_t)num->len - isbigend; i+= (1 - 2*isbigend)){
+		buffer[j] = 0x30 + num->nump[i];
+		j++;
+		if(withspaces) buffer[j++] = ' ';
+	}
+
+	switch (num->dim){
+		case 1: buffer[j] = 'i'; j++; break;
+		case 2: buffer[j] = 'j'; j++; break;
+		case 3: buffer[j] = 'k'; j++; break;
+	} if (num->sign == 1){ buffer[j] = '-'; j++;}
+	buffer[j] = '\0';
+//	printf("b: %s\n", buffer);
+
+	free(num->nump);
+	initnum(num, j, num->sign, num->dim);
+	for(uint64_t i = 0; i < num->len; i++) num->nump[i] = (uint8_t) buffer[i];
+
+	free(buffer);
+}
+
 int64_t numtoint(num_t* num, bool considersign){
 	int64_t cum = 0;
 	int64_t pow = 1;
