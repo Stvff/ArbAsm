@@ -14,12 +14,12 @@
 void printversion(){
 	printf("\n");
 //	printf("        Arbitrary Assembly Vga    \n");
-	printf("      Arbitrary Assembly pVga.pa   \n");
+	printf("      Arbitrary Assembly pVga.qa   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
 //	printf("              | V g a |            \n");
-	printf("              |pVga.pa|            \n");
+	printf("              |pVga.qa|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");
@@ -30,7 +30,9 @@ void printversion(){
 
 typedef struct FileInfo {
 	FILE* fp;
+	char* mfp;
 	int64_t len;
+	int64_t pos;
 	int lineNr;
 	time_t begin_time;
 	int64_t* labelposs;
@@ -101,6 +103,20 @@ int strlook(char string[], char source[][maxKeywordLen], int* readhead){
 	return -1;
 }
 
+char* mfgets(char* string, int size, file_t* file){
+	int64_t i = 0;
+	if(file->pos == file->len) return NULL;
+	do {
+		string[i] = file->mfp[file->pos + i];
+		i++;
+	} while(file->mfp[file->pos + i - 1] != '\n' && i <= size-1 && file->pos + i <= file->len);
+
+	string[i] = '\0';
+	file->pos += i;
+//	printf("-------------------------------- %s\n", string);
+	return string;
+}
+
 int RunScript(GLOBAL* mainptrs, char* name){
 	mainptrs->fileNr++;
 
@@ -118,6 +134,7 @@ int RunScript(GLOBAL* mainptrs, char* name){
 		return 1;
 	}
 	mainptrs->inputMode = 'f';
+	thefile->pos = 0;
 	thefile->lineNr = 0;
 	thefile->begin_time = time(&thefile->begin_time);
 
@@ -127,21 +144,21 @@ int RunScript(GLOBAL* mainptrs, char* name){
 
 	thefile->labelposs = NULL;
 
-	char* pool = (char*) malloc(sizeof(char)*(thefile->len + maxKeywordLen));
-	fread(pool, 1, thefile->len, thefile->fp);
+	thefile->mfp = (char*) malloc(sizeof(char)*(thefile->len + maxKeywordLen));
+	fread(thefile->mfp, 1, thefile->len, thefile->fp);
 	int labelam = 0;
 	for(int i = 0; i < thefile->len;i++){
-		if(pool[i] == '\n' && pool[i+1] == ':'){
+		if(thefile->mfp[i] == '\n' && thefile->mfp[i+1] == ':'){
 			i += 2;
 			thefile->labels = (char(*)[maxKeywordLen]) realloc(thefile->labels, sizeof(char[labelam+1][maxKeywordLen]));
 			thefile->labelposs = (int64_t*) realloc(thefile->labelposs, sizeof(int64_t[labelam+1]));
-			int j;
+			int j = 0;
 
 			for(j = 0;
-			j < maxKeywordLen && ((pool[i+j] >= 'a' && pool[i+j] <= 'z') || (pool[i+j] >= 'A' && pool[i+j] <= 'Z') || (pool[i+j] >= '0' && pool[i+j] <= '9'));
+			j < maxKeywordLen && ((thefile->mfp[i+j] >= 'a' && thefile->mfp[i+j] <= 'z') || (thefile->mfp[i+j] >= 'A' && thefile->mfp[i+j] <= 'Z') || (thefile->mfp[i+j] >= '0' && thefile->mfp[i+j] <= '9'));
 			j++)
 			{
-				thefile->labels[labelam][j] = pool[i+j];
+				thefile->labels[labelam][j] = thefile->mfp[i+j];
 			}
 			thefile->labels[labelam][j] = '\0';
 			thefile->labelposs[labelam] = i + j;
@@ -153,7 +170,6 @@ int RunScript(GLOBAL* mainptrs, char* name){
 	thefile->labels = (char(*)[maxKeywordLen]) realloc(thefile->labels, sizeof(char[labelam+1][maxKeywordLen]));
 	thefile->labels[labelam][0] = '\0';
 
-	free(pool);
 	fseek(thefile->fp, 0, SEEK_SET);
 	return 0;
 }
@@ -168,6 +184,7 @@ void EndScript(GLOBAL* mainptrs){
 	thefile->lineNr = 0;
 	mainptrs->userInput[0] = '\0';
 	fclose(thefile->fp);
+	free(thefile->mfp);
 
 	free(mainptrs->flist[mainptrs->fileNr]);
 	mainptrs->flist[mainptrs->fileNr] = NULL;

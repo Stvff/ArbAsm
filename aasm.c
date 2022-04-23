@@ -225,7 +225,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before interpreting any statements.\n");
 					printf("  -p <number>     Sets the virtual decimal point to the number that was passed as an argument of -p.\n");
-					printf("  -P <path>       Sets the path variable to the path that was passed as an argument of -P\n");
+					printf("  -P <path>       Sets the path register to the path that was passed as an argument of -P\n");
 					printf("  -v              Displays the name, version and libraries.\n");
 					printf("  -h              Look ma! I'm on TV!\n");
 					mainptrs->inputMode = 'w';
@@ -321,18 +321,17 @@ int getuserInput(GLOBAL* mainptrs){
 			break;
 
 		case 'F':
-			mainptrs->userInput[0] = '\0';
-			fclose(thefile->fp);
-			mainptrs->fileNr--;
+			EndScript(mainptrs);
 			if(mainptrs->fileNr == 0) mainptrs->inputMode = 'i';
 			break;
 		case 'f':
 			thefile->lineNr++;
-			if(fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp) == NULL){
+			if(mfgets(mainptrs->userInput, mainptrs->userInputLen, thefile) == NULL){
 				thefile->lineNr = 0;
 				mainptrs->userInput[0] = '\0';
 				if(mainptrs->scriptLoops == 1){
-					fseek(thefile->fp, 0, SEEK_SET);
+					thefile->pos = 0;
+//					fseek(thefile->fp, 0, SEEK_SET);
 				} else {
 					end_time = time(&end_time);
 					inttonum(&regs[ptme], (int64_t) end_time - thefile->begin_time);
@@ -343,6 +342,7 @@ int getuserInput(GLOBAL* mainptrs){
 			break;
 
 		case 'W':
+			printf("was\n");
 			fgets(mainptrs->userInput, mainptrs->userInputLen, thefile->fp);
 			mainptrs->userInput[0] = '\0';
 		case 'w':

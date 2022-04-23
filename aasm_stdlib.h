@@ -43,7 +43,7 @@ enum instructsstdlib {
 	cmp, ucmp, Ce, Cn, Cg, Cs,
 	jmp, rjmp, rmr,
 	push, pop, peek, flip, ret,
-	cton, ntoc, ntos,
+	cton, ntoc, ston, ntos,
 	run, prun, rnd,
 	SAVE, LOAD
 };
@@ -67,7 +67,7 @@ char instructstring[][maxKeywordLen] = {
 	"cmp", "ucmp", "Ce", "Cn", "Cg", "Cs",
 	"jmp", "rjmp", "rmr",
 	"push", "pop", "peek", "flip", "ret",
-	"cton", "ntoc", "ntos",
+	"cton", "ntoc", "ston", "ntos",
 	"run", "prun", "rand",
 	"SAVE", "LOAD",
 	"\0end"
@@ -527,15 +527,17 @@ int executehandler_std(GLOBAL* mainptrs){
 				break;
 			}
 //			printf("jmp to: %ld\n", thefile->labelposs[dum]);
-			inttonum(args[1], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
-			fseek(mainptrs->flist[mainptrs->fileNr]->fp, mainptrs->flist[mainptrs->fileNr]->labelposs[d], SEEK_SET);
+//			inttonum(args[1], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
+//			fseek(mainptrs->flist[mainptrs->fileNr]->fp, mainptrs->flist[mainptrs->fileNr]->labelposs[d], SEEK_SET);
+			inttonum(args[1], mainptrs->flist[mainptrs->fileNr]->pos);
+			mainptrs->flist[mainptrs->fileNr]->pos = mainptrs->flist[mainptrs->fileNr]->labelposs[d];
 			break;
 		case rjmp:
-			inttonum(args[1], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
-			fseek(mainptrs->flist[mainptrs->fileNr]->fp, numtoint(args[0], false) % mainptrs->flist[mainptrs->fileNr]->len, SEEK_SET);
+			inttonum(args[1], mainptrs->flist[mainptrs->fileNr]->pos);
+			mainptrs->flist[mainptrs->fileNr]->pos = numtoint(args[0], false) % mainptrs->flist[mainptrs->fileNr]->len;
 			break;
 		case rmr:
-			inttonum(args[0], ftell(mainptrs->flist[mainptrs->fileNr]->fp));
+			inttonum(args[0], mainptrs->flist[mainptrs->fileNr]->pos);
 			break;
 		case push:
 			if(!pushtomst(args[0])) doprint = false;
@@ -578,6 +580,11 @@ int executehandler_std(GLOBAL* mainptrs){
 			initnum(args[0], 1, 0, 0);
 			args[0]->nump[0] = dummy.nump[0];
 			rettype = String;
+			break;
+		case ston:
+			inpstrtonum(&dummy, (char*) args[0]->nump, mainptrs->readhead, mainptrs->bigEndian);
+			copynum(args[0], &dummy, false);
+			rettype = Number;
 			break;
 		case ntos:
 			numasstr(args[0], mainptrs->bigEndian, (bool)numtoint(args[1], false));
