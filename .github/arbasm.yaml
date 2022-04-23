@@ -18,7 +18,7 @@ rules:
     - statement: "\\b(?i)(cmp|ucmp|Ce|Cn|Cg|Cs)(?-i)\\b"
     - statement: "\\b(?i)(jmp|rjmp|rmr)(?-i)\\b"
     - statement: "\\b(?i)(push|pop|peek|flip|ret)(?-i)\\b"
-    - statement: "\\b(?i)(cton|ntoc|ntos)(?-i)\\b"
+    - statement: "\\b(?i)(cton|ntoc|ston|ntos)(?-i)\\b"
     - statement: "\\b(?i)(run|prun|rand)(?-i)\\b"
     - statement: "\\b(?i)(SAVE|LOAD)(?-i)\\b"
     - symbol.operator: "([,+]|)"
