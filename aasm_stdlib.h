@@ -37,7 +37,7 @@ num_t regs[regAmount];
 enum instructsstdlib {
 	set, dget, dset, len, rot, shf, rev,
 	trun, app, sel, cut, ins,
-	inc, dec, add, sub, mul, divi, modu, root,
+	inc, dec, add, sub, rsub, mul, divi, modu, root,
 	print, nprint, sprint, input,
 	sinput, firead, fiwrite, flen,
 	cmp, ucmp, Ce, Cn, Cg, Cs,
@@ -61,7 +61,7 @@ char registerstring[][maxKeywordLen] = {
 char instructstring[][maxKeywordLen] = {
 	"set", "dget", "dset", "len", "rot", "shf", "rev",
 	"trun", "app", "sel", "cut", "ins",
-	"inc", "dec", "add", "sub", "mul", "div", "mod", "root",
+	"inc", "dec", "add", "sub", "rsub", "mul", "div", "mod", "root",
 	"print", "nprint", "sprint", "input",
 	"sinput", "fread", "fwrite", "flen",
 	"cmp", "ucmp", "Ce", "Cn", "Cg", "Cs",
@@ -425,6 +425,9 @@ int executehandler_std(GLOBAL* mainptrs){
 		case sub:
 			sumnum(args[0], args[0], args[1], true);
 			break;
+		case rsub:
+			sumnum(args[1], args[0], args[1], true);
+			break;
 		case mul:
 			multnum(args[0], args[0], args[1]);
 			if(decimalpoint != 0){
@@ -521,7 +524,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			printptr = &regs[flag];
 			break;
 		case jmp:
-			d = strlook((char*)args[0]->nump, mainptrs->flist[mainptrs->fileNr]->labels, &d);
+			d = strlook((char*)args[0]->nump, /*(char(*)[maxKeywordLen])*/ mainptrs->flist[mainptrs->fileNr]->labels, &d);
 			if(d == -1){
 				printf("\aLabel '%s' does not exist\n", args[0]->nump);
 				break;
@@ -582,7 +585,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			rettype = String;
 			break;
 		case ston:
-			inpstrtonum(&dummy, (char*) args[0]->nump, mainptrs->readhead, mainptrs->bigEndian);
+			inpstrtonum(&dummy, (char*) args[0]->nump, 0, mainptrs->bigEndian);
 			copynum(args[0], &dummy, false);
 			rettype = Number;
 			break;

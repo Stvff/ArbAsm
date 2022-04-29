@@ -14,12 +14,12 @@
 void printversion(){
 	printf("\n");
 //	printf("        Arbitrary Assembly Vga    \n");
-	printf("      Arbitrary Assembly pVga.qa   \n");
+	printf("      Arbitrary Assembly pVga.ra   \n");
 	printf("              x-------x            \n");
 	printf("              | A r b |            \n");
 	printf("              | A s m |            \n");
 //	printf("              | V g a |            \n");
-	printf("              |pVga.qa|            \n");
+	printf("              |pVga.ra|            \n");
 	printf("              x-------x            \n");
 	printf("   github.com/StevenClifford/ArbAsm\n\n");
 	printf("   Libraries:\n");
@@ -118,6 +118,7 @@ char* mfgets(char* string, int size, file_t* file){
 }
 
 int RunScript(GLOBAL* mainptrs, char* name){
+	if(mainptrs->debug == 'v') printf("RUNSCRIPT: '%s'\n", name);
 	mainptrs->fileNr++;
 
 	mainptrs->flist = realloc(mainptrs->flist, (mainptrs->fileNr + 1)*sizeof(file_t*));
@@ -144,6 +145,7 @@ int RunScript(GLOBAL* mainptrs, char* name){
 
 	thefile->labelposs = NULL;
 
+	thefile->labels = malloc(1);
 	thefile->mfp = (char*) malloc(sizeof(char)*(thefile->len + maxKeywordLen));
 	fread(thefile->mfp, 1, thefile->len, thefile->fp);
 	int labelam = 0;
@@ -171,12 +173,13 @@ int RunScript(GLOBAL* mainptrs, char* name){
 	thefile->labels[labelam][0] = '\0';
 
 	fseek(thefile->fp, 0, SEEK_SET);
+	if(mainptrs->debug == 'v') printf("File %d opened, length: %ld.\n", mainptrs->fileNr, thefile->len);
 	return 0;
 }
 
 void EndScript(GLOBAL* mainptrs){
 	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
-	thefile->labels = (char(*)[maxKeywordLen]) realloc(thefile->labels, 1);
+	free(thefile->labels);
 
 	free(thefile->labelposs);
 	thefile->labelposs = NULL;

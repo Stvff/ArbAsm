@@ -13,7 +13,7 @@ rules:
     ## stdlib
     - statement: "\\b(?i)(set|dget|dset|len|rot|shf|rev)(?-i)\\b"
     - statement: "\\b(?i)(trun|app|sel|cut|ins)(?-i)\\b"
-    - statement: "\\b(?i)(inc|dec|add|sub|mul|div|mod|root)(?-i)\\b"
+    - statement: "\\b(?i)(inc|dec|add|sub|rsub|mul|div|mod|root)(?-i)\\b"
     - statement: "\\b(?i)(print|nprint|sprint|input|sinput|fread|fwrite|flen)(?-i)\\b"
     - statement: "\\b(?i)(cmp|ucmp|Ce|Cn|Cg|Cs)(?-i)\\b"
     - statement: "\\b(?i)(jmp|rjmp|rmr)(?-i)\\b"
@@ -39,7 +39,7 @@ rules:
     - constant.number: "\\b[0-9 \ ijk]+\\b"
     - constant.number: "([-]|)"
     - constant.number: ":+[a-z A-Z 0-9]+\\b"
-    - identifier: "[$]"
+    - identifier: "([$])"
 
       ## Other
 

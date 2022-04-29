@@ -163,6 +163,15 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 	for(int i = 1; i < argc; i++){
 		if(argv[i][0] == '-'){
 			switch(argv[i][1]){
+				case 'A':
+				case 'a':
+					if(i+1 < argc){
+						i++;
+						num_t dummy; initnum(&dummy, 0, 0, 0);
+						strtostrnum(&dummy, argv[i], 0);
+						pushtomst(&dummy);
+					} else printf("\aArgument missing. Enter `aasm -h` for help.\n");
+					break;
 				case 'E':
 				case 'e':
 					mainptrs->running = false;
@@ -222,6 +231,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("  -c              Enter command line after the script has stopped running.\n");
 					printf("  -i <statement>  Executes the designated statement. This statement can not contain spaces.\n");
 					printf("  -e              Exit immediately after executing the statement that was passed as an argument of -i.\n");
+					printf("  -a <argument>   Pushes the designated argument to the main stack from the standard library.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before interpreting any statements.\n");
 					printf("  -p <number>     Sets the virtual decimal point to the number that was passed as an argument of -p.\n");
