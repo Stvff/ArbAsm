@@ -21,7 +21,7 @@ rules:
     - statement: "\\b(?i)(cton|ntoc|ston|ntos)(?-i)\\b"
     - statement: "\\b(?i)(run|prun|rand)(?-i)\\b"
     - statement: "\\b(?i)(SAVE|LOAD)(?-i)\\b"
-    - symbol.operator: "([,+]|)"
+    - symbol.operator: "[,+]"
     ## Quaternion operations
     - statement: "\\b(?i)(qset|qprint|qdset|qdget|qadd|qsub|scmul|scdiv|scmod|qmul|qdiv|qmod|conj|pysq|vshf)(?-i)\\b"
     - statement: "\\b(?i)(qpush|qpop|qflip|qret)(?-i)\\b"
@@ -36,10 +36,10 @@ rules:
 
       ## Constants
       # Number - it works
-    - constant.number: "\\b[0-9 \ ijk]+\\b"
-    - constant.number: "([-]|)"
+    - constant.number: "\\b[0-9 ijk]+\\b"
+    - constant.number: "[-]"
     - constant.number: ":+[a-z A-Z 0-9]+\\b"
-    - identifier: "([$])"
+    - identifier: "[$]"
 
       ## Other
 
@@ -51,7 +51,7 @@ rules:
             - constant.specialChar: "\\\\."
 
     - comment:
-        start: ";"
+        start: "(;|#)"
         end: "$"
         rules:
             - todo: "(TODO|XXX|FIXME|rst|mst|--|[)]|[(]):?"

@@ -52,14 +52,17 @@ int init_main(GLOBAL* mainptrs) {
 }
 
 int instructhandler_main(GLOBAL* mainptrs){
-	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "\0end"};
-	enum instructsmain { slash, help, early };
+	char instructstringmain[][maxKeywordLen] = {"\\", "help", ">", "#", "\0end"};
+	enum instructsmain { slash, help, early, shebang };
 	time_t end_time;
 	file_t* thefile = mainptrs->flist[mainptrs->fileNr];
 
 	mainptrs->instructNr = strlook(mainptrs->userInput, instructstringmain, &mainptrs->readhead);
 
 	switch (mainptrs->instructNr){
+		case shebang:
+			mainptrs->lookingMode = 'd';
+			break;
 		case slash:
 			mainptrs->lookingMode = 'd';
 			mainptrs->running = false;
@@ -231,7 +234,7 @@ int handlecommandlineargs(int argc, char* argv[], GLOBAL* mainptrs){
 					printf("  -c              Enter command line after the script has stopped running.\n");
 					printf("  -i <statement>  Executes the designated statement. This statement can not contain spaces.\n");
 					printf("  -e              Exit immediately after executing the statement that was passed as an argument of -i.\n");
-					printf("  -a <argument>   Pushes the designated argument to the main stack from the standard library.\n");
+					printf("  -a <argument>   Pushes the designated argument (as string) to the main stack from the standard library.\n");
 					printf("  -l <statefile>  Loads the designated statefile before interpreting any statements.\n");
 					printf("  -b              Sets the notation to big endian before interpreting any statements.\n");
 					printf("  -p <number>     Sets the virtual decimal point to the number that was passed as an argument of -p.\n");

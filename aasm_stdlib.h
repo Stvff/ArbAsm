@@ -427,6 +427,7 @@ int executehandler_std(GLOBAL* mainptrs){
 			break;
 		case rsub:
 			sumnum(args[1], args[0], args[1], true);
+			printptr = args[1];
 			break;
 		case mul:
 			multnum(args[0], args[0], args[1]);

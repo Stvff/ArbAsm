@@ -1,4 +1,4 @@
-
+#!/bin/aasm
 set endian, 1
 cmp loop, 0
 	Ce set loop, 1
@@ -7,12 +7,15 @@ cmp loop, 0
 	Cg set flag, 2
 	Ce cmp stacsz, mstptr
 		Cg pop gr3
+		Cg ston gr3
+		Cg set gr1, time
 		Ce sprint "How long?(seconds)\n> "
 		Ce input gr3
 		Ce set gr1, time
 
 set gr2, time
 sub gr2, gr1
+trun gr2
 
 cmp gr2, gr4
 	Cg print gr2

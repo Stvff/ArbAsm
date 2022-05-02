@@ -1,3 +1,4 @@
+#!/bin/aasm
 ;:
 :L12
 print "dummy:dumm"
