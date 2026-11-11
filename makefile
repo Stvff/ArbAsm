@@ -44,10 +44,10 @@ forwindows:
 		echo "Compilation succeeded!"; \
 	else \
 		echo -e "$(RED)Could not use mingw to compile an executable for Windows.$(NC)"; \
-		if apt -v > /dev/null ; then \
+		if apt -v &> /dev/null ; then \
 			echo -e "$(RED)Install it by doing:\n # apt install gcc-mingw-w64-x86-64$(NC)"; \
 		else \
-			if pacman -V > /dev/null; then \
+			if pacman -V &> /dev/null; then \
 				echo -e "$(RED)Install it by doing:\n # pacman -S mingw-w64-gcc$(NC)"; \
 			fi \
 		fi \
